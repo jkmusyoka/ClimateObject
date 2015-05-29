@@ -18,6 +18,7 @@ station_label="station"
 date_asstring_label="date_asstring"
 temp_min_label="temp_min"
 temp_max_label="temp_max"
+temp_air_label="temp_air"
 evaporation_label="evaporation"
 element_factor_label="element_type"
 identifier_label = "identifier"
@@ -121,7 +122,7 @@ ident_var <- function (data,variables) {
     }
   }
   if(!(date_label %in% names(merged))) {
-    for (label in c("Date","date", "Date.D", "DATE")){
+    for (label in c("Date","date", "Date.D", "DATE","record_date")){
       if (label %in% names(data)){
         merged[[date_label]]<-label
         break
@@ -216,6 +217,15 @@ ident_var <- function (data,variables) {
       } 
     }
   }
+  # Temp air
+  if(!(temp_air_label %in% names(merged))) {
+    for (label in c("temp_air","Air Temp","air temp","airtemp","tempair","air_temp")){
+      if (label %in% names(data)){
+        merged[[temp_air_label]]<-label
+        break
+      } 
+    }
+  }
   # Wind speed 
   if(!(wind_speed_label %in% names(merged))) {
     for (label in c("Windsp","windsp", "wind_speed","wind speed")){
@@ -296,6 +306,7 @@ add_defaults <- function (imported_from,user) {
     if(!(time_label %in% names(merged))) merged[[time_label]]<-"Time"
     if(!(temp_min_label %in% names(merged))) merged[[temp_min_label]]<-"Temp min"
     if(!(temp_max_label %in% names(merged))) merged[[temp_max_label]]<-"Temp max"
+    if(!(temp_air_label %in% names(merged))) merged[[temp_air_label]]<-"Temp air"
     if(!(evaporation_label %in% names(merged))) merged[[evaporation_label]]<-"Evaporation"
     if(!(wind_speed_label %in% names(merged))) merged[[wind_speed_label]]<-"Wind speed"
     if(!(wind_direction_label %in% names(merged))) merged[[wind_direction_label]]<-"Wind direction"
