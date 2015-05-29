@@ -964,7 +964,7 @@ climate_data$methods(summarize_data = function(new_time_period, summarize_name =
   
   summarized_row_num = nrow(summary_obj$data)
   
-  for(var in c(rain_label, temp_min_label, temp_max_label, evaporation_label)) {
+  for(var in c(rain_label, temp_min_label, temp_max_label, evaporation_label,temp_air_label)) {
     # For the variables that are present we create summaries    
     if(is_present(var)) {
       curr_col_name = .self$getvname(var)
