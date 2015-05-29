@@ -129,7 +129,7 @@ ident_var <- function (data,variables) {
     }
   }
   if(!(date_time_label %in% names(merged))) {
-    for (label in c("Date time","date time")){
+    for (label in c("Date time","date time","date_time")){
       if (label %in% names(data)){
         merged[[date_time_label]]<-label
         break
@@ -201,7 +201,7 @@ ident_var <- function (data,variables) {
     }
   }
   if(!(temp_min_label %in% names(merged))) {
-    for (label in c("Tmin","tmin","Tn","Temp min")){
+    for (label in c("Tmin","tmin","Tn","Temp min","temp_min")){
       if (label %in% names(data)){
         merged[[temp_min_label]]<-label
         break
@@ -209,7 +209,7 @@ ident_var <- function (data,variables) {
     }
   }
   if(!(temp_max_label %in% names(merged))) {
-    for (label in c("Tmax","tmax", "Tx","Temp max")){
+    for (label in c("Tmax","tmax", "Tx","Temp max","temp_max")){
       if (label %in% names(data)){
         merged[[temp_max_label]]<-label
         break
