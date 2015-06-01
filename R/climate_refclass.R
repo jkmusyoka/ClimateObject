@@ -161,13 +161,13 @@ climate$methods(get_climate_data_objects = function(data_info= list()) {
   } 
 
   for (temp in climate_data_objects) {
-    if (required_variable_list_label %in% names(data_info)){
-      if (!temp$is_present(data_info[[required_variable_list_label]])){
-        next
-      }
-    }
     name = temp$meta_data[[data_name_label]]
     if (time_period==temp$data_time_period||time_period=="any"){
+      if (required_variable_list_label %in% names(data_info)){
+        if (!temp$is_present(data_info[[required_variable_list_label]])){
+          next
+        }
+      }
       climate_data_list[[name]] <- temp 
     }
     else if (convert_data_label %in% names(data_info)){
@@ -180,16 +180,25 @@ climate$methods(get_climate_data_objects = function(data_info= list()) {
                && used_obj$get_meta(summarized_from_label) == name 
                && used_obj$data_time_period == time_period) {
               summarized_name = used_obj$get_meta(data_name_label)
+              if (required_variable_list_label %in% names(data_info)){
+                if (!used_obj$is_present(data_info[[required_variable_list_label]])){
+                  next
+                }
+              }
               climate_data_list[[summarized_name]] <- used_obj
               summary_created = TRUE
               break
             }
           }
-
           if(!summary_created) {
             temp_summarized <- temp$summarize_data(time_period, start_point = length(used_data_objects)+1)
             name = temp_summarized$meta_data[[data_name_label]]
             .self$append_used_data_objects(name, temp_summarized)
+            if (required_variable_list_label %in% names(data_info)){
+              if (!temp_summarized$is_present(data_info[[required_variable_list_label]])){
+                next
+              }
+            }
             climate_data_list[[name]] <- temp_summarized 
           }
         }
