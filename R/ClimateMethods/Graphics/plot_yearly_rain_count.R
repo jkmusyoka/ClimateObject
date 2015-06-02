@@ -47,10 +47,10 @@ climate$methods(plot_yearly_rain_count = function (data_list=list(), col1="blue"
         grid(length(curr_data[[year_col]]),ygrid, lwd = lwd)
       }      
       
-      if (plot_line) {
-        reg=lm(curr_data[[interset_var_col]] ~ curr_data[[year_col]])
-        abline(reg,col=col2,lwd=lwd2 )
-        print(summary(reg))
+      #if (plot_line) {
+       # reg=lm(curr_data[[interset_var_col]] ~ curr_data[[year_col]])
+        #abline(reg,col=col2,lwd=lwd2 )
+        #print(summary(reg))
       }
       
     }
