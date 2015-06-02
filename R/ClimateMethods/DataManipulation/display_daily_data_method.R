@@ -14,6 +14,7 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
   data_list = add_to_data_info_required_variable_list(data_list, list(variable))
   # data time period is daily
   data_list = add_to_data_info_time_period( data_list, daily_label )
+  rettables=list()
   climate_data_objs = get_climate_data_objects( data_list )
   
   for( data_obj in climate_data_objs ) {
@@ -54,9 +55,10 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
       # The names of years_split is the list of years as strings.
       # These are better labels than numbers so they can be identified better
       names( tables ) <- names( years_split )
+      rettables[[data_obj$get_station_data(curr_data, station_label)]]=tables
     }
     # Only print if requested
-    if( print_tables ) {print( tables) }
+    if (print_tables) {print( tables) }
     # Always return the tables list because If we don't return and don't print then the method does nothing!    
     return( tables )
     }  
