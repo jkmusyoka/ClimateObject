@@ -9,10 +9,11 @@
 #' @return it returns a plot of rain counts
 
 climate$methods(plot_yearly_rain_count = function (data_list=list(), col1="blue",ylab,xlab="Year",na.rm=TRUE, pch=20,ylim=0,type="b",lty=2,col2="red",lwd = 2,lwd2 = 1.5,
-                                                interest_var,var_label = rain_label,plot_line = FALSE,ygrid=0, graph_parameter = par(mfrow=c(2,2)),plot_window = FALSE,
+                                                var_label = rain_label,plot_line = FALSE,ygrid=0, graph_parameter = par(mfrow=c(2,2)),plot_window = FALSE,
                                                 main_title="Plot - Yearly Rain Count",grid=FALSE){
   # rain required
   data_list = add_to_data_info_required_variable_list(data_list, list(var_label))
+  View(data_list)
   # convert data 
   data_list = c(data_list, convert_data=TRUE)
   # time period
@@ -29,10 +30,10 @@ climate$methods(plot_yearly_rain_count = function (data_list=list(), col1="blue"
     }
     year_col = data_obj$getvname(year_label)
     
-    interset_var_col = data_obj$getvname (interest_var) 
+    interset_var_col = data_obj$getvname (var_label) 
     
     if(missing(ylab)){
-      ylab = data_obj$getvname(interest_var)
+      ylab = data_obj$getvname(var_label)
     }    
     curr_data_list = data_obj$get_data_for_analysis(data_list)
     if (plot_window){   
@@ -47,11 +48,11 @@ climate$methods(plot_yearly_rain_count = function (data_list=list(), col1="blue"
         grid(length(curr_data[[year_col]]),ygrid, lwd = lwd)
       }      
       
-      #if (plot_line) {
+      #if (!plot_line) {
        # reg=lm(curr_data[[interset_var_col]] ~ curr_data[[year_col]])
         #abline(reg,col=col2,lwd=lwd2 )
         #print(summary(reg))
-      }
+     #}
       
     }
   }
