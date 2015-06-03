@@ -1,4 +1,5 @@
-# Display daily
+#==================================================================================================================
+# DISPLAY DAILY
 #' @title Get the tables of daily data
 #' @name Display_daily
 #' @author Frederic Ntirenganya 2015 (AMI)
@@ -6,6 +7,15 @@
 #' @description \code{Display daily data in tables }
 #' Display daily data in tables for any variable 
 #'  
+#' @param data_list list. 
+#' 
+#' @param variable.type character. Type of variable to be displayed.It is for each year. 
+#  
+#' @examples
+#' ClimateObj <- climate( data_tables = list( data ), date_formats = list( "%m/%d/%Y" ) )
+#' Default dateformats: "%Y/%m/%d"
+#' # where "data" is a data.frame containing the desired variable to be displayed.
+#' climateObj$display_daily()
 #' @return It returns tables list
 
 climate$methods(display_daily = function(data_list = list(), print_tables = FALSE, variable = rain_label, months_list = month.abb, day_display = "Day"){
