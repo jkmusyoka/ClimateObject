@@ -8,7 +8,7 @@ doy_label="doy"
 year_label="year"
 year_month_label="year_month"
 date_time_label="date_time"
-dos_label="dos"
+dos_label="dos" ##Day of Season
 season_label="season"
 month_label="month"
 day_label="day"
@@ -146,7 +146,7 @@ ident_var <- function (data,variables) {
     }
   }
   if(!(rain_label %in% names(merged))) {
-    for (label in c("Rain","rain","Observed","observed","obs_value", "Prec","prec","Precipitation","Precipitation (mm)","precipitation","precipitation (mm)", "RR")){
+    for (label in c("Rain","rain","Observed","observed","obs_value", "Prec","prec","Precipitation","Precipitation (mm)","precipitation","precipitation (mm)", "RR","prcp")){
       if (label %in% names(data)){
         merged[[rain_label]]<-label
         break
