@@ -11,9 +11,6 @@
 climate$methods(plot_yearly_rain_count = function (data_list=list(), col1="blue",ylab,xlab="Year",na.rm=TRUE, pch=20,ylim=0,type="b",lty=2,col2="red",lwd = 2,lwd2 = 1.5,
                                                 var_label = rain_label,plot_line = FALSE,ygrid=0, graph_parameter = par(mfrow=c(2,2)),plot_window = FALSE,
                                                 main_title="Plot - Yearly Rain Count",grid=FALSE){
-  # rain required
-  data_list = add_to_data_info_required_variable_list(data_list, list(var_label))
-  View(data_list)
   # convert data 
   data_list = c(data_list, convert_data=TRUE)
   # time period
@@ -30,7 +27,7 @@ climate$methods(plot_yearly_rain_count = function (data_list=list(), col1="blue"
     }
     year_col = data_obj$getvname(year_label)
     
-    interset_var_col = data_obj$getvname (var_label) 
+    interset_var_col = data_obj$getvname ("Total Rain") 
     
     if(missing(ylab)){
       ylab = data_obj$getvname(var_label)
