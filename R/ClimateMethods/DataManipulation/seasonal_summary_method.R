@@ -1,20 +1,29 @@
-# Seasonal Summaries
+#==================================================================================================
+# SEASONAL SUMMARIES
 #' @title compute seasonal summaries.
 #' @name seasonal_summary
-#' @author Fanuel Otieno and Frederic Ntirenganya 2015 (AMI)
+#' @author Frederic and Fanuel 2015 (AMI)
 
-#' @description \code{seasonal_summary} 
-#' Adds a column of sesonal summaries e.g rain totals and number of rain days
-
-#' @return columns of seasonal summaries
-
+#' @description \code{seasonal.summary} 
+#' Adds a column of sesonal summaries (e.g rain totals and number of rain days) given climate object
+#' 
+#' @param data_list list. 
+#' 
+#' @param seasonal.summary type character. Type of summary to be computed. It can be either
+#'  "season", "year". Default: "season"
+#  
+#' @examples
+#' ClimateObj <- climate( data_tables = list( data ), date_formats = list( "%m/%d/%Y" ) )
+#' Default dateformats: "%Y/%m/%d"
+#' # where "data" is a data.frame containing the desired data to be computed.
+#' climateObj$seasonal_summary()
+#' @return return columns of seasonal summaries
+#' 
 
 climate$methods(seasonal_summary = function(data_list = list(), month_start, number_month = 3, threshold = 0.85, 
                                             col_name = "Rain Total JFM", season_rain_total=FALSE, season_rain_days=FALSE,
                                             col_name2 = "Number Raindays JFM", print_season = FALSE, 
-                                            na.rm = FALSE, replace = FALSE)
-  
-{  
+                                            na.rm = FALSE, replace = FALSE){  
   # rain required
   data_list = add_to_data_info_required_variable_list(data_list, list(rain_label))
   # date time period is "daily"
