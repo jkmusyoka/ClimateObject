@@ -8,8 +8,8 @@
 # 
 # ----------------------------------------------------------------------------
 
-climate$methods(plot_annual_rain_total = function(data_list=list(), threshold = 0.85))
-{    
+climate$methods(plot_annual_rain_total = function(data_list=list(), threshold = 0.85)
+  {    
   # get_climate_data_objects returns a list of the climate_data objects specified
   # in the arguements.
   # If no objects specified then all climate_data objects will be taken by default
@@ -30,32 +30,32 @@ climate$methods(plot_annual_rain_total = function(data_list=list(), threshold = 
     dos_col = data_obj$variables[[dos_label]]
     season_col = data_obj$variables[[season_label]]
     curr_data_list=data_obj$get_data_for_analysis(data_list)
-    
+  }
     
    
 ##############################################################################
-  data$year<-year(data$Date)
-  data$Rain<-as.numeric(data$Rain)
-  
-  #count NA's in data
-  mc<-ddply(data,.(year),summarize,sum(is.na(Rain)))
-  names(mc)<-c("year","count")
-  mc<-mc$year[mc$count>20]
-  
-  #find annual totals
-  an<-ddply(data,.(year),summarize,sum(na.omit(Rain)))
-  names(an)<-c("Year","tot")
-  
-  #exclude years in final cm
-  ned<-an$Year		
-  ned<-ned%in%mc
-  
-  an$ned<-ned	
-  nan<-subset(an,ned==F,select=c(Year,tot))
-  db<-nan
-  plot4<-plot(db$Year,db$tot,type="b",col="blue",pch=20,xlab="",ylim=c(0,max(db$tot)+5),ylab="Rain Total(mm)",main="Annual Rainfall Total")
-  abline(h=mean(db$tot[db$tot>0]),lty=2,col="red")
-  
+#   data$year<-year(data$Date)
+#   data$Rain<-as.numeric(data$Rain)
+#   
+#   #count NA's in data
+#   mc<-ddply(data,.(year),summarize,sum(is.na(Rain)))
+#   names(mc)<-c("year","count")
+#   mc<-mc$year[mc$count>20]
+#   
+#   #find annual totals
+#   an<-ddply(data,.(year),summarize,sum(na.omit(Rain)))
+#   names(an)<-c("Year","tot")
+#   
+#   #exclude years in final cm
+#   ned<-an$Year		
+#   ned<-ned%in%mc
+#   
+#   an$ned<-ned	
+#   nan<-subset(an,ned==F,select=c(Year,tot))
+#   db<-nan
+#   plot4<-plot(db$Year,db$tot,type="b",col="blue",pch=20,xlab="",ylim=c(0,max(db$tot)+5),ylab="Rain Total(mm)",main="Annual Rainfall Total")
+#   abline(h=mean(db$tot[db$tot>0]),lty=2,col="red")
+#   
   #summary of total	
   
   # n<-which.is.max(db$tot)
@@ -88,5 +88,6 @@ climate$methods(plot_annual_rain_total = function(data_list=list(), threshold = 
   #"print("year")" and "print("year")" being the years with the least and most amount of rainfall recorded respectively. Also it can ve seen that 
   #"for" every "print("mincount")" out of "print("mincount")" years there is an expected annual rainfall of over "print("mincount")"mm 'in' this region and with 
   #	no visible trend.)
-  plot4 #;x
+ # plot4 #;x
 }
+)
