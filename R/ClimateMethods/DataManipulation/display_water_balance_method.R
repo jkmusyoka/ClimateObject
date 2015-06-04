@@ -93,6 +93,8 @@ climate$methods(display_water_balance = function(data_list = list(), print_table
       # The names of years_split is the list of years as strings.
       # These are better labels than numbers so they can be identified better
       names(tables) <- names(years_split)
+      # display water balance for multiple stations
+      rettables[[data_obj$get_station_data( curr_data, station_label )]] = tables
     }
     
     # Only print if requested
