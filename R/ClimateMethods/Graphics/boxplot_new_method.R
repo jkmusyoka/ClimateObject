@@ -1,4 +1,4 @@
-climate$methods(boxplot_new = function(data_list = list(), var,  names = "", method = "jitter",jitter = 0.1, time_period = daily_label, connect.mean = FALSE,
+climate$methods(box_jitter = function(data_list = list(), var,  names = "", method = "jitter",jitter = 0.1, time_period = yearly_label, connect.mean = FALSE,
                                        horizontal = FALSE, plot_jitter = FALSE, add = TRUE, colpoints = "red", na.rm = TRUE,connect.median = FALSE,
                                        plot.sd = FALSE, lty = 1, col.sd = "blue", main = "title", varwidth = FALSE, outline = TRUE){
   
@@ -10,6 +10,8 @@ climate$methods(boxplot_new = function(data_list = list(), var,  names = "", met
   
   for( data_obj in climate_data_objs ) {
     #get required variable name
+    #box <- list()
+    
     interest_var = data_obj$getvname( var )
     
     # access data for analysis
