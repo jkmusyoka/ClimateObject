@@ -10,10 +10,21 @@ climate$methods(box_jitter = function(data_list = list(), var,  names = "", meth
   
   for( data_obj in climate_data_objs ) {
     #get required variable name
-    #box <- list()
     
-    interest_var = data_obj$getvname( var )
+    interest_var = data_obj$getvname( var )    
     
+#     if (!is.list(interest_var)){
+#       interest_var=list(interest_var)
+#     }
+
+    # we need to get the column of interest for the plot.
+    interest_var =list()
+    for(i in 1:length(var)){
+      
+      interest_var[[i]] <- data_obj$getvname(var[[i]]) 
+    }
+   print(interest_var)
+
     # access data for analysis
     curr_data_list = data_obj$get_data_for_analysis( data_list )
     
