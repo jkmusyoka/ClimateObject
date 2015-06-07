@@ -8,7 +8,7 @@
 #'  
 #' @return an inventory plot for mutiple stations.
 
-climate$methods(plot_inventory = function (data_list=list(), col1="blue",ylab,xlab="Year",na.rm=TRUE, pch=20,ylim=0,type="b",lty=2,col2="red",lwd = 2,lwd2 = 1.5,
+climate$methods(plot_inventory_rain = function (data_list=list(), col1="blue",ylab,xlab="Year",na.rm=TRUE, pch=20,ylim=0,type="b",lty=2,col2="red",lwd = 2,lwd2 = 1.5,
                                                    var_label = rain_label,plot_line = FALSE,ygrid=0, graph_parameter = par(mar=c(6,8,4,2)),plot_window = FALSE,
                                                    main_title="Inventory Data Plot: Rain"){
 
