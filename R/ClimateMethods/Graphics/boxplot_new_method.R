@@ -1,5 +1,5 @@
-climate$methods(box_jitter = function(data_list = list(), var,  names = "", method = "jitter",jitter = 0.1, time_period = yearly_label, connect.mean = FALSE,
-                                       horizontal = FALSE, plot_jitter = FALSE, add = TRUE, colpoints = "red", na.rm = TRUE,connect.median = FALSE,
+climate$methods(box_jitter = function(data_list = list(), var,  names = c(), method = "jitter",jitter = 0.1, time_period = yearly_label, connect.mean = FALSE,
+                                       horizontal = FALSE, plot_jitter = FALSE, ylab = "Day number for planting", add = TRUE, colpoints = "red", na.rm = TRUE,connect.median = FALSE,
                                        plot.sd = FALSE, lty = 1, col.sd = "blue", main = "title", varwidth = FALSE, outline = TRUE){
   
   #required variable
@@ -9,30 +9,26 @@ climate$methods(box_jitter = function(data_list = list(), var,  names = "", meth
   climate_data_objs = get_climate_data_objects( data_list )
   
   for( data_obj in climate_data_objs ) {
-    #get required variable name
-    
-    interest_var = data_obj$getvname( var )    
-    
-#     if (!is.list(interest_var)){
-#       interest_var=list(interest_var)
-#     }
 
-    # we need to get the column of interest for the plot.
-    interest_var =list()
+    # get the column(s) of interest for the plot.
+    interest_var = list()
     for(i in 1:length(var)){
       
       interest_var[[i]] <- data_obj$getvname(var[[i]]) 
     }
-   print(interest_var)
+
+   #print(class(interest_var))
 
     # access data for analysis
     curr_data_list = data_obj$get_data_for_analysis( data_list )
     
     for( curr_data in curr_data_list ) {
       
-      dat <- subset(curr_data, select = c(interest_var))
-      
-      boxplot(  dat, names = names, horizontal = horizontal, varwidth = varwidth, outline = outline)
+     dat <- subset(curr_data, select = as.character(interest_var))
+               
+     print(dat)
+     
+      boxplot(  dat, names = names, horizontal = horizontal, varwidth = varwidth, outline = outline, na.rm = na.rm)
       if( plot_jitter == TRUE){
       stripchart( interest_var , method = method, jitter = jitter, vertical = !(horizontal), add = add, col = colpoints )
       }
