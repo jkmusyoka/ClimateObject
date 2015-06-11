@@ -49,6 +49,7 @@ climate$methods(output_for_CDT = function(data_list = list(), filename, interest
         } else if (availmeta==1){
           outmetadata[[data_obj$get_station_data(curr_data, station_label)]]=data_obj$get_station_data(curr_data, station_label)
         }
+        
         curr_data[[ date_col ]]=  format( as.Date( curr_data[[date_col]]), "%Y%m%d")
         temp<-subset(curr_data , select=c(date_col, var_col))		
         names(temp)<-c("Date",data_obj$get_station_data(curr_data, station_label))
