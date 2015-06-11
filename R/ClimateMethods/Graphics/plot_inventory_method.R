@@ -8,8 +8,8 @@
 #'  
 #' @return an inventory plot for mutiple stations.
 
-climate$methods(plot_inventory_rain = function (data_list=list(), col1="blue",ylab,xlab="Year",na.rm=TRUE, pch=20,ylim=0,type="b",lty=2,col2="red",lwd = 2,lwd2 = 1.5,
-                                                   var_label = rain_label,plot_line = FALSE,ygrid=0, graph_parameter = par(mar=c(6,8,4,2)),plot_window = FALSE,
+climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=c("red","blue"),sort=F,
+                                                   var_label = rain_label, graph_parameter = par(mar=c(6,8,4,2)),
                                                    main_title="Inventory Data Plot: Rain"){
 
   #Require the columns needed in this method from the data.
@@ -48,16 +48,21 @@ climate$methods(plot_inventory_rain = function (data_list=list(), col1="blue",yl
     #sort by date
     curr_data<-curr_data[order(curr_data[[date_col]]),]
     
-    if (plot_window){   
-      par = graph_parameter 
-    } 
+    #set plot window  
+    par = graph_parameter 
+     
     # for the plot 
-    image(x=curr_data[[date_col]],y=1:(ncol(curr_data)-1),as.matrix(curr_data[,-1]),yaxt="n",ylab="",col=c("black","gray90"),xlab="",main= c( data_name, main_title))
+    image(x=curr_data[[date_col]],y=1:(ncol(curr_data)-1),as.matrix(curr_data[,-1]),yaxt="n",ylab="",col,xlab="",main= c( data_name, main_title))
     #add white spaces to help delineate the groups
     segments(x0=min(curr_data[[date_col]]),x1=max(curr_data[[date_col]]),y0=seq(0.5,ncol(curr_data)+0.5,by=1),col="white")
+    
+    #add labels
+    text(x=min(curr_data[[date_col]]),y=1:(ncol(curr_data)-1),levels(curr_data[[station_col]]),xpd=T,pos=2,cex=0.75)
+    
+    if(sort=T){
     #add labels
     text(x=min(curr_data[[date_col]]),y=1:(ncol(curr_data)-1),rev(sort(levels(curr_data[[station_col]]))),xpd=T,pos=2,cex=0.75)
-      
+    }
   }
 }
 )
