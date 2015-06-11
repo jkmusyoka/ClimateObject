@@ -28,7 +28,7 @@ climate$methods(box_jitter = function(data_list = list(), var,  names = c(), met
                
      print(dat)
      
-      boxplot(  dat, names = names, horizontal = horizontal, varwidth = varwidth, outline = outline, na.rm = na.rm)
+      boxplot(  dat, names = names, horizontal = horizontal, varwidth = varwidth, outline = outline, na.rm = na.rm, ylab =ylab,  main =  main )
       if( plot_jitter == TRUE){
       stripchart( interest_var , method = method, jitter = jitter, vertical = !(horizontal), add = add, col = colpoints )
       }
