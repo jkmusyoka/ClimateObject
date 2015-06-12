@@ -59,7 +59,7 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
     #add labels
     text(x=min(curr_data[[date_col]]),y=1:(ncol(curr_data)-1),levels(curr_data[[station_col]]),xpd=T,pos=2,cex=0.75)
     
-    if(sort=T){
+    if(sort){
     #add labels
     text(x=min(curr_data[[date_col]]),y=1:(ncol(curr_data)-1),rev(sort(levels(curr_data[[station_col]]))),xpd=T,pos=2,cex=0.75)
     }
