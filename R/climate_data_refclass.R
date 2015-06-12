@@ -448,7 +448,7 @@ climate_data$methods(append_to_changes = function(value) {
 
 climate_data$methods(is_present = function(str, require_all=TRUE) {
   out = FALSE
-  if (is.character(str)){
+  if (is.character(str) && length(str)==1){
     if(str %in% names(variables) ) {
       var_name = variables[[str]]
       if(var_name %in% names(data)) {
