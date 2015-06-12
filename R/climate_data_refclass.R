@@ -458,7 +458,7 @@ climate_data$methods(is_present = function(str, require_all=TRUE) {
       out = TRUE
     }
   }
-  else if (is.list(str)){
+  else if (is.character(str) || is.list(str)){
     for (temp in str){
       out=is_present(temp)
       if (require_all) if (!out) break
