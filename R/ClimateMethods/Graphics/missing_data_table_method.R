@@ -11,26 +11,22 @@
 
 
 
-climate$methods( missing_data_table=function( data_list=list(), var_label=rain_label ){ 
-  #--------------------------------------------------------------------------------------------#
-  # This function returns a data frame with two columns, the first one containing some years and the second
-  #      one the number of missing rain obsevations per year. 
-  #-------------------------------------------------------------------------------------------#
+climate$methods( missing_data_table=function( data_list=list(), var_label= rain_label ){ 
   
   
-  #Require the columns needed in this method from the data.
-  data_list = add_to_data_info_required_variable_list( data_list, list(var_label, date_label) )
-  
-  # daily data is required for this method
-  data_list=add_to_data_info_time_period( data_list, yearly_label )
-  
-  # use data_list to get the required data objects
-  climate_data_objs = get_climate_data_objects(data_list)
-  
-  # Initialise output
-  out = list()
-  j = 1
-  
+      #Require the columns needed in this method from the data.
+      data_list = add_to_data_info_required_variable_list( data_list, list(rain_label, date_label) )
+      
+      # daily data is required for this method
+      data_list=add_to_data_info_time_period( data_list, yearly_label )
+      
+      # use data_list to get the required data objects
+      climate_data_objs = get_climate_data_objects( data_list )
+      
+      # Initialise output
+      out = list()
+      j = 1
+      
   for( data_obj in climate_data_objects ){
     year_col = data_obj$getvname(year_label)
     rain_col = data_obj$getvname(rain_label)
