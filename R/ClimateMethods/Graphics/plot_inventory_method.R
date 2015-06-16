@@ -8,7 +8,7 @@
 #'  
 #' @return an inventory plot for mutiple stations.
 
-climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=c("red","blue"),sort=F,
+climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=c("red","blue"),sort=FALSE,
                                                    var_label = rain_label, graph_parameter = par(mar=c(6,8,4,2)),
                                                    main_title="Inventory Data Plot: Rain"){
 
@@ -17,6 +17,7 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
   # Merge the data into a single data frame so that we can do a by station analysis.
   data_list[[merge_data_label]]=TRUE
   
+  print(data_list)
   # time period and station
   data_list = add_to_data_info_time_period(data_list, daily_label)
   
@@ -59,7 +60,7 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
     #add labels
     text(x=min(curr_data[[date_col]]),y=1:(ncol(curr_data)-1),levels(curr_data[[station_col]]),xpd=T,pos=2,cex=0.75)
     
-    if(sort){
+    if(sort==TRUE){
     #add labels
     text(x=min(curr_data[[date_col]]),y=1:(ncol(curr_data)-1),rev(sort(levels(curr_data[[station_col]]))),xpd=T,pos=2,cex=0.75)
     }

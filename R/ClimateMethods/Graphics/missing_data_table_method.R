@@ -1,4 +1,4 @@
-# Missing Data Table 
+ # Missing Data Table 
 #' @title Missing Data Table
 #' @name missing data table
 #' @author Abib Duut 2015
@@ -19,7 +19,7 @@ climate$methods( missing_data_table=function( data_list=list(), var_label = rain
       
       # daily data is required for this method
       data_list=add_to_data_info_time_period( data_list, yearly_label )
-      print(data_list)
+      #print(data_list)
       
       # use data_list to get the required data objects
       climate_data_objs = get_climate_data_objects( data_list )
@@ -45,11 +45,17 @@ climate$methods( missing_data_table=function( data_list=list(), var_label = rain
         # Add a column of rain to the data with a specific: "Rain" name for ddply use
         curr_data = cbind(curr_data, new_rain=curr_data[[rain_col]])
         cm<-ddply( curr_data, c(Year = year_col), summarize, C = sum(is.na(new_rain)))
+          if(is.null(cm)) {
+      
+                print("100% present, no data missing")
+          }else{
+            
         cm1<-cm[cm$C>0,]
         names(cm1)<-c("Year","Nos of Missing Days")
         cm1<-as.list(cm1)
         cm1<-as.data.frame(cm1)
-        curr_data$new_rain=NULL
+        #curr_data$new_rain=NULL
+      }  
     }
     
     out[[j]] = cm1
