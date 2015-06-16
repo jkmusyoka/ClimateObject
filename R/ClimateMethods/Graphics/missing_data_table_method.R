@@ -17,7 +17,7 @@ climate$methods( missing_data_table=function( data_list=list(), var_label = rain
       #Require the columns needed in this method from the data.
       data_list = add_to_data_info_required_variable_list( data_list, list(var_label, date_label) )
       
-      # daily data is required for this method
+      # yearly data is required for this method
       data_list=add_to_data_info_time_period( data_list, yearly_label )
       #print(data_list)
       
@@ -30,7 +30,7 @@ climate$methods( missing_data_table=function( data_list=list(), var_label = rain
       
   for( data_obj in climate_data_objects ){
     year_col = data_obj$getvname(year_label)
-    rain_col = data_obj$getvname(var_label)
+    var_col = data_obj$getvname(var_label)
     
     #If no column of years present
     if( !(data_obj$is_present(year_label) ) ) {
@@ -43,7 +43,7 @@ climate$methods( missing_data_table=function( data_list=list(), var_label = rain
     for( curr_data in curr_data_list ) {
         
         # Add a column of rain to the data with a specific: "Rain" name for ddply use
-        curr_data = cbind(curr_data, new_rain=curr_data[[rain_col]])
+        curr_data = cbind(curr_data, new_rain=curr_data[[var_col]])
         cm<-ddply( curr_data, c(Year = year_col), summarize, C = sum(is.na(new_rain)))
           if(is.null(cm)) {
       
