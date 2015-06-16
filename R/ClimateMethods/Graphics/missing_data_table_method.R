@@ -11,7 +11,7 @@
 
 
 
-climate$methods( missing_data_table=function( data_list=list(), var_label= rain_label ){ 
+climate$methods( missing_data_table=function( data_list=list(), rain_label ){ 
   
   
       #Require the columns needed in this method from the data.
@@ -40,17 +40,17 @@ climate$methods( missing_data_table=function( data_list=list(), var_label= rain_
     curr_data_list = data_obj$get_data_for_analysis(data_list)
     
     for( curr_data in curr_data_list ) {
-      # Add a column of rain to the data with a specific: "Rain" name for ddply use
-      curr_data = cbind(curr_data, new_rain=curr_data[[rain_col]])
-      
-      cm<-ddply( curr_data, c(Year = year_col), summarize, C = sum(is.na(new_rain)))
-      
-      cm1<-cm[cm$C>0,]
-      names(cm1)<-c("Year","Nos of Missing Days")
-      cm1<-as.list(cm1)
-      cm1<-as.data.frame(cm1)
-      curr_data$new_rain=NULL
+        
+        # Add a column of rain to the data with a specific: "Rain" name for ddply use
+        curr_data = cbind(curr_data, new_rain=curr_data[[rain_col]])
+        cm<-ddply( curr_data, c(Year = year_col), summarize, C = sum(is.na(new_rain)))
+        cm1<-cm[cm$C>0,]
+        names(cm1)<-c("Year","Nos of Missing Days")
+        cm1<-as.list(cm1)
+        cm1<-as.data.frame(cm1)
+        curr_data$new_rain=NULL
     }
+    
     out[[j]] = cm1
     # Give the name of each data to each element in the list out
     names(out)[[j]] = data_obj$get_meta( data_name_label )
