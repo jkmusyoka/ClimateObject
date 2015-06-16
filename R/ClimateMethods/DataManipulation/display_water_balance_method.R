@@ -29,6 +29,9 @@ climate$methods(display_water_balance = function(data_list = list(), print_table
   
   # date period is "daily"
   data_list=add_to_data_info_time_period(data_list, daily_label)
+  
+  rettables = list()
+  
   climate_data_objs = get_climate_data_objects(data_list)
   
   for(data_obj in climate_data_objs) {
