@@ -48,13 +48,14 @@ climate$methods( missing_data_table=function( data_list=list(), var_label = rain
           if(is.null(cm)) {
       
                 print("100% present, no data missing")
-          }else{
+          
+            }else{
             
         cm1<-cm[cm$C>0,]
         names(cm1)<-c("Year","Nos of Missing Days")
         cm1<-as.list(cm1)
         cm1<-as.data.frame(cm1)
-        #curr_data$new_rain=NULL
+        curr_data$new_rain=NULL
       }  
     }
     
