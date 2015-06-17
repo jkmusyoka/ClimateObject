@@ -14,7 +14,7 @@ climate$methods(gsub2 = function(pattern, replacement, x, ...) {
   x
 })
 
-climate$methods(timeseries = function(data_list = list(),plot_type="normal"){
+climate$methods(timeseries = function(data_list = list()){
   #######################################################################
   # CLIMATE DATA OBJS
   climate_data_objs = get_climate_data_objects(data_list)
@@ -122,7 +122,7 @@ climate$methods(timeseries = function(data_list = list(),plot_type="normal"){
         
         ######################################################################
         # CHECK IF THE ELEMENT IS RAIN OR NOT
-        if (var_label=="rain"){
+        if (i=="rain"){
           plot.type <- "h"
           plot.color <- "blue"
         }else{
@@ -185,12 +185,16 @@ climate$methods(timeseries = function(data_list = list(),plot_type="normal"){
         }else{
           k <- k + scale_x_date(breaks = xticks) # Create x ticks  
         }
-        if (var_label=="rain"){
+        if (i =="rain"){
           k <- k + geom_bar(stat="identity",colour=plot.color,na.rm=TRUE)  # type of plotting
         }else{
           k <- k + geom_line(colour=plot.color,na.rm=TRUE)  # type of plotting
         }
-        k <- k + theme_bw()  # white background
+        # Themes
+        k <- k + theme_bw()
+        k <- k + theme(panel.grid.major= element_line(color = "gray80"))
+        k <- k + theme(panel.grid.minor= element_line(color = "gray80",
+                                                      linetype = "dotted"))
         # title and labels
         k <- k + labs(x=date_col,y=var_col,title=paste0(tit,"\n(",subtit,")\n",
                                                         tt.total,"\n",
