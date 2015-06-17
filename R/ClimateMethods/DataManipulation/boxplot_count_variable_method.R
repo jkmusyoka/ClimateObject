@@ -18,7 +18,7 @@
 #' climObj$boxplot_count_variable()
 #' @return boxplot plot
 #' 
-climate$methods( boxplot_count_variable = function(data_list= list(), timeperiod= subyearly, var_label= rain_label, fill_col="blue", whisker_col="red", title="Boxplot of Monthly Rainy Days for all Years",whisklty=1){
+climate$methods( boxplot_count_variable = function(data_list= list(), timeperiod= subyearly, var_label= rain_label,varwidth=F, fill_col="blue", whisker_col="red", title="Boxplot of Monthly Rainy Days for all Years",whisklty=1){
   #--------------------------------------------------------------------------------------------#
   # This function plots the boxplot of the number of rain per month for all the years in the data 
   #     set
@@ -49,7 +49,7 @@ climate$methods( boxplot_count_variable = function(data_list= list(), timeperiod
     for( curr_data in curr_data_list ) {
       # Draw the monthly boxplot
       boxplot( curr_data[["Number of Rain Days"]]~curr_data[[time_col]], whiskcol=whisker_col,col=fill_col, xlab=timeperiod,ylab="Count of Rain Days",
-               main= c( data_name, title), whisklty=whisklty )
+               main= c( data_name, title), whisklty=whisklty, varwidth=T )
     } 
   }
 }
