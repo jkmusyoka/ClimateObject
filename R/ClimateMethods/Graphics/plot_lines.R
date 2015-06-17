@@ -55,7 +55,7 @@ climate$methods(plot_multiple_lines = function(data_list=list(), var_list= list(
     
     for( curr_data in curr_data_list ) {
       #Plot multiple line at once
-      matplot( curr_data[[year_col]], curr_data[var_list[[j]]], col=col, lwd=lwd, type=type, lty=lty, xlab=xlabel,ylab=ylabel,main=c(data_name, main), pch=pch, ylim=c( range( curr_data[var_list[[j]]], na.rm=T) ))
+      matplot( curr_data[[year_col]], curr_data[var_list[[j]]], col=col, lwd=lwd, type=type, lty=lty, xlab=xlabel,ylab=ylabel,main=c(data_name, main), ylim=c( range( curr_data[var_list[[j]]], na.rm=T) ))
       
       #Add points on top of the lines
       matpoints(curr_data[[ year_col ]], curr_data[ var_list[[ j ]] ], type = "p", pch = pch,  col=col, lwd=lwd_points[[j]], lty=lty_points)
