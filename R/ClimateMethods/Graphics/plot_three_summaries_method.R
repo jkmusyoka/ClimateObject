@@ -11,10 +11,8 @@
 #' climObj <- climate(data_tables=list(data),date_format="%Y-%m-%d")
 #' # where "data" is a data.frame containing the desired data to be plotted.
 #' climObj$plot_three_summaries()
-#' @return plot of the three summaries, mean, max and min.
+#' @return plot of the three summaries; the mean, the max and the min.
 #' 
-
-
 climate$methods( plot_three_summaries=function( data_list=list(),var="", title="Summary Values of Monthly Rainfall (mm)", max_color="blue", mean_color="green", min_color="red",ylab="", 
                                                       type = "b", lwd=2, pch =21, lty=1){
 		  # convert_data need to be set to TRUE. I am not sure of how to insert it without doing the ff.
@@ -39,7 +37,7 @@ climate$methods( plot_three_summaries=function( data_list=list(),var="", title="
 		curr_data_list = data_obj$get_data_for_analysis(data_list)
 
 	for( curr_data in curr_data_list ) {
-	total_var = "Total Rain"
+	total_var = "Total Var"
 	curr_data$Total_var = curr_data[[total_var]]
       
 	      # Split the data according to the month and compute the mean, min and max
