@@ -55,12 +55,13 @@ climate$methods( missing_data_table=function( data_list=list(), var_label = rain
                   cm1<-as.list(cm1)
                   cm1<-as.data.frame(cm1)
                   curr_data$new_rain=NULL
+                  out[[j]] = cm1
+                  # Give the name of each data to each element in the list out
+                  names(out)[[j]] = data_obj$get_meta( data_name_label )
       }  
     }
     
-    out[[j]] = cm1
-    # Give the name of each data to each element in the list out
-    names(out)[[j]] = data_obj$get_meta( data_name_label )
+    
     j = j+1
   }
   return( out )
