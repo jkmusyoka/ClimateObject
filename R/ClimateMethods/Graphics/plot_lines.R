@@ -1,64 +1,71 @@
-# Still have to generalize this method to be able to plot more than two variables. By now it fiiting well with SIAC-practical
-# assignmet topic 5.
-# need to fix the legend for each plot
+#=============================================================================
+# Multiple Lines Plot
+#' @title Plot Multiple lines 
+#' @name plot_multiple_lines
+#' @author Andree Nenkam and Frederick Ntirenganya (2015)
+
+#' @description \code{get.plot_multiple_lines} 
+#' Plot multiple lines on the same plot given a climate object 
+#' 
+#' @param data_list list. 
+#' 
+#' 
+#' @param var_list list containing the title of the columns to be plot on the same plot 
+#  
+#' @examples
+#' data_obj = climate$new( data_tables = list(data=data), data_time_periods = list("yearly"))
+#' #where "data" is a data.frame containing the desired data to be plotted.
+#' data_obj$plot_lines( data_list = list(), var_list =list(c("May", "Jun", "Jul")), type = c("h") )
+#' @return Multiple lines plot
+#' 
 
 
-climate$methods(plot_lines = function(data_list=list(), var1, var2, col1 = "blue", type1 = "h",type2="p",
-                                                col2 = "red", col3 = "green", xlabel = "Year",lwd=2, finite = TRUE,
-                                                pch1 = 1, pch2 = 1, pch3 = 1, main=c(),  time_period = yearly_label){    
-  
+
+climate$methods(plot_multiple_lines = function(data_list=list(), var_list= list(), col = c("blue", "red", "yellow"), type = c("h", "h", "h"), lty= c(1,2,3), lty_points= c(1,2,3), ylabel="Observations", xlabel = "Year",lwd=c(2), 
+                                      lwd_points=c(2,2,2), pch= c(2,20,4),bty = "o", main="Vertical Lines", time_period = yearly_label, legend.location = rep(list("topright"), length(var_list)), 
+                                      legend=rep(list(c("1", "2","3")), length(var_list)), legend_text_width=strwidth("0.001") ){    
   
   # get_climate_data_objects returns a list of the climate_data objects specified
   # in the arguments.
   # If no objects specified then all climate_data objects will be taken by default
   # the var1 and var2 must be label. 
-   data_list = add_to_data_info_required_variable_list(data_list, list( var1 )) 
-   data_list = add_to_data_info_required_variable_list(data_list, list( var2 ))
-  # we should be able to specify the time period.
-   data_list = add_to_data_info_time_period(data_list, time_period) 
+  data_list = add_to_data_info_required_variable_list(data_list,  var_list) 
   
-   climate_data_objs_list = get_climate_data_objects(data_list)
-
+  # we should be able to specify the time period.
+  data_list = add_to_data_info_time_period(data_list, time_period) 
+  #Get the data objects
+  climate_data_objs_list = get_climate_data_objects(data_list)
+  
+  #a count for the number of data sets 
+  j = 1
+  
   for(data_obj in climate_data_objs_list) {
-     # get the columns of interest for the plot.
-    var1 = data_obj$getvname( var1 )
-    var2 = data_obj$getvname( var2 )
+    #get the name of the data set
+    data_name = data_obj$get_meta(data_name_label)
     
-    date_col = data_obj$getvname( date_label )
-    #adding year column if not present 
+    #adding year column if not present and if date present
     if( !(data_obj$is_present( year_label ) ) ) {
+      date_col = data_obj$getvname( date_label )
       data_obj$add_year_month_day_cols() 
     }
     year_col = data_obj$getvname( year_label )
     
+    #Get the data frames present in data_obj 
     curr_data_list = data_obj$get_data_for_analysis(data_list)
     
-#     #Check will be done here. var1 is a list
-#     l = length(var1)
-#     #Start for loop for each variable entered here
-#     for( i in  1: l ){
-#       
-#       plot( xaxis[[ i ]], var1[[ i ]], type = "c", col= col3[[i]],
-#             ylim = c( range( var1[[ i ]], na.rm = TRUE)+ 20 ), lty = lty2[[ i ]],
-#             main = main[[ i ]], ylab = ylab[[ i ]], xlab = xlab[[ i ]])
-#     }
-    
     for( curr_data in curr_data_list ) {
-       # plotting the first plot. 
-      plot(curr_data[[ year_col ]], curr_data[[var1]], type = type1, lwd = lwd, col = col1, xlab = xlabel,main = main,
-            ylim = c( range( curr_data[[var1]], curr_data[[var2]], finite = finite) ))
-      #Adding points to the plot
-      lines(curr_data[[ year_col ]], curr_data[[var1]], type=type2, col=col2, pch = pch1)
-      #Adding the second plot
-      points(curr_data[[ year_col ]], curr_data[[var2]], type = type1, col=col3, pch = pch2 )
-      #Adding points to the second plot
-      lines(curr_data[[ year_col ]], curr_data[[var2]], type=type2, col=col2, pch = pch1)
+      #Plot multiple line at once
+      matplot( curr_data[[year_col]], curr_data[var_list[[j]]], col=col, lwd=lwd, type=type, lty=lty, xlab=xlabel,ylab=ylabel,main=c(data_name, main), ylim=c( range( curr_data[var_list[[j]]], na.rm=T) ))
       
+      #Add points on top of the lines
+      matpoints(curr_data[[ year_col ]], curr_data[ var_list[[ j ]] ], type = "p", pch = pch,  col=col, lwd=lwd_points[[j]], lty=lty_points)
+      
+      #Add the legend
+      legend( legend.location[[j]], legend=legend[[j]],  col=col, text.width = legend_text_width, bty=bty, lty = lty, text.col= col )
     }
+    j=j+1
   }
 }
 )
-
-
 
 
