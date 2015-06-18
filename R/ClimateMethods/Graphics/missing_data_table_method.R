@@ -45,8 +45,9 @@ climate$methods( missing_data_table=function( data_list=list(), var_label = rain
         # Add a column of rain to the data with a specific: "Rain" name for ddply use
         curr_data = cbind(curr_data, new_rain=curr_data[[var_col]])
         cm<-ddply( curr_data, c(Year = year_col), summarize, C = sum(is.na(new_rain)))
-          if(is.null(cm$C)) {
-      
+        print(cm)
+        print(cm$C)
+        if(is.null(cm$C)) {
               out[[j]]<-"100% present, no data missing"
               names(out)[[j]] = data_obj$get_meta( data_name_label )
           
