@@ -95,5 +95,4 @@ data = read.table("C:/Users/Samsung 300E/Dropbox/AIMS Final Project/aims-final-p
 #tt = read.table("ECHAM4p5_CFS_SST _olr_Mar_82-15.txt")
 
 #data <- read.table("~/Dropbox/AIMS Final Project/aims-final-project/new codes/data/ECHAM4p5_CFS_SST _olr_Mar_82-15.csv", sep=",")
-#data55 <- read.table("~/Dropbox/AIMS Final Project/aims-final-project/new codes/data/ECHAM4p5_CFS_SST _olr_Mar_82-15.csv", sep=",")
 ghana_dat = SST_domain(data, c(-40.0, 4.0, 10.0, 325.0), W_E = TRUE)
