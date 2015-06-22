@@ -2,7 +2,7 @@
 # Multiple Lines Plot
 #' @title Plot Multiple lines 
 #' @name plot_multiple_lines
-#' @author Andree Nenkam and Frederick Ntirenganya (2015)
+#' @author Andree Nenkam and Frederic Ntirenganya AMI (2015)
 
 #' @description \code{get.plot_multiple_lines} 
 #' Plot multiple lines on the same plot given a climate object 
@@ -10,26 +10,29 @@
 #' @param data_list list. 
 #' 
 #' 
-#' @param var_list list containing the title of the columns to be plot on the same plot 
+#' @param variables list containing the title of the columns to be plotted on the same plot 
 #  
 #' @examples
-#' data_obj = climate$new( data_tables = list(data=data), data_time_periods = list("yearly"))
+#' data_obj = climate$new( data_tables = list(data = data), data_time_periods = list("yearly"))
 #' #where "data" is a data.frame containing the desired data to be plotted.
-#' data_obj$plot_lines( data_list = list(), var_list =list(c("May", "Jun", "Jul")), type = c("h") )
+#' data_obj$plot_multiple_lines( data_list = list(), variables = list( c( "May", "Jun", "Jul" )), type = c("h") )
 #' @return Multiple lines plot
 #' 
 
 
 
-climate$methods(plot_multiple_lines = function(data_list=list(), var_list= list(), col = c("blue", "red", "yellow"), type = c("h", "h", "h"), lty= c(1,2,3), lty_points= c(1,2,3), ylabel="Observations", xlabel = "Year",lwd=c(2), 
-                                      lwd_points=c(2,2,2), pch= c(2,20,4),bty = "o", main="Vertical Lines", time_period = yearly_label, legend.location = rep(list("topright"), length(var_list)), 
-                                      legend=rep(list(c("1", "2","3")), length(var_list)), legend_text_width=strwidth("0.001") ){    
+climate$methods(plot_multiple_lines = function(data_list=list(), variables, col = c("blue", "red", "green"), type = c("h", "h", "h"), lty= c(1,2,3), lty_points= c(1,2,3), ylabel="Observations", xlabel = "Year",lwd=c(2), 
+                                      lwd_points=c(2,2,2), pch = c(2,20,4),bty = "o", main="Vertical Lines", time_period = yearly_label, legend.location = rep(list("topright"), length(variables)), 
+                                      legend=rep(list(c("1", "2","3")), length(variables)), legend_text_width = strwidth("0.001") ){    
   
   # get_climate_data_objects returns a list of the climate_data objects specified
   # in the arguments.
   # If no objects specified then all climate_data objects will be taken by default
-  # the var1 and var2 must be label. 
-  data_list = add_to_data_info_required_variable_list(data_list,  var_list) 
+    
+  if (!is.list(variables)){
+    interest_var = list(variables)
+  }
+  data_list = add_to_data_info_required_variable_list(data_list,  variables) 
   
   # we should be able to specify the time period.
   data_list = add_to_data_info_time_period(data_list, time_period) 
@@ -55,10 +58,11 @@ climate$methods(plot_multiple_lines = function(data_list=list(), var_list= list(
     
     for( curr_data in curr_data_list ) {
       #Plot multiple line at once
-      matplot( curr_data[[year_col]], curr_data[var_list[[j]]], col=col, lwd=lwd, type=type, lty=lty, xlab=xlabel,ylab=ylabel,main=c(data_name, main), ylim=c( range( curr_data[var_list[[j]]], na.rm=T) ))
+      matplot( curr_data[[year_col]], curr_data[interest_var[[j]]], col=col, lwd=lwd, type=type, lty=lty, xlab=xlabel,ylab=ylabel,main=c(data_name, main),
+               ylim=c( range( curr_data[interest_var[[j]]], na.rm=TRUE) ))
       
       #Add points on top of the lines
-      matpoints(curr_data[[ year_col ]], curr_data[ var_list[[ j ]] ], type = "p", pch = pch,  col=col, lwd=lwd_points[[j]], lty=lty_points)
+      matpoints(curr_data[[ year_col ]], curr_data[ interest_var[[ j ]] ], type = "p", pch = pch,  col=col, lwd=lwd_points[[j]], lty=lty_points)
       
       #Add the legend
       legend( legend.location[[j]], legend=legend[[j]],  col=col, text.width = legend_text_width, bty=bty, lty = lty, text.col= col )
