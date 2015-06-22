@@ -62,10 +62,9 @@ climate$methods(plot_compare_longterm_tendaily_totals = function(data_list = lis
 	names(m_stat)<-c("Month" ,"Mean")
 	
 	plot(ndte, dat2)
-	lines(m_stat$)
+	lines(m_stat)
 		
 				}
 			}
 		}
-	}		
 )		
