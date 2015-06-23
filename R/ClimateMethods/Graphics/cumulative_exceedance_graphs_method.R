@@ -16,7 +16,7 @@ climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interes
 {  
   
   if (!is.list(interest_var)){
-    interest_var=list(interest_var)
+    interest_var=as.list(interest_var)
   }
   data_list=add_to_data_info_required_variable_list(data_list, interest_var) 
   
