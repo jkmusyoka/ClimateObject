@@ -34,7 +34,7 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
   for (k in 1:duration){
     nam <- paste("year", start_year + k-1, sep = "_")
     g=''
-    year0 <-matrix(,nrow = length(lat), ncol = length(lon))
+    year0 <- matrix(,nrow = length(lat), ncol = length(lon))
     for (i in 1:length(lat)){
       for (j in 1:length(lon)){
         dat = as.numeric(as.character(data[year_data+i, j+1]))
@@ -44,12 +44,11 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
       i=i+1
     }
     k=k+1
-    year=as.data.frame(t(year0))
-    year=stack(year)
-    year_data = year_data + length(lat) + 2
-    g=as.numeric(year$values)
+    year <- as.data.frame(t(year0))
+    year <- stack(year)
+    year_data <- year_data + length(lat) + 2
+    g <- as.numeric(year$values)
     assign(nam, g)
-    g
     
     # progress bar
     close(pb)
@@ -58,11 +57,9 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
   }
   
   var_names <- paste("year", start_year: end_year, sep = "_")
-  #data_all <- mget(var_names, envir = globalenv())
   data_all <- mget(var_names)
   z <- as.data.frame(data_all)
   yy <- as.data.frame(z)
-  #yy = t(as.data.frame(yy))
   
   #labels
   
