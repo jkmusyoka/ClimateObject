@@ -71,7 +71,6 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
   yy <- cbind(latitude, longitude, yy)
   
   # Choosing the domain of interest
-  domain = c(-40.0, 4.0, 10.0, 325.0)
   assignVec <- Vectorize("assign",c("x","value"))
   assignVec(c('min_lat','max_lat', 'min_lon', 'max_lon'),domain,envir = .GlobalEnv)
   
@@ -83,10 +82,7 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
     subset(yy, (yy$lon >= min_lon & yy$lon <= max_lon)& (yy$lat >= min_lat & yy$lat <= max_lat))
   }
   
-  #year <- c(start_year:end_year)
-  
   domain_data<- as.data.frame(t(domain_data0[,1:ncol(domain_data0)])) #Final dataset
-  #write.csv(ghana_X, file <- "ghana_X.csv", col.names = TRUE)
   return(domain_data)
 }
 )
