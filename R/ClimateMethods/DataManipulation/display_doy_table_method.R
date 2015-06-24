@@ -4,7 +4,7 @@
 #' @name display_doy
 #' @author Frederic Ntirenganya 2015 (AMI)
 #' 
-#' @description \code{Display day of the year in a table }
+#' @description \code{get.table_doy }
 #' Display day of the year in a table  
 #'  
 #' @param data_list list. 
@@ -20,10 +20,11 @@
 
 climate$methods(display_doy = function(data_list = list(), months_list = month.abb, day_display = "Day"){
   
-  data_list = add_to_data_info_required_variable_list(data_list, list( doy_label))
+  # data time period.
   data_list = add_to_data_info_time_period( data_list, daily_label )
+  #Get the data objects
   climate_data_objs = get_climate_data_objects( data_list )
-  
+    
   for( data_obj in climate_data_objs ) {
 
     # must add these columns if not present for displaying
@@ -38,7 +39,7 @@ climate$methods(display_doy = function(data_list = list(), months_list = month.a
       data_obj$add_doy_col()
     }
     doy_col = data_obj$getvname( doy_label )
-            
+    
     curr_data_list = data_obj$get_data_for_analysis( data_list )
     
     for( curr_data in curr_data_list ) {

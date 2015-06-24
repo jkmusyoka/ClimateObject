@@ -5,7 +5,7 @@
 #' @author Stephen 2015 (AMI)
 
 #' @description \code{SST_domain} 
-#' Creates a dataframe of X-variables data spanning a chosen domain given climate object 
+#' Creates a dataframe of X-variables data spanning a chosen domain 
 #' 
 #' @param data (list), domain (vector), W_E (Logical). 
 #' 
@@ -13,15 +13,13 @@
 #' domain crosses Greenwich Meridian)
 #  
 #' @examples
-#' > Ghana_domain <- Climate$SST_domain(data, c(-40.0, 4.0, 10.0, 325.0), W_E = TRUE)
+#' > Ghana_domain <- Climate$SST_domain(data, c(-40.0, 4.0, 10.0, 325.0))
 #' @return return tabular data for the specified domain
 #' 
 
-
+#Extracting years
 climate$methods(SST_domain = function(data, domain, W_E = FALSE){
   options(warn=-1)
-  
-  #Extracting year from date row
   dat2 <- as.data.frame(t(data[3,])) # row containing the date
   end_year <- max(as.numeric(substr(dat2[,1], 1, 4)), na.rm=T)
   start_year <-  min(as.numeric(substr(dat2[,1], 1, 4)), na.rm=T)
@@ -36,7 +34,7 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
   for (k in 1:duration){
     nam <- paste("year", start_year + k-1, sep = "_")
     g=''
-    year0 <-matrix(,nrow = length(lat), ncol = length(lon))
+    year0 <- matrix(,nrow = length(lat), ncol = length(lon))
     for (i in 1:length(lat)){
       for (j in 1:length(lon)){
         dat = as.numeric(as.character(data[year_data+i, j+1]))
@@ -46,11 +44,12 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
       i=i+1
     }
     k=k+1
-    year=as.data.frame(t(year0))
-    year=stack(year)
-    year_data = year_data + length(lat) + 2
-    g=as.numeric(year$values)
+    year <- as.data.frame(t(year0))
+    year <- stack(year)
+    year_data <- year_data + length(lat) + 2
+    g <- as.numeric(year$values)
     assign(nam, g)
+    
     # progress bar
     close(pb)
     setTxtProgressBar(pb, k)
@@ -84,6 +83,3 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
   return(domain_data)
 }
 )
-
-
-
