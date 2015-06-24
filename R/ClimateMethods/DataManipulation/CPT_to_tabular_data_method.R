@@ -34,7 +34,7 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
   for (k in 1:duration){
     nam <- paste("year", start_year + k-1, sep = "_")
     g=''
-    year0 <-matrix(,nrow = length(lat), ncol = length(lon))
+    year0 <- matrix(,nrow = length(lat), ncol = length(lon))
     for (i in 1:length(lat)){
       for (j in 1:length(lon)){
         dat = as.numeric(as.character(data[year_data+i, j+1]))
@@ -44,12 +44,11 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
       i=i+1
     }
     k=k+1
-    year=as.data.frame(t(year0))
-    year=stack(year)
-    year_data = year_data + length(lat) + 2
-    g=as.numeric(year$values)
+    year <- as.data.frame(t(year0))
+    year <- stack(year)
+    year_data <- year_data + length(lat) + 2
+    g <- as.numeric(year$values)
     assign(nam, g)
-    g
     
     # progress bar
     close(pb)
@@ -58,11 +57,9 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
   }
   
   var_names <- paste("year", start_year: end_year, sep = "_")
-  #data_all <- mget(var_names, envir = globalenv())
   data_all <- mget(var_names)
   z <- as.data.frame(data_all)
   yy <- as.data.frame(z)
-  #yy = t(as.data.frame(yy))
   
   #labels
   
@@ -71,7 +68,6 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
   yy <- cbind(latitude, longitude, yy)
   
   # Choosing the domain of interest
-  domain = c(-40.0, 4.0, 10.0, 325.0)
   assignVec <- Vectorize("assign",c("x","value"))
   assignVec(c('min_lat','max_lat', 'min_lon', 'max_lon'),domain,envir = .GlobalEnv)
   
@@ -83,16 +79,7 @@ climate$methods(SST_domain = function(data, domain, W_E = FALSE){
     subset(yy, (yy$lon >= min_lon & yy$lon <= max_lon)& (yy$lat >= min_lat & yy$lat <= max_lat))
   }
   
-  #year <- c(start_year:end_year)
-  
   domain_data<- as.data.frame(t(domain_data0[,1:ncol(domain_data0)])) #Final dataset
-  #write.csv(ghana_X, file <- "ghana_X.csv", col.names = TRUE)
   return(domain_data)
 }
 )
-
-data = read.table("C:/Users/Samsung 300E/Dropbox/AIMS Final Project/aims-final-project/new codes/data/ECHAM4p5_CFS_SST _olr_Mar_82-15.csv", sep=",")
-#tt = read.table("ECHAM4p5_CFS_SST _olr_Mar_82-15.txt")
-
-#data <- read.table("~/Dropbox/AIMS Final Project/aims-final-project/new codes/data/ECHAM4p5_CFS_SST _olr_Mar_82-15.csv", sep=",")
-ghana_dat = SST_domain(data, c(-40.0, 4.0, 10.0, 325.0), W_E = TRUE)
