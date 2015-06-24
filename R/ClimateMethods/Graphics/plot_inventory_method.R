@@ -18,30 +18,35 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
   data_list[[merge_data_label]]=TRUE
   # time period and station
   data_list = add_to_data_info_time_period(data_list, daily_label)
-  
   climate_data_objs = get_climate_data_objects(data_list)
+  print(climate_data_objs)
   for(data_obj in climate_data_objs) {
+    print("1")
     data_name = data_obj$get_meta(data_name_label)
     date_col = data_obj$getvname(date_label)
     var_col = data_obj$getvname(var_label)
     station_col = data_obj$getvname(station_label)
-
+    print("2")
     if(missing(ylab)){
       ylab = data_obj$getvname(var_label)
     }
-    
+    print("3")
     curr_data = data_obj$get_data_for_analysis(data_list)
+    print(curr_data)
     #Create binary field indicating whether variable of interest (Rain) is missing or non-missing
     curr_data$val<-as.numeric(is.na(curr_data[[var_col]]))
+    print("1")
     #Stations will be plotted from bottom to top but we want alphatically first to be on the top so sort stations into reverse alphabetical order. 
     curr_data<-curr_data[rev(order(curr_data[[station_col]])),]
+    print("2")
     #reshape data into 1 row per day, 1 column per station, with values as calculated previously
     curr_data<-reshape(curr_data[,c(station_col,date_col,"val")],timevar=station_col,idvar=date_col,v.names="val",direction="wide")
+    print("3")
     #where value is NA after reshape the station did not have a row for that date in the input - this is also missing data so overwrite accordingly.
     curr_data[is.na(curr_data)]<-1
+    print("4")
     #sort by date
     curr_data<-curr_data[order(curr_data[[date_col]]),]
-    print(curr_data)
     #set plot window  
     par = graph_parameter 
     print("1")
