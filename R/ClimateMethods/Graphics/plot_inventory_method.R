@@ -1,4 +1,4 @@
-#  Inventory Plot 
+#'  Inventory Plot 
 #' @title Inventory Plot
 #' @name plot_inventory
 #' @author Abib Duut 2015
@@ -7,7 +7,8 @@
 #' This displays the data present for multiple stations, which helps to m 
 #'  
 #' @return an inventory plot for mutiple stations.
-
+#'----------------------------------------------------------------------------------------------------------------------------
+#'----------------------------------------------------------------------------------------------------------------------------
 climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=c("red","blue"),sort=FALSE,
                                                    var_label = rain_label, graph_parameter = par(mar=c(6,8,4,2)),
                                                    main_title="Inventory Data Plot: Rain"){
@@ -18,7 +19,7 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
   data_list[[merge_data_label]]=TRUE
   # time period and station
   data_list = add_to_data_info_time_period(data_list, daily_label)
-  climate_data_objs = get_climate_data_objects(data_list)
+  climate_data_objs = get_climate_data_objects(data_list)# error in this line, climate_data_objs is empty
   print(climate_data_objs)
   for(data_obj in climate_data_objs) {
     print("1")
@@ -65,7 +66,7 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
       print("3")
       #add labels
       text(x=min(curr_data[[date_col]]),y=1:(ncol(curr_data)-1),rev(sort(levels(curr_data[[station_col]]))),xpd=T,pos=2,cex=0.75)
+      }
     }
   }
-}
 )
