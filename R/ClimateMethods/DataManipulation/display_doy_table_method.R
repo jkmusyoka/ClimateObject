@@ -4,7 +4,7 @@
 #' @name display_doy
 #' @author Frederic Ntirenganya 2015 (AMI)
 #' 
-#' @description \code{Display day of the year in a table }
+#' @description \code{get.table_doy }
 #' Display day of the year in a table  
 #'  
 #' @param data_list list. 
@@ -18,12 +18,14 @@
 #' climateObj$display_doy()
 #' @return It returns  a table
 
-climate$methods(display_doy = function(data_list = list(), months_list = month.abb, day_display = "Day"){
+climate$methods(display_doy = function(data_list = list(), months_list = month.abb, single_year, day_display = "Day", file="DOY.doc",save_table = FALSE,
+                                       row.names = FALSE, width=8.5, height=11, font.size=6, title="DOY table", font.size2=10, NA.string=" "){
   
-  data_list = add_to_data_info_required_variable_list(data_list, list( doy_label))
+  # data time period.
   data_list = add_to_data_info_time_period( data_list, daily_label )
+  #Get the data objects
   climate_data_objs = get_climate_data_objects( data_list )
-  
+    
   for( data_obj in climate_data_objs ) {
 
     # must add these columns if not present for displaying
@@ -38,7 +40,7 @@ climate$methods(display_doy = function(data_list = list(), months_list = month.a
       data_obj$add_doy_col()
     }
     doy_col = data_obj$getvname( doy_label )
-            
+    
     curr_data_list = data_obj$get_data_for_analysis( data_list )
     
     for( curr_data in curr_data_list ) {
@@ -57,8 +59,21 @@ climate$methods(display_doy = function(data_list = list(), months_list = month.a
         colnames( table )[2:end] <- months_list[1:end-1]
       }
     }
-    # Always return the table because If we don't return then the method does nothing!    
-    return( table )
+    #Always print table
+    print( table, row.names = row.names )
+    #Some one might want this file. 
+    if(save_table==TRUE){
+      #set output file
+      rtf<-RTF(file=file, width=width, height=height, font.size=font.size)
+      #add title
+      addHeader(rtf, title=title, font.size=font.size2)
+      #add table
+      addTable(rtf, table, NA.string=NA.string, row.names=row.names)
+      #save output file
+      done(rtf)
+      
+    }
+    
   }  
 }
 )
