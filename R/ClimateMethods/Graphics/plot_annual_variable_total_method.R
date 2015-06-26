@@ -1,4 +1,4 @@
-# Annual Variable Total
+#' Annual Variable Total
 #' @title annual variable total  
 #' @name plot_annual_variable_total
 #' @author Abib Duut 2015 
@@ -46,14 +46,14 @@ climate$methods( plot_annual_variable_total = function(data_list=list(), title =
 	    # Access data in methods
 	    curr_data_list = data_obj$get_data_for_analysis(data_list)
 		    for( curr_data in curr_data_list){
-	      	
-	      	mc<-ddply(curr_data[[]],.(curr_data[[year_col]]),summarize,sum(is.na(curr_data[[rain_col]])))
+	      	curr_data<-curr_data_list[i]
+	      	mc<-ddply(curr_data,.(curr_data[[year_col]]),summarize,sum(is.na(curr_data[[rain_col]])))
 		      names(mc)<-c("year","count")
 		      mc<-mc$year[mc$count>20]
 		      print("6")
 		      
 		      #find annual totals
-		      an<-ddply(curr_data[[]],.(curr_data[[year_col]]),summarize, sum(na.omit(curr_data[[rain_col]])))
+		      an<-ddply(curr_data,.(curr_data[[year_col]]),summarize, sum(na.omit(curr_data[[rain_col]])))
 		      names(an)<-c("Year","tot")
 		      
 		      #exclude years in final cm
