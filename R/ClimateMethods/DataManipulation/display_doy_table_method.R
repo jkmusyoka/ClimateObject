@@ -18,7 +18,8 @@
 #' climateObj$display_doy()
 #' @return It returns  a table
 
-climate$methods(display_doy = function(data_list = list(), months_list = month.abb, day_display = "Day"){
+climate$methods(display_doy = function(data_list = list(), months_list = month.abb, single_year, day_display = "Day", file="DOY.doc",save_table = FALSE,
+                                       row.names = FALSE, width=8.5, height=11, font.size=6, title="DOY table", font.size2=10, NA.string=" "){
   
   # data time period.
   data_list = add_to_data_info_time_period( data_list, daily_label )
@@ -58,8 +59,21 @@ climate$methods(display_doy = function(data_list = list(), months_list = month.a
         colnames( table )[2:end] <- months_list[1:end-1]
       }
     }
-    # Always return the table because If we don't return then the method does nothing!    
-    return( table )
+    #Always print table
+    print( table, row.names = row.names )
+    #Some one might want this file. 
+    if(save_table==TRUE){
+      #set output file
+      rtf<-RTF(file=file, width=width, height=height, font.size=font.size)
+      #add title
+      addHeader(rtf, title=title, font.size=font.size2)
+      #add table
+      addTable(rtf, table, NA.string=NA.string, row.names=row.names)
+      #save output file
+      done(rtf)
+      
+    }
+    
   }  
 }
 )

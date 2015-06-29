@@ -18,7 +18,7 @@
 #' climObj$plot_compare_longterm_tendaiily_totals()
 #' @return  a comparison plot
 #' 
-climate$methods(plot_compare_longterm_tendaily_totals = function(data_list = list(), time_period="10-daily", 
+climate$methods(plot_compare_longterm_tendaily_totals = function(data_list = list(), time_period="10-daily", year=1960,
                                         rain_threshold=0.85){  
   #data required 
   data_list=add_to_data_info_required_variable_list(data_list, 
@@ -39,6 +39,8 @@ climate$methods(plot_compare_longterm_tendaily_totals = function(data_list = lis
     curr_data_list = data_obj$get_data_for_analysis(data_list)
     # loop for computing 
     for( curr_data in curr_data_list ) {
+      #subset by year.
+      curr_data<-subset(curr_data, year)
       
     	#split rain values in to groups of 10 for ten daily totals.
 	dat1<-split(curr_data[[var_col]], ceiling(seq_along(curr_data[[var_col]])/10))
