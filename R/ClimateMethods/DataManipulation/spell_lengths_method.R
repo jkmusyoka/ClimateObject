@@ -62,24 +62,14 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
           warning(paste0("There is no data for the season ", season))
           dry_spell[season-(min(interest_season)-1)] = NA
         }
-        else{
-          
-          # --------------------------------------------------------------------------------------------#
-          # Take the indices in the names of the data, where the variables col_doy and col_rain appear
-          # ---------------------------------------------------------------------------------------------#
-          indices_1 = which(  names(curr_data) %in% c(dos_col) )
-          indices_2 = which(  names(curr_data) %in% c(rain_col)  )
+        else{         
           
           # ----------------------------------------------#
           #Subset the data for a particular year
-          # ----------------------------------------------#
-          #if(  option %in% c(1,2)) {
-          indices_3 = which(  names(curr_data) %in% c(season_col) )
-          indices_4 = which(  names(curr_data) %in% c(month_col)  )
-          indices_5 = which(  names(curr_data) %in% c(day_col) )
-          season_data <-  curr_data[  curr_data[[season_col]]==season,  c(indices_1, indices_2, indices_3, indices_4, indices_5)  ]
-          season_data_1 <-  curr_data[  curr_data[[season_col]]==(season-1), c(indices_1, indices_2, indices_3, indices_4, indices_5) ]    
-          
+          # ----------------------------------------------#          
+          season_data <-  curr_data[  curr_data[[season_col]]==season,  c(dos_col, rain_col, season_col, month_col, day_col)  ]
+          season_data_1 <-  curr_data[  curr_data[[season_col]]==(season-1), c(dos_col, rain_col, season_col, month_col, day_col)  ]    
+          #print(season_data_1)
           # ---------------------------------------------------------------------------------------------------#
           # Add a column called spell_length to season_data and season_data_1 which will contain 1 if that day is dry and 0 otherwise
           # ---------------------------------------------------------------------------------------------------#
@@ -118,14 +108,14 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
             season_data_1 <- season_data_1[-60, ]
           }
           
-          #loop through elememts in doy_m and get the maximum spell length 
+          #loop through elements in doy_m and get the maximum spell length 
           # for the different period required for that year or for all the years
           
           period_m = c()
           
           for( j in 1 : length(doy_m) ) {
             
-            period = doy_m[[ j ]]
+            period = doy_m[[ j ]]          
             
             if( !(length( period )==2) ){stop( paste0( "Please enter only a vector of length 2 for element ",j, 
                                                        " in input doy_m. The first for the start of the  period and the second for the end.") ) }
@@ -135,7 +125,7 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
                                                         "of the period for element ",j, " in input doy_m.") )  } 
             
             # -------------------------------------------------------------------------------------------#
-            #Take the indic in season_data, where the day of year is doym[1] and another one whereit is doym[2]  
+            #Take the indic in season_data, where the day of year is doym[1] and another one where it is doym[2]  
             # -------------------------------------------------------------------------------------------#
             ind1 = which( season_data[[ 1 ]] %in% period[ 1 ] )
             ind2 = which( season_data[[ 1 ]] %in% period[ 2 ] )
@@ -149,7 +139,7 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
             #Now we assign the column vector of the season_data_doy to a variable
             # ----------------------------------------------------------------------#
             column_var = season_data_doy[ , 2 ]
-            
+                       
             season_data_2 = season_data
             
             # ----------------------#
@@ -160,8 +150,7 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
             
             
             # -------------------------------------------------------------------------------------------#
-            #first check if the year is the first year in the data, bcz this matter should be handled
-            # differently
+            #first check if the year is the first year in the data            
             # -------------------------------------------------------------------------------------------#
             dat = season_data
             first_year = FALSE
@@ -275,14 +264,14 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
               }
               #print(season_data_2)
               
-              season_data_2[[month_col ]] = factor( season_data_2[[ month_col ]], levels = month.abb)              
-              print(season_data_2)
+              season_data_2[[month_col ]] = format(season_data_2[[ month_col ]], levels=month.abb)             
+              #print(season_data_2)
               tables = dcast( season_data_2, season_data_2[[ day_col ]]~season_data_2[[month_col ]], value.var = "Spell_length")
               names(tables)[1] <- "Day" 
               
         
               
-              print(  paste0( "The table containing the different dry spell for each period in the year ", y, " is: " ), quote = FALSE  )
+              print(  paste0( "The table containing the different dry spell for each period in the year ", season, " is: " ), quote = FALSE  )
               return(  tables  )
               
                                     
@@ -294,7 +283,7 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
           
         }
         
-        dry_spell[season-(min(interest_season)-1)] = list(period_m)
+        dry_spell[season-(min(interest_season)-1)] = list(c(season,period_m))
       }     
       return(dry_spell)
     }
