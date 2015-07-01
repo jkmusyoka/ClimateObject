@@ -2,7 +2,10 @@
 climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,threshold=0.85,print_table=TRUE)
   
   {
+  data_list = add_to_data_info_required_variable_list(data_list, list(rain_label))
+  
   data_list=add_to_data_info_time_period(data_list, daily_label)
+  
   climate_data_objs_list = get_climate_data_objects(data_list)
   
   for(data_obj in climate_data_objs_list){
@@ -26,11 +29,11 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
       data_obj$add_year_month_day_cols()
     }
     # get names of columns in the data
-    rain_col  = data_obj$variables[[ rain_label ]]   
+    rain_col  = data_obj$getvname(rain_label)   
     
-    dos_col   = data_obj$variables[[ dos_label ]]   
+    dos_col   = data_obj$getvname(dos_label)  
     
-    season_col= data_obj$variables[[ season_label ]] 
+    season_col= data_obj$getvname(season_label) 
     
     month_col = data_obj$getvname(month_label)
     
