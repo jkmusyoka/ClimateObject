@@ -432,8 +432,7 @@ climate$methods(date_col_check = function(data_list=list(), date_format = "%d/%m
 )
 
 climate$methods(merge_vertical = function(climate_data_objs = climate_data_objects,
-                                          identifier = "Identifier", merge_name = "", 
-                                          start_point = length(used_data_objects)+1) 
+                                          identifier = "Identifier", merge_name = "") 
 {
 
   # TO DO: should argument be data_list instead of climate_data_objs?
@@ -480,7 +479,8 @@ climate$methods(merge_vertical = function(climate_data_objs = climate_data_objec
   # used_vars : the subset of vars containing only the variables that appear in at least 
   #             one of the data sets
   used_vars = list()
-
+  vars_names = list()
+  
   for(curr_var in vars) {
 
     new_col = c()
@@ -488,6 +488,9 @@ climate$methods(merge_vertical = function(climate_data_objs = climate_data_objec
     # new_col : logical vector showing which data sets contain curr_var
     for(data_obj in climate_data_objs) {    
       new_col = c(new_col,data_obj$is_present(curr_var))
+      if( data_obj$is_present(curr_var) && !(curr_var %in% names(vars_names)) ) {
+        vars_names[[curr_var]] <- data_obj$getvname(curr_var)
+      }
     }
     
     # We are only interested in variables that appear in at least 1 data set
@@ -498,7 +501,6 @@ climate$methods(merge_vertical = function(climate_data_objs = climate_data_objec
       used_vars = c(used_vars, curr_var)
     }
   }
-  print(used_vars)
   
   #######################################################################
 
@@ -518,28 +520,32 @@ climate$methods(merge_vertical = function(climate_data_objs = climate_data_objec
       # Add an identifier column to each data set containing the data object name
       data_name = data_obj$get_meta(data_name_label)
       curr_data[[identifier]] <- rep(data_name,nrow(data_obj$data))
+      date_col = vars_names[[date_label]]
       
       for(var_name in used_vars) {
         # The same variable may have different names in different data sets
         # so we rename these columns to be the same in each data set.
         if(identified_variables[i,var_name]) {
           old_col_name = data_obj$getvname(var_name)
-          names(curr_data)[names(curr_data) == old_col_name] <- var_name
+          names(curr_data)[names(curr_data) == old_col_name] <- vars_names[[var_name]]
         }
     
         # If the variable is not present, but can be generated from other columns
         # create that column. e.g. year can be created from date column
           
         else if( var_name == year_label ) {
-          curr_data[[var_name]] <- year(curr_data[[date_label]]) 
+          year_col = vars_names[[var_name]]
+          curr_data[[var_name]] <- year(curr_data[[date_col]])
         }
     
         else if( var_name == month_label ) {
-          curr_data[[var_name]] <- month(curr_data[[date_label]]) 
+          month_col = vars_names[[var_name]]
+          curr_data[[var_name]] <- month(curr_data[[date_col]])
         }
     
         else if( var_name == day_label ) {
-          curr_data[[var_name]] <- month(curr_data[[date_label]]) 
+          day_col = vars_names[[var_name]]
+          curr_data[[var_name]] <- day(curr_data[[date_col]])
         }
           
       }
@@ -547,17 +553,17 @@ climate$methods(merge_vertical = function(climate_data_objs = climate_data_objec
     }
     i = i + 1
   }
-  merge = rbind.fill(data_to_merge)
+  merge_data = rbind.fill(data_to_merge)
 
-  merged_obj = climate_data$new(data = merge, data_name = merge_name, start_point = start_point,
-                                  data_time_period = merge_time_period)
+  merged_obj = climate_data$new(data = merge_data, data_name = merge_name, start_point = length(used_data_objects)+1,
+                                  data_time_period = merge_time_period, check_missing_dates=FALSE)
     
   merged_obj$append_to_meta_data(merged_from_label, names(climate_data_objs))
     
   .self$append_used_data_objects(merged_obj$meta_data[[data_name_label]],merged_obj)
   
   # return the merged object
-    used_data_objects[[ merged_obj$get_meta(data_name_label) ]]
+  used_data_objects[[ merged_obj$get_meta(data_name_label) ]]
 
 }
 )
