@@ -46,7 +46,8 @@ climate$methods( plot_annual_variable_total = function(data_list=list(), title =
 	    # Access data in methods
 	    curr_data_list = data_obj$get_data_for_analysis(data_list)
 		    for( curr_data in curr_data_list){
-	      	curr_data<-curr_data_list[i]
+	      	
+	      	curr_data = cbind(curr_data, new_rain=curr_data[[rain_col]])
 	      	mc<-ddply(curr_data,.(curr_data[[year_col]]),summarize,sum(is.na(curr_data[[rain_col]])))
 		      names(mc)<-c("year","count")
 		      mc<-mc$year[mc$count>20]
