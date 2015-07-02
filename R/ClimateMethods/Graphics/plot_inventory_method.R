@@ -25,6 +25,7 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
   for(data_obj in climate_data_objs) {
   
     data_name = data_obj$get_meta(data_name_label)
+    print(data_name)
     date_col = data_obj$getvname(date_label)
     var_col = data_obj$getvname(var_label)
     station_col = data_obj$getvname(station_label)
@@ -40,10 +41,6 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
       #Stations will be plotted from bottom to top but we want alphatically first to be on the top so sort stations into reverse alphabetical order. 
       curr_data<-curr_data[rev(order(curr_data[[station_col]])),]
     
-    }else{
-    
-      #Stations will be plotted just as it is passed in 
-      curr_data<-curr_data[curr_data[[station_col]],]
     }
     #reshape data into 1 row per day, 1 column per station, with values as calculated previously
     curr_data<-reshape(curr_data[,c(station_col,date_col,"val")],timevar=station_col,idvar=date_col,v.names="val",direction="wide")
