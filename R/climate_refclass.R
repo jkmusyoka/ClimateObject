@@ -388,7 +388,7 @@ climate$methods(plot_missing_values_rain = function(data_list=list(), threshold 
       a2<-subset(curr_data, curr_data[[rain_col]] > curr_threshold)
       a3<-subset(curr_data, curr_data[[rain_col]] <= curr_threshold)
       a1<-curr_data[is.na(curr_data[[rain_col]]),]
-      plot2<-plot.new()
+      #plot2<-plot.new()
 
       plot(curr_data[[season_col]],curr_data[[dos_col]], ylim=c(0,500), log = "", asp = NA, xlab="Year",ylab="Day of Year", main="Rain Present")
       #plot.window(xlim=c(min(curr_data[[season_col]]),max(curr_data[[season_col]])),ylim=c(0,500), log = "", asp = NA) #TO DO Tidy up graphical parameters
@@ -399,7 +399,7 @@ climate$methods(plot_missing_values_rain = function(data_list=list(), threshold 
       points(as.numeric(a3[[season_col]]),a3[[dos_col]],pch="-",col=fill_col[2])
       
       # TO DO output multiple plots in multiple ways
-      plot2
+      #plot2
     }
   }
 }
