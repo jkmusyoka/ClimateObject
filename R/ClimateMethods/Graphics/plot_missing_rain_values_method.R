@@ -18,7 +18,7 @@
 #' @return Plot the missing values
 #' 
 
-climate$methods(plot_missing_values_rain = function(data_list=list(), threshold = 0.85, fill_col=c("blue","yellow","red")){    
+climate$methods(plot_missing_values_rain = function(data_list=list(), threshold = 0.85,main = c(data_name, "Rain Present"), fill_col=c("blue","yellow","red")){    
   
   #=======================================================================================
   # This function plots the missing values for the rainfall amount, per year
@@ -39,6 +39,8 @@ climate$methods(plot_missing_values_rain = function(data_list=list(), threshold 
   
   for(data_obj in climate_data_objs_list) {
     
+    data_name = data_obj$get_meta(data_name_label)
+    
     curr_threshold = data_obj$get_meta(threshold_label, threshold)
     
     rain_col  = data_obj$getvname( rain_label )
@@ -57,7 +59,7 @@ climate$methods(plot_missing_values_rain = function(data_list=list(), threshold 
       plot2<-plot.new()
       
       plot(curr_data[[ season_col ]],curr_data[[ dos_col ]], xlim = c(range(min(curr_data[[ season_col ]]), max(curr_data[[ season_col ]]))), 
-           ylim = c(0,500), log = "", asp = NA, xlab = "Year", ylab = "Day of Year", main = "Rain Present")
+           ylim = c(0,500), log = "", asp = NA, xlab = "Year", ylab = "Day of Year", main = main)
       legend("topright",c("Rain","Dry","NA"),fill = fill_col, horiz=TRUE)
       points(as.numeric(a1[[ season_col ]]),a1[[ dos_col ]], pch="-", col = fill_col[3])
       points(as.numeric(a2[[ season_col ]]),a2[[ dos_col ]], pch="-", col = fill_col[1])
