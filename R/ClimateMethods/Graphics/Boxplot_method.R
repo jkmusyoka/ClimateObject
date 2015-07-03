@@ -14,8 +14,7 @@ climate$methods(Boxplot = function(data_list= list(), fill_col="blue",interest_v
   # Specifying the data_time_period
   data_list=add_to_data_info_time_period( data_list, data_period_label)
   # use data_list to get the required data objects
-  climate_data_objs = get_climate_data_objects( data_list ) 
-  print(climate_data_objs)
+  climate_data_objs = get_climate_data_objects( data_list )   
   
   for( data_obj in climate_data_objs){
     #threshold = data_obj$get_meta_new(threshold_label,missing(threshold),threshold)

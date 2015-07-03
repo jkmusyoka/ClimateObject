@@ -1,4 +1,4 @@
-climate$methods(extreme_events=function(data_list=list(),required_var=rain_label,na.rm=T){
+climate$methods(extreme_events=function(data_list=list(),required_var=rain_label,na.rm=TRUE,extreme=max){
   
   #required variable
   data_list = add_to_data_info_required_variable_list(data_list, list(required_var))
@@ -32,7 +32,7 @@ climate$methods(extreme_events=function(data_list=list(),required_var=rain_label
       for (year in unique(curr_data[[season_col]])){
         sub=subset(curr_data,curr_data[[season_col]]==year)
         
-        mx[[year-min(unique(curr_data[[season_col]])-1)]]=c(year,sub[[dos_col]][sub[[rain_col]]==max(sub[[rain_col]],na.rm=na.rm)],max(sub[[rain_col]],na.rm=na.rm))  
+        mx[[year-min(unique(curr_data[[season_col]])-1)]]=c(year,sub[[dos_col]][sub[[rain_col]]==extreme(sub[[rain_col]],na.rm=na.rm)],extreme(sub[[rain_col]],na.rm=na.rm))  
         
       }
       df <- data.frame(matrix(unlist(mx), nrow=length(unique(curr_data[[season_col]])), byrow=T))
