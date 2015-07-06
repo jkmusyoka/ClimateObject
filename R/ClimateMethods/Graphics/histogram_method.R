@@ -197,9 +197,9 @@ climate$methods(histogram = function(data_list = list()){
         
         # Themes
         k <- k + theme_bw()
-        k <- k + theme(panel.grid.major= element_line(color = "gray80"))
-        k <- k + theme(panel.grid.minor= element_line(color = "gray80",
-                                                      linetype = "dotted"))
+       # k <- k + theme(panel.grid.major= element_line(color = "gray80"))
+       # k <- k + theme(panel.grid.minor= element_line(color = "gray80",
+       #                                             linetype = "dotted"))
         
         # title and labels
         k <- k + labs(x=paste(var_col," [width of bin: ",bin.width,"]",sep=""),
