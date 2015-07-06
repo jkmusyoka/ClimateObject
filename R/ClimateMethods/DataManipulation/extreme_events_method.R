@@ -1,9 +1,11 @@
-climate$methods(extreme_events=function(data_list=list(),required_var=rain_label,na.rm=TRUE,extreme=max){
+climate$methods(extreme_events=function(data_list=list(), year, required_var=rain_label,na.rm=TRUE,max_min=TRUE,extreme=max,sum_day=1,val_threshold=FALSE,
+                                        threshold_value=0){
   
   #required variable
   data_list = add_to_data_info_required_variable_list(data_list, list(required_var))
   # date time period
   data_list = add_to_data_info_time_period(data_list, daily_label)
+  
   # a list of climate data objects
   climate_data_objs = get_climate_data_objects(data_list)
   for(data_obj in climate_data_objs) {
@@ -28,16 +30,53 @@ climate$methods(extreme_events=function(data_list=list(),required_var=rain_label
     curr_data_list = data_obj$get_data_for_analysis(data_list)
     
     for (curr_data in curr_data_list){
+      
+      if(missing(year)){  
+        warning("Since no years have been specified, we will take the whole years in the data")
+        
+        year = unique(curr_data[[season_col]])
+      }
+      else {  year = unique(year)}
+      
       mx=list()
-      for (year in unique(curr_data[[season_col]])){
+      
+      thresh=list()
+      
+      for (year in year){
         sub=subset(curr_data,curr_data[[season_col]]==year)
         
-        mx[[year-min(unique(curr_data[[season_col]])-1)]]=c(year,sub[[dos_col]][sub[[rain_col]]==extreme(sub[[rain_col]],na.rm=na.rm)],extreme(sub[[rain_col]],na.rm=na.rm))  
+        val=rowSums(outer(1:(length(sub[[rain_col]])-sum_day+1),1:sum_day,FUN=function(i,j){sub[[rain_col]][(j - 1) + i]}),na.rm=na.rm)
+        if(max_min){
+          if(!leap_year(year)){
+            doy=which(val %in% extreme(val))+(sum_day-1)+1
+            }else{
+              doy=which(val %in% extreme(val))+(sum_day-1)
+              }
+          if (length(doy)>1){
+            doy=min(doy) 
+            }
+          mx[[year-min(unique(curr_data[[season_col]])-1)]]=c(year,doy,extreme(val,na.rm=na.rm))          
+        }       
         
+        if (val_threshold){
+          if(!leap_year(year)){
+            doy=which(val>threshold_value,arr.ind=TRUE)+(sum_day-1)+1
+          }else{
+            doy=which(val > threshold_value, arr.ind=TRUE)+(sum_day-1)
+          }
+          thresh[[year-min(unique(curr_data[[season_col]])-1)]]=c(year,doy)
+          
+        }       
       }
-      df <- data.frame(matrix(unlist(mx), nrow=length(unique(curr_data[[season_col]])), byrow=T))
-      names(df)=c("Year","DOY","Amount")
-      return(df)
+      
+      if (max_min){
+        df <- data.frame(matrix(unlist(mx), nrow=length(unique(curr_data[[season_col]])), byrow=T))
+        names(df)=c("Year","DOY","Amount")
+        return(df)
+      }
+      if (val_threshold){
+        return(thresh)
+      }      
     }
   }  
 }
