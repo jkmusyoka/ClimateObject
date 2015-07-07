@@ -4,7 +4,8 @@
 #' @author Abib Duut 2015
 #' 
 #' @description \code{inventory plot}
-#' This displays the data present for multiple stations, which helps to m 
+#' This displays the data present for multiple stations, which helps in visual comparisons of avaliable data across multiple stations. 
+#' data should contain the following columns (but not neccessarily named as) station, date, rain.
 #'  
 #' @return an inventory plot for mutiple stations.
 #'----------------------------------------------------------------------------------------------------------------------------
