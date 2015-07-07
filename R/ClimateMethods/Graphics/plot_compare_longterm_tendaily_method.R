@@ -30,6 +30,7 @@ climate$methods(plot_compare_longterm_tendaily_totals = function(data_list = lis
   
   	for(data_obj in climate_data_objs) {
 	    data_name = data_obj$get_meta(data_name_label)    
+	    date_col = data_obj$getvname(date_label)
     	    curr_threshold = data_obj$get_meta(var_threshold_label,var_threshold)
     	    var_col  = data_obj$getvname(var_label)
             station_id_col = data_obj$getvname(station_label)
@@ -47,7 +48,7 @@ climate$methods(plot_compare_longterm_tendaily_totals = function(data_list = lis
 	dat2<-lapply(dat1, sum)
 
 	#split date values in to groups of 10 for the axis.
-	deta<-split(curr_data[[Date]], ceiling(seq_along(curr_data[[Date]])/10))
+	deta<-split(curr_data[[date_col]], ceiling(seq_along(curr_data[[date_col]])/10))
 
 	ndte<-NULL
 		for(i in 1:length(deta)){
@@ -56,8 +57,8 @@ climate$methods(plot_compare_longterm_tendaily_totals = function(data_list = lis
 		}
 
 	#compute monthly mean for each year.	
-	curr_data$Year<-year(curr_data$Date)
-	curr_data$Month<-month(curr_data$Date)
+	curr_data$Year<-year(curr_data[[date_col]])
+	curr_data$Month<-month(curr_data[[date_col]])
 	m_tot<-ddply(curr_data,.(Year,Month),summarise,sum(as.numeric(Rain),na.rm=T))
 	names(m_tot)<-c("Year","Month","M_Total")
 	m_stat<-ddply(m_tot,.(Month),summarise,mean(M_Total,na.rm=T))
