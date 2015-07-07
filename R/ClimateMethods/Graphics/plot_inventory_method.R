@@ -36,7 +36,7 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
     #Create binary field indicating whether variable of interest (Rain) is missing or non-missing
     curr_data$val<-as.numeric(is.na(curr_data[[var_col]]))
     station_list<-levels(curr_data[[station_col]])
-    View(curr_data)
+  
     if(sort==TRUE){
       #Stations will be plotted from bottom to top but we want alphatically first to be on the top so sort stations into reverse alphabetical order. 
       curr_data<-curr_data[rev(order(curr_data[[station_col]])),]
