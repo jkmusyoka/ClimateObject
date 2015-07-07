@@ -1,5 +1,5 @@
 climate$methods(extreme_events=function(data_list=list(), year, required_var=rain_label,na.rm=TRUE,max_min=TRUE,extreme=max,sum_day=1,val_threshold=FALSE,
-                                        threshold_value=0){
+                                        threshold_value=0,start_day=1, end_day=366){
   
   #required variable
   data_list = add_to_data_info_required_variable_list(data_list, list(required_var))
@@ -23,8 +23,8 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
     #get names of the columns in the data   
     rain_col  = data_obj$getvname(required_var)
     
-    dos_col   = data_obj$getvname(dos_label)  
-
+    dos_col   = data_obj$getvname(dos_label) 
+   
     season_col= data_obj$getvname(season_label)
     
     curr_data_list = data_obj$get_data_for_analysis(data_list)
@@ -43,15 +43,17 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
       thresh=list()
       
       for (year in year){
-        sub=subset(curr_data,curr_data[[season_col]]==year)
+        sub=subset(curr_data,curr_data[[season_col]]==year & curr_data[[dos_col]]>=start_day & curr_data[[dos_col]]<=end_day)
         
         val=rowSums(outer(1:(length(sub[[rain_col]])-sum_day+1),1:sum_day,FUN=function(i,j){sub[[rain_col]][(j - 1) + i]}),na.rm=na.rm)
+        
+        doy=sub[[dos_col]][sum_day-1+which(val %in% max(val,na.rm=na.rm))]
         if(max_min){
-          if(!leap_year(year)){
-            doy=which(val %in% extreme(val))+(sum_day-1)+1
-            }else{
-              doy=which(val %in% extreme(val))+(sum_day-1)
-              }
+#           if(!leap_year(year)){
+#             doy=which(val %in% extreme(val))+(sum_day-1)+1
+#             }else{
+#               doy=which(val %in% extreme(val))+(sum_day-1)
+#               }
           if (length(doy)>1){
             doy=min(doy) 
             }
@@ -59,11 +61,11 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
         }       
         
         if (val_threshold){
-          if(!leap_year(year)){
-            doy=which(val>threshold_value,arr.ind=TRUE)+(sum_day-1)+1
-          }else{
-            doy=which(val > threshold_value, arr.ind=TRUE)+(sum_day-1)
-          }
+#           if(!leap_year(year)){
+#             doy=which(val>threshold_value,arr.ind=TRUE)+(sum_day-1)+1
+#           }else{
+#             doy=which(val > threshold_value, arr.ind=TRUE)+(sum_day-1)
+#           }
           thresh[[year-min(unique(curr_data[[season_col]])-1)]]=c(year,doy)
           
         }       
