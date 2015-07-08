@@ -57,8 +57,7 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
       # initialise the variable which will contain the results
       # --------------------------------------------------------------#
       dry_spell = list()
-      my = c()
-      
+      my = c()      
       for( season in interest_season) {
         
         if( !(season %in% unique(curr_data[[season_col]]) ) ) {
@@ -115,7 +114,7 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
           # for the different period required for that year or for all the years
           
           period_m = c()
-          
+                 
           for( j in 1 : length(doy_m) ) {
             
             period = doy_m[[ j ]]          
@@ -270,12 +269,12 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
               season_data_2[[month_col ]] = format(season_data_2[[ month_col ]], levels=month.abb)             
               #print(season_data_2)
               tables = dcast( season_data_2, season_data_2[[ day_col ]]~season_data_2[[month_col ]], value.var = "Spell_length")
-              names(tables)[1] <- "Day" 
+              names(tables[j])[1] <- "Day" 
               
         
               
               print(  paste0( "The table containing the different dry spell for each period in the year ", season, " is: " ), quote = FALSE  )
-              return(  tables  )
+              #return(  tables  )
               
                                     
             }
@@ -287,8 +286,9 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
         }
         
         dry_spell[season-(min(interest_season)-1)] = list(c(season,period_m))
+        table_yr[season-(min(interest_season)-1)]=list(tables)
       }     
-      return(dry_spell)
+      return(dry_spell)     
     }
    }
 }

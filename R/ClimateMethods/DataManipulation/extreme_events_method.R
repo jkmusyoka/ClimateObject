@@ -49,11 +49,6 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
         
         doy=sub[[dos_col]][sum_day-1+which(val %in% max(val,na.rm=na.rm))]
         if(max_min){
-#           if(!leap_year(year)){
-#             doy=which(val %in% extreme(val))+(sum_day-1)+1
-#             }else{
-#               doy=which(val %in% extreme(val))+(sum_day-1)
-#               }
           if (length(doy)>1){
             doy=min(doy) 
             }
@@ -61,13 +56,7 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
         }       
         
         if (val_threshold){
-#           if(!leap_year(year)){
-#             doy=which(val>threshold_value,arr.ind=TRUE)+(sum_day-1)+1
-#           }else{
-#             doy=which(val > threshold_value, arr.ind=TRUE)+(sum_day-1)
-#           }
-          thresh[[year-min(unique(curr_data[[season_col]])-1)]]=c(year,doy)
-          
+          thresh[[year-min(unique(curr_data[[season_col]])-1)]]=c(year,doy)          
         }       
       }
       
