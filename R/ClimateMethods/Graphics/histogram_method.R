@@ -16,6 +16,7 @@ climate$methods(gsub2 = function(pattern, replacement, x, ...) {
 
 climate$methods(histogram = function(data_list = list()){
   #######################################################################
+  require(ggplot2)
   # CLIMATE DATA OBJS
   climate_data_objs = get_climate_data_objects(data_list)
   
