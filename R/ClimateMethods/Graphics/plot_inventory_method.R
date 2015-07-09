@@ -15,7 +15,7 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
                                                    main_title="Inventory Data Plot: Rain"){
   
   #Require the columns needed in this method from the data.
-  data_list = add_to_data_info_required_variable_list(data_list, list(var_label))
+  data_list = add_to_data_info_required_variable_list(data_list, list(var_label,date_label, station_label))
   # Merge the data into a single data frame so that we can do a by station analysis.
   data_list[[merge_data_label]]=TRUE
   # time period and station
