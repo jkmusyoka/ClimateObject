@@ -12,7 +12,7 @@
 #' @param Rain.type character. Type of rainfall amount to plot. It is daily data 
 #  
 #' @examples
-#' climateObj <- climate( data_tables = list( data ), date_formats = list( "%m/%d/%Y" ) )
+#' climateObj <- climate$new( data_tables = list( data ), date_formats = list( "%m/%d/%Y" ) )
 #' # where "data" is a data.frame containing the desired data to be plotted.
 #' climateObj$plot_missing_values_rain()
 #' @return Plot the missing values
@@ -46,10 +46,12 @@ climate$methods(plot_missing_values_rain = function(data_list=list(), threshold 
     rain_col  = data_obj$getvname( rain_label )
     # If doy or year column is not in the data frame, create it.
     if ( !(data_obj$is_present( dos_label ) && data_obj$is_present( season_label ))) {
+    
       data_obj$add_doy_col()
     }
     dos_col = data_obj$getvname( dos_label )
     season_col = data_obj$getvname( season_label )
+    
     curr_data_list = data_obj$get_data_for_analysis( data_list )
     
     for( curr_data in curr_data_list ) {
@@ -57,6 +59,7 @@ climate$methods(plot_missing_values_rain = function(data_list=list(), threshold 
       a3 <- subset( curr_data, curr_data[[ rain_col ]] <= curr_threshold)
       a1<-curr_data[is.na( curr_data[[ rain_col]] ),]
       plot2<-plot.new()
+      
       
       plot(curr_data[[ season_col ]],curr_data[[ dos_col ]], xlim = c(range(min(curr_data[[ season_col ]]), max(curr_data[[ season_col ]]))), 
            ylim = c(0,500), log = "", asp = NA, xlab = "Year", ylab = "Day of Year", main = main)
