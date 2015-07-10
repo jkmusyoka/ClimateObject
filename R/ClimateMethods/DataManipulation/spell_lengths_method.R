@@ -1,5 +1,5 @@
 
-climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,threshold=0.85,print_table=TRUE)
+climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m, threshold= 0.85, print_table=TRUE, months_list=month.abb)
   
   {
   data_list = add_to_data_info_required_variable_list(data_list, list(rain_label))
@@ -57,7 +57,8 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
       # initialise the variable which will contain the results
       # --------------------------------------------------------------#
       dry_spell = list()
-      my = c()      
+      my = c()  
+      tables=list()
       for( season in interest_season) {
         
         if( !(season %in% unique(curr_data[[season_col]]) ) ) {
@@ -268,14 +269,13 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
               
               season_data_2[[month_col ]] = format(season_data_2[[ month_col ]], levels=month.abb)             
               #print(season_data_2)
-              tables = dcast( season_data_2, season_data_2[[ day_col ]]~season_data_2[[month_col ]], value.var = "Spell_length")
-              names(tables[j])[1] <- "Day" 
+              tables[[season-min(unique(interest_season)-1)]] = dcast( season_data_2, season_data_2[[ day_col ]]~season_data_2[[month_col ]], value.var = "Spell_length")
+              names(tables[[season-min(unique(interest_season)-1)]]) <-c("Day" ,months_list)
               
         
               
-              print(  paste0( "The table containing the different dry spell for each period in the year ", season, " is: " ), quote = FALSE  )
-              #return(  tables  )
-              
+              #print(  paste0( "The table containing the different dry spell for each period in the year ", season, " is: " ), quote = FALSE  )
+                    
                                     
             }
             
@@ -285,10 +285,11 @@ climate$methods(spell_lengths=function(data_list=list(),interest_season,doy_m,th
           
         }
         
-        dry_spell[season-(min(interest_season)-1)] = list(c(season,period_m))
-        table_yr[season-(min(interest_season)-1)]=list(tables)
+        dry_spell[season-(min(interest_season)-1)] = list(c(season,period_m)) 
+        table=tables[-(which(sapply(tables,is.null),arr.ind=TRUE))]
       }     
-      return(dry_spell)     
+      #return(dry_spell) 
+      return(table)
     }
    }
 }

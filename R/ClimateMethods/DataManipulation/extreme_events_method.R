@@ -42,8 +42,8 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
       
       thresh=list()
       
-      for (year in year){
-        sub=subset(curr_data,curr_data[[season_col]]==year & curr_data[[dos_col]]>=start_day & curr_data[[dos_col]]<=end_day)
+      for (yr in year){
+        sub=subset(curr_data,curr_data[[season_col]]==yr & curr_data[[dos_col]]>=start_day & curr_data[[dos_col]]<=end_day)
         
         val=rowSums(outer(1:(length(sub[[rain_col]])-sum_day+1),1:sum_day,FUN=function(i,j){sub[[rain_col]][(j - 1) + i]}),na.rm=na.rm)
         
@@ -52,16 +52,16 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
           if (length(doy)>1){
             doy=min(doy) 
             }
-          mx[[year-min(unique(curr_data[[season_col]])-1)]]=c(year,doy,extreme(val,na.rm=na.rm))          
+          mx[[yr-min(unique(curr_data[[season_col]])-1)]]=c(yr,doy,extreme(val,na.rm=na.rm))          
         }       
         
         if (val_threshold){
-          thresh[[year-min(unique(curr_data[[season_col]])-1)]]=c(year,doy)          
+          thresh[[yr-min(unique(curr_data[[season_col]])-1)]]=c(yr,doy)          
         }       
       }
-      
+    
       if (max_min){
-        df <- data.frame(matrix(unlist(mx), nrow=length(unique(curr_data[[season_col]])), byrow=T))
+        df <- data.frame(matrix(unlist(mx), nrow=length(year), byrow=T))
         names(df)=c("Year","DOY","Amount")
         return(df)
       }
