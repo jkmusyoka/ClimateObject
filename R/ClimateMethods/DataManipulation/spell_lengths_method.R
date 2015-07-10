@@ -9,6 +9,13 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
   climate_data_objs_list = get_climate_data_objects(data_list)
   
   for(data_obj in climate_data_objs_list){
+    if( missing( doy_m ) ) {
+      warning( "Since no range of values has been specified, the whole year will be considered.")
+      doy_m =list(c( 1, 366 ))
+    }else {
+      if( !( class( doy_m) == "list" ) ){ stop( "The input doy_m should be of type list, consiting of elemnts of length 2")}
+    }
+    
     threshold = data_obj$get_meta_new(threshold_label,missing(threshold),threshold)
     #add season column to the data
     if ( !(data_obj$is_present(season_label))) {
@@ -42,18 +49,14 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
     curr_data_list = data_obj$get_data_for_analysis(data_list)
     
     for( curr_data in curr_data_list ){
+      
       if(missing(interest_season)){  warning("Since no years have been specified, we will take the whole years in the
                               data set by default") 
                           interest_season = unique(curr_data[[season_col]])
       }
       else {  interest_season = unique(interest_season)}
+           
       
-      if( !( class( doy_m) == "list" ) ){ stop( "The input doy_m should be of type list, consiting of elemnts of length 2")}
-      
-      if( missing( doy_m ) ) {
-        warning( "Since no range of values has been specified, the whole year will be considered.")
-        doy_m = c( 1, 366 )
-      }
       # initialise the variable which will contain the results
       # --------------------------------------------------------------#
       dry_spell = list()
@@ -223,7 +226,7 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
                 }
                 
                 if( dat[ dat[[ 1 ]] == doym, 2 ] <= threshold ){ 
-                  ind = which( dat[[ 1 ]] %in% doym )
+                  ind = which( dat[[ 1 ]] %in% doym )                  
                   if( dat[ ( ind - 1 ) , 2 ] <= threshold ){
                     column_var =c(0, column_var)
                     doym = doym-1
@@ -284,12 +287,14 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
           
           
         }
-        
-        dry_spell[season-(min(interest_season)-1)] = list(c(season,period_m)) 
+        dry_spell[season-(min(interest_season)-1)] = list(c(season,period_m))       
+      } 
+      if ( ( period[ 1 ] == 1 && period[ 2 ] == 366 && print_table ) | ( missing( doy_m ) && print_table ) ){
         table=tables[-(which(sapply(tables,is.null),arr.ind=TRUE))]
-      }     
-      #return(dry_spell) 
-      return(table)
+        return(table)
+      }else{         
+        return(dry_spell)
+      }
     }
    }
 }
