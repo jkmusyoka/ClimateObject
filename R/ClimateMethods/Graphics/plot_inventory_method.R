@@ -16,19 +16,21 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
   
   #Require the columns needed in this method from the data.
   data_list = add_to_data_info_required_variable_list(data_list, list(var_label,date_label, station_label))
+  
   # Merge the data into a single data frame so that we can do a by station analysis.
   data_list[[merge_data_label]]=TRUE
   # time period and station
   data_list = add_to_data_info_time_period(data_list, daily_label)
+  
   climate_data_objs = get_climate_data_objects(data_list)
-  print(climate_data_objs)
+  
   for(data_obj in climate_data_objs) {
   
     data_name = data_obj$get_meta(data_name_label)
     date_col = data_obj$getvname(date_label)
     var_col = data_obj$getvname(var_label)
     station_col = data_obj$getvname(station_label)
-    
+  
      if(missing(ylab)){
       ylab = data_obj$getvname(var_label)
     }
@@ -36,7 +38,7 @@ climate$methods(plot_inventory = function (data_list=list(),ylab,na.rm=TRUE,col=
     #Create binary field indicating whether variable of interest (Rain) is missing or non-missing
     curr_data$val<-as.numeric(is.na(curr_data[[var_col]]))
     station_list<-levels(curr_data[[station_col]])
-  
+      
     if(sort==TRUE){
       #Stations will be plotted from bottom to top but we want alphatically first to be on the top so sort stations into reverse alphabetical order. 
       curr_data<-curr_data[rev(order(curr_data[[station_col]])),]

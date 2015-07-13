@@ -115,7 +115,7 @@ ident_var <- function (data,variables) {
   
   merged <- variables 
   if(!(station_label %in% names(merged))){
-    for (label in c("Station","station","Station_id","station_id","ID","ID.", "Name", "name")){
+    for (label in c("Station","station","Station_id","station_id","ID","ID.", "Name", "name","StationName","StationID")){
       if (label %in% names(data)){
         merged[[station_label]]<-label
         break
