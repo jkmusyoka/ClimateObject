@@ -1,5 +1,5 @@
 
-climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m, threshold= 0.85, print_table=TRUE, months_list=month.abb)
+climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold= 0.85, print_table=TRUE, months_list=month.abb,separate=FALSE,na.rm=TRUE)
   
   {
   data_list = add_to_data_info_required_variable_list(data_list, list(rain_label))
@@ -50,11 +50,11 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
     
     for( curr_data in curr_data_list ){
       
-      if(missing(interest_season)){  warning("Since no years have been specified, we will take the whole years in the
+      if(missing(years)){  warning("Since no years have been specified, we will take the whole years in the
                               data set by default") 
-                          interest_season = unique(curr_data[[season_col]])
+                          years = unique(curr_data[[season_col]])
       }
-      else {  interest_season = unique(interest_season)}
+      else {  years = unique(years)}
            
       
       # initialise the variable which will contain the results
@@ -62,11 +62,11 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
       dry_spell = list()
       my = c()  
       tables=list()
-      for( season in interest_season) {
+      for( season in years) {
         
         if( !(season %in% unique(curr_data[[season_col]]) ) ) {
           warning(paste0("There is no data for the season ", season))
-          dry_spell[season-(min(interest_season)-1)] = NA
+          dry_spell[season-(min(years)-1)] = NA
         }
         else{         
           
@@ -145,7 +145,7 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
             #Now we assign the column vector of the season_data_doy to a variable
             # ----------------------------------------------------------------------#
             column_var = season_data_doy[ , 2 ]
-                       
+                 
             season_data_2 = season_data
             
             # ----------------------#
@@ -161,7 +161,7 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
             dat = season_data
             first_year = FALSE
             mx = c() 
-            if( season == unique(curr_data[[season_col]])[1] |  !( (season-1) %in% unique(curr_data[[season_col]]) ) ) {
+            if( (season == unique(curr_data[[season_col]])[1] |  !( (season-1) %in% unique(curr_data[[season_col]]) )) && !separate ) {
               first_year = TRUE
               my = append( season, my)
               # -----------------------#
@@ -177,7 +177,7 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
                 }
                 
                 if( dat[ dat[[1]] == doym, 2] <= threshold ){ 
-                  ind = which( dat[[ 1 ]] %in% doym )
+                  ind = which( dat[[ 1 ]] %in% doym )                
                   if( dat[ ( ind - 1 ), 2 ] <= threshold){
                     column_var =c(0, column_var)
                     doym = doym-1
@@ -213,28 +213,30 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
             # Incase those two conditions are not satisfied 
             else{
               
-              while(count == 1){
+              if (!separate){
                 
-                if(doym==60 & (60 %in% indic)){doym=59}
-                
-                if(doym ==1){
-                  if( dat[ dat[[ 1 ]] == doym, 2 ] <= threshold ){
-                    column_var = c( 0, column_var )
-                    dat = season_data_1
-                    doym = dat[ dim( dat )[ 1 ], c( 1 ) ]
+                while(count == 1){
+                  
+                  if(doym==60 & (60 %in% indic)){doym=59}
+                  
+                  if(doym ==1){
+                    if( dat[ dat[[ 1 ]] == doym, 2 ] <= threshold ){
+                      column_var = c( 0, column_var )
+                      dat = season_data_1
+                      doym = dat[ dim( dat )[ 1 ], c( 1 ) ]
+                    }
                   }
-                }
-                
-                if( dat[ dat[[ 1 ]] == doym, 2 ] <= threshold ){ 
-                  ind = which( dat[[ 1 ]] %in% doym )                  
-                  if( dat[ ( ind - 1 ) , 2 ] <= threshold ){
-                    column_var =c(0, column_var)
-                    doym = doym-1
+                  
+                  if( dat[ dat[[ 1 ]] == doym, 2 ] <= threshold ){ 
+                    ind = which( dat[[ 1 ]] %in% doym )                   
+                    if( dat[ ( ind - 1 ) , 2 ] <= threshold ){
+                      column_var =c(0, column_var)
+                      doym = doym-1
+                    }
+                    else {count =-1}
                   }
-                  else {count =-1}
-                }
-                else {count=-2}
-                
+                  else {count=-2}
+                  }
               }
               # ---------------------------------------------------#
               #Assign all the values in column_var whose values are <= 0.85
@@ -249,6 +251,7 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
               }
               
               Vec = zeroes(column_var)
+              #print(Vec)
            
               period_m[j] =  max(Vec)
             }       
@@ -266,33 +269,37 @@ climate$methods(spell_lengths=function(data_list=list(), interest_season, doy_m,
                 season_data_2$Spell_length = Vec
               }
               else{         
-                season_data_2$Spell_length = Vec[-( 1 : ( length( Vec ) - dim(season_data_2)[1] ) )] 
+                season_data_2$Spell_length = Vec[-( 1 :(length( Vec ) - dim(season_data_2)[1]))] 
               }
               #print(season_data_2)
               
               season_data_2[[month_col ]] = format(season_data_2[[ month_col ]], levels=month.abb)             
               #print(season_data_2)
-              tables[[season-min(unique(interest_season)-1)]] = dcast( season_data_2, season_data_2[[ day_col ]]~season_data_2[[month_col ]], value.var = "Spell_length")
-              names(tables[[season-min(unique(interest_season)-1)]]) <-c("Day" ,months_list)
+              tables[[season-min(unique(years)-1)]] = dcast( season_data_2, season_data_2[[ day_col ]]~season_data_2[[month_col ]], value.var = "Spell_length")
+              names(tables[[season-min(unique(years)-1)]]) <-c("Day" ,months_list) 
+              tables[[season-min(unique(years)-1)]][,1] = as.character(tables[[season-min(unique(years)-1)]][,1])
+              Day = "Maximum"
               
-        
+              dat1 = tables[[season-min(unique(years)-1)]][,2:13]
+              dat2 = sapply(dat1[,1:12], as.numeric)
+              summ =suppressWarnings(as.data.frame(lapply(as.data.frame(dat2), max, na.rm = na.rm)))
               
-              #print(  paste0( "The table containing the different dry spell for each period in the year ", season, " is: " ), quote = FALSE  )
-                    
-                                    
-            }
+              tables[[season-min(unique(years)-1)]] = join(tables[[season-min(unique(years)-1)]], cbind(Day,summ), by = c("Day",month.abb), type = "full", match = "all")
+                                   
+            }           
             
-            
-          }
-          
+          }      
           
         }
-        dry_spell[season-(min(interest_season)-1)] = list(c(season,period_m))       
+        dry_spell[season-(min(years)-1)] = list(c(season,period_m))       
       } 
       if ( ( period[ 1 ] == 1 && period[ 2 ] == 366 && print_table ) | ( missing( doy_m ) && print_table ) ){
-        table=tables[-(which(sapply(tables,is.null),arr.ind=TRUE))]
+        table=tables[ ! sapply(tables, is.null) ]
+        my_names=paste("year",unique(years),sep = " ")        
+        table=setNames(table, my_names)
         return(table)
-      }else{         
+      }else{ 
+        dry_spell=dry_spell[ ! sapply(dry_spell, is.null) ]        
         return(dry_spell)
       }
     }
