@@ -27,6 +27,7 @@ read_write_multistat<-function( filename="", format= "csv"){
                       nf<-noquote(tools::file_path_sans_ext(f$f))
                       mv<-paste(nf,'<-','read.', format, '("',f$f, '", header=T)' , sep='')
                       write.table(noquote(mv), file=as.character(filename), quote=F, row.names=F, sep=",")
-                      
+                      filen<-noquote(paste(paste(nf,'=', nf),"",collapse=","))
+                  filen    
 }
   
