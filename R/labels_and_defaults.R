@@ -44,6 +44,8 @@ start_of_label="start_of"
 end_of_label="end_of"
 seasonal_total_label = "seasonal_total"
 seasonal_raindays_label = "seasonal_raindays"
+max_min_label = "max_min"
+extreme_event_day_label = "extreme_event_day"
 
 waterbalance_label = "waterbalance"
 end_of_rain_label="end_of_rain"
