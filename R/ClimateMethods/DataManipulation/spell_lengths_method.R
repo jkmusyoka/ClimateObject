@@ -220,13 +220,17 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
                   if(doym==60 & (60 %in% indic)){doym=59}
                   
                   if(doym ==1){
-                    if( dat[ dat[[ 1 ]] == doym, 2 ] <= threshold ){
+                    if( dat[ dat[[ 1 ]] == doym, 2 ] <= threshold && season_data_1[ season_data_1[[ 1 ]] == 366, 2 ] <= threshold ){
                       column_var = c( 0, column_var )
+                      dat = season_data_1
+                      doym = dat[ dim( dat )[ 1 ], c( 1 ) ]
+                    }else{
+                      column_var = c(column_var )
                       dat = season_data_1
                       doym = dat[ dim( dat )[ 1 ], c( 1 ) ]
                     }
                   }
-                  
+                  if (!leap_year(season) && doym==60){doym=59}
                   if( dat[ dat[[ 1 ]] == doym, 2 ] <= threshold ){ 
                     ind = which( dat[[ 1 ]] %in% doym )                   
                     if( dat[ ( ind - 1 ) , 2 ] <= threshold ){
@@ -236,7 +240,7 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
                     else {count =-1}
                   }
                   else {count=-2}
-                  }
+                  }              
               }
               # ---------------------------------------------------#
               #Assign all the values in column_var whose values are <= 0.85
@@ -250,8 +254,7 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
                 (!(column_var)) * unlist(lapply(rle(column_var)$lengths, seq_len))
               }
               
-              Vec = zeroes(column_var)
-              #print(Vec)
+              Vec = zeroes(column_var)        
            
               period_m[j] =  max(Vec)
             }       
