@@ -1,5 +1,34 @@
 
-climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold= 0.85, print_table=TRUE, months_list=month.abb,separate=FALSE,na.rm=TRUE)
+#==================================================================================================
+# Spell Lengths
+#' @title Spell lengths.
+#' @name spell_lengths
+#' @author Fanuel, Andree and Steve 2015 (AMI)
+
+#' @description \code{Spell lengths} 
+#' produces yearly table(s) of spell lengths  and longest dry spell for a specified period(s) in a year.
+#'  
+#' @param years A vector of numeric years from which to get the extreme, default is all years in the data.
+#' @param doy_m A list of vector(s) of period(s) from which you want to get the longest dry spel. Must be days of the year (i.e 1-366).
+#' @param threshold A value below which a day is considered dry.
+#' @param print_table A logical scalar. Should the table of spell lengths be computed?. print_table=TRUE prints
+#' tables of spell lengths per year and print_table=FALSE prints longest dry spell per year.
+#' @param months_list Labels for months needed for the table of spell lengths.
+#' @param separate A logical scalar. Should the years be handles separately. Separate==TRUE treats the years separately, 
+#' otherwise previous years are considered when computing dry spell for the current year.
+#' @param na.rm A logical scalar. Should the NAs (including NaN) be removed?
+#' @param df.names Column names of longest spell lengths.
+#' 
+#' @examples
+#' ClimateObj <- climate( data_tables = list( dataframe=dataframe ), date_formats = list( "%m/%d/%Y" ) )
+#' Default dateformats: "%Y/%m/%d"
+#' where "data" is a data.frame containing the desired data to be computed.
+#' climateObj$spell_lengths() 
+#' @return return yearly table(s) of spell lengths  and longest dry spell for period(s) in a year.The default
+#' is longest dry spell per season.
+
+climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold= 0.85, print_table=FALSE, months_list=month.abb,separate=FALSE,na.rm=TRUE,
+                                       df.names="spell length")
   
   {
   data_list = add_to_data_info_required_variable_list(data_list, list(rain_label))
@@ -241,6 +270,26 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
                   }
                   else {count=-2}
                   }              
+              }else{
+                while(count == 1){
+                  
+                  if(doym==60 & (60 %in% indic)){doym=59}
+                  
+                  if(doym ==1){
+                    break
+                  }
+                  if (!leap_year(season) && doym==60){doym=59}
+                  if( dat[ dat[[1]] == doym, 2] <= threshold ){ 
+                    ind = which( dat[[ 1 ]] %in% doym )                
+                    if( dat[ ( ind - 1 ), 2 ] <= threshold){
+                      column_var =c(0, column_var)
+                      doym = doym-1
+                    }
+                    else {count =-1}
+                  }
+                  else {count=-2}
+                  
+                }
               }
               # ---------------------------------------------------#
               #Assign all the values in column_var whose values are <= 0.85
@@ -302,10 +351,16 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
         table=setNames(table, my_names)
         return(table)
       }else{ 
-        dry_spell=dry_spell[ ! sapply(dry_spell, is.null) ]        
-        return(dry_spell)
+        dry_spell=dry_spell[ ! sapply(dry_spell, is.null) ]
+        df=data.frame(matrix(unlist(dry_spell), nrow=length(years), byrow=T))
+        names(df)=c("Year",paste(df.names,doy_m, sep=" "))       
+        return(df)
       }
     }
    }
 }
 )
+
+#=======TO DO============================================================================================
+#Append the longest spell lengths to the summary_obj
+#Add a row of missing values to the yearly table of spell lengths

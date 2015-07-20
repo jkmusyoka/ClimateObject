@@ -1,3 +1,31 @@
+#==================================================================================================
+# 
+#' @title Boxplot of daily rainfall per month.
+#' @name boxplot_monthly_daily_rainfall
+#' @author Fanuel 2015 (AMI)
+
+#' @description \code{Spell lengths} 
+#' produces box-and-whisker plot(s) of daily rainfall observation
+#'  
+#' @param whisklty Whisker line type.
+#' @param fill_col Box color.
+#' @param whiskcol Color of whisker.
+#' @param connect_median A logical scalar. Should the medians be connected by a line?
+#' @param col_median Color of the line connecting the medians.
+#' @param lty_median Median line type.
+#' @param lwd Line width of the median line.
+#' @param title Boxplot title.
+#' @param ylab Y-axis label.
+#' @param xlab X-axis label.
+#' 
+#' @examples
+#' ClimateObj <- climate( data_tables = list( dataframe=dataframe ), date_formats = list( "%m/%d/%Y" ) )
+#' Default dateformats: "%Y/%m/%d"
+#' where "data" is a data.frame containing the desired data to be computed.
+#' climateObj$boxplot_monthly_daily_rainfall(). 
+#' @return return box-and-whisker plot(s).
+#'
+
 climate$methods(boxplot_monthly_daily_rainfall=function( data_list=list(), threshold=0.85, whisklty=1, whiskcol="red", fill_col="blue", connect_median=FALSE, lty_median=1,
                                                           col_median="black", lwd=1, title="Monthly Rainfall Amount",ylab="Rainfall (mm)",xlab="Month"){
   #--------------------------------------------------------------------------------------------#
