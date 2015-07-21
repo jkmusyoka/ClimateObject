@@ -42,28 +42,20 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
       warning( "Since no range of values has been specified, the whole year will be considered.")
       doy_m =list(c( 1, 366 ))
     }else {
-      if( !( class( doy_m) == "list" ) ){ stop( "The input doy_m should be of type list, consiting of elemnts of length 2")}
+      if( !( class( doy_m) == "list" ) ){ stop( "The input doy_m must be of type list, consiting of elements of length 2")}
     }
     
     threshold = data_obj$get_meta_new(threshold_label,missing(threshold),threshold)
-    #add season column to the data
-    if ( !(data_obj$is_present(season_label))) {
-      data_obj$add_doy_col()
-    }
     #if doy or dos is not in the data create it
     if( !( data_obj$is_present(dos_label) && data_obj$is_present(season_label) ) ) {
       data_obj$add_doy_col()
     }
     
     # add month column if not present
-    if( !( data_obj$is_present(month_label)) ) {
+    if( !( data_obj$is_present(month_label)) && !( data_obj$is_present(day_label)) ) {
       data_obj$add_year_month_day_cols()
-    }
-    
-    #add day column if not present
-    if( !( data_obj$is_present(day_label)) ) {
-      data_obj$add_year_month_day_cols()
-    }
+    }    
+
     # get names of columns in the data
     rain_col  = data_obj$getvname(rain_label)   
     
@@ -83,8 +75,7 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
                               data set by default") 
                           years = unique(curr_data[[season_col]])
       }
-      else {  years = unique(years)}
-           
+      else {  years = unique(years)}           
       
       # initialise the variable which will contain the results
       # --------------------------------------------------------------#
@@ -97,8 +88,7 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
           warning(paste0("There is no data for the season ", season))
           dry_spell[season-(min(years)-1)] = NA
         }
-        else{         
-          
+        else{           
           # ----------------------------------------------#
           #Subset the data for a particular year
           # ----------------------------------------------#          
@@ -230,10 +220,12 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
               } 
               
               Vec = zeroes(column_var)
+              
               if( Vec[1] == 1 && period[1] == 1 ){ 
-                mx = append( max(Vec), mx )
-                zj = Vec %in% 0
-                ij = which( zj %in% TRUE )
+                mx = append( max(Vec), mx )                
+                zj = Vec %in% 0    
+                print(zj)
+                ij = which( zj %in% TRUE )                
                 Vec[ 1: (ij[1] - 1) ] <- "m"
               }     
               period_m[j] =  max(  as.numeric( Vec[ !( Vec == "m" ) ] ) )
