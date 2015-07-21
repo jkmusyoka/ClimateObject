@@ -68,7 +68,7 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
       rettables[[data_obj$get_station_data(curr_data, station_label)]]=tables
     }
     # Only print if requested
-    if (print_tables) {print( tables, row.names = FALSE) }
+    if (print_tables) {print( tables, row.names = row.names) }
     # Always return the tables list because If we don't return and don't print then the method does nothing!    
     return( tables )
     }  
