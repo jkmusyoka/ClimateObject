@@ -18,7 +18,7 @@
 #' climateObj$display_daily()
 #' @return It returns tables list
 
-climate$methods(display_daily = function(data_list = list(), print_tables = FALSE, variable = rain_label, months_list = month.abb, day_display = "Day"){
+climate$methods(display_daily = function(data_list = list(), print_tables = FALSE,row.names = FALSE, variable = rain_label, months_list = month.abb, day_display = "Day"){
     
   #required variable
   data_list = add_to_data_info_required_variable_list(data_list, list(variable))
@@ -68,7 +68,7 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
       rettables[[data_obj$get_station_data(curr_data, station_label)]]=tables
     }
     # Only print if requested
-    if (print_tables) {print( tables) }
+    if (print_tables) {print( tables, row.names = row.names) }
     # Always return the tables list because If we don't return and don't print then the method does nothing!    
     return( tables )
     }  
