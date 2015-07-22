@@ -218,17 +218,18 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
               zeroes <- function(column_var){
                 (!(column_var)) * unlist(lapply(rle(column_var)$lengths, seq_len))
               } 
-              
               Vec = zeroes(column_var)
-              
-              if( Vec[1] == 1 && period[1] == 1 ){ 
-                mx = append( max(Vec), mx )                
+              kk = length(which ((dat[(1:period[1]), 2]>=threshold) %in% TRUE))
+
+              if( Vec[1] == 1 && kk==0){ 
+                mx = append( max(Vec), mx )
                 zj = Vec %in% 0    
-                print(zj)
-                ij = which( zj %in% TRUE )                
-                Vec[ 1: (ij[1] - 1) ] <- "m"
-              }     
+                kj = min(which( zj %in% TRUE ))
+                ij = min(c((as.numeric(kj)), period[2]))
+                Vec[ 1:(ij-1)] <- "m"
+              }   
               period_m[j] =  max(  as.numeric( Vec[ !( Vec == "m" ) ] ) )
+              if(period_m[j] == -Inf){ period_m[j] = "*"}
               
             } 
             # Incase those two conditions are not satisfied 
@@ -298,6 +299,7 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
               Vec = zeroes(column_var)        
            
               period_m[j] =  max(Vec)
+              if(period_m[j] == -Inf){ period_m[j] = "*"}
             }       
             
             
