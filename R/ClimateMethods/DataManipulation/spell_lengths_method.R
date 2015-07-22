@@ -227,6 +227,7 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
                 kj = min(which( zj %in% TRUE ))
                 ij = min(c((as.numeric(kj)), period[2]))
                 Vec[ 1:(ij-1)] <- "m"
+
               }   
               period_m[j] =  max(  as.numeric( Vec[ !( Vec == "m" ) ] ) )
               if(period_m[j] == -Inf){ period_m[j] = "*"}
