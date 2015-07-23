@@ -325,14 +325,30 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
               tables[[season-min(unique(years)-1)]] = dcast( season_data_2, season_data_2[[ day_col ]]~season_data_2[[month_col ]], value.var = "Spell_length")
               names(tables[[season-min(unique(years)-1)]]) <-c("Day" ,months_list) 
               tables[[season-min(unique(years)-1)]][,1] = as.character(tables[[season-min(unique(years)-1)]][,1])
-              Day = "Maximum"
+              Day = " "
               
               dat1 = tables[[season-min(unique(years)-1)]][,2:13]
               dat2 = sapply(dat1[,1:12], as.numeric)
               summ =suppressWarnings(as.data.frame(lapply(as.data.frame(dat2), max, na.rm = na.rm)))
-              
+              overall_max = c("Maximum",rep(NA,10),"(Overall:",paste(max(summ, na.rm=na.rm),")",sep = ""))
+              tables[[season-min(unique(years)-1)]] = rbind(tables[[season-min(unique(years)-1)]], overall_max)
               tables[[season-min(unique(years)-1)]] = join(tables[[season-min(unique(years)-1)]], cbind(Day,summ), by = c("Day",month.abb), type = "full", match = "all")
-                                   
+              missing = c(" ",rep(NA,13))
+              
+              for(i in 2:13){
+                sa = which(tables[[season-min(unique(years)-1)]][,i] %in% 0)
+                sb = which(tables[[season-min(unique(years)-1)]][,i] %in% NA)
+                sc = which(tables[[season-min(unique(years)-1)]][,i] %in% -Inf)
+                sf = which(tables[[season-min(unique(years)-1)]][,i] %in% "m")
+                tables[[season-min(unique(years)-1)]][sa,i]<-"--"
+                tables[[season-min(unique(years)-1)]][sb,i]<-" "
+                tables[[season-min(unique(years)-1)]][sc,i]<-"m"
+                missing[i] <- length(sf)
+              }
+              overall_miss_max = c("Missing",rep(" ",10),"(Overall:",paste(sum(as.numeric(missing[2:13]), na.rm=na.rm),")",sep = ""))
+              if(max(as.numeric(missing[2:13]), na.rm=na.rm)>0){
+                tables[[season-min(unique(years)-1)]] = rbind(tables[[season-min(unique(years)-1)]], overall_miss_max, missing)
+              }
             }           
             
           }      
@@ -358,4 +374,3 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
 
 #=======TO DO============================================================================================
 #Append the longest spell lengths to the summary_obj
-#Add a row of missing values to the yearly table of spell lengths
