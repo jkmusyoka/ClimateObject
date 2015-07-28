@@ -45,6 +45,7 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
     for( curr_data in curr_data_list ) {
       # initialize tables as a list
       tables = list()
+      tables_2 = list()
       # Split curr_data into single data frames for each year
       # It returns a list of data.frames, splited by year 
       # This is much faster (6x faster when checked) than subsetting
@@ -52,6 +53,7 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
       years_split <- split( curr_data, list( as.factor( curr_data[[year_col]] ) ) )
       # counter used in the loop
       i = 1
+      j = 1
       # loop through the splited data frames 
       for ( single_year in years_split ) {
         # produce table with data
@@ -60,17 +62,34 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
         end = length( colnames( tables[[i]] ) )
         names( tables[[i]] )[ 1 ] <- day_display
         colnames( tables[[i]] )[2:end] <- months_list[1:end-1]
+        
+        #create quick function to count number of obs larger than a certain value which can be run in an apply
+        largerthan <-function(x,val){
+          length(na.omit(x[x>val]))
+        }
+        #produce second table with summary stats
+        tables_2[[j]]<-rbind(colSums(tables[[j]][,-1],na.rm=T),apply(tables[[j]][,-1],2,max,na.rm=T),apply(tables[[j]][,-1],2,largerthan,val = 0.85))
+        ## add dimnames
+        tables_2[[j]]<-cbind(c("Total","Maximum","Number >0.85"),tables_2[[j]])
+        ## Making dataframe for second table
+        tables_2[[j]]=data.frame(tables_2[[j]])
+        
+        #add dimnames for the first column.
+        colnames(tables_2[[j]])[1]<-("Day")
         i = i + 1
+        j = j + 1 
+                
       }
       # The names of years_split is the list of years as strings.
       # These are better labels than numbers so they can be identified better
       names( tables ) <- names( years_split )
-      rettables[[data_obj$get_station_data(curr_data, station_label)]]=tables
+      rettables[[data_obj$get_station_data(curr_data, station_label)]]=tables  
     }
     # Only print if requested
     if (print_tables) {print( tables, row.names = row.names) }
+        
     # Always return the tables list because If we don't return and don't print then the method does nothing!    
-    return( tables )
+    return( tables_2 )
     }  
 }
 )
