@@ -64,7 +64,7 @@ max_rainfall_label = "max_rainfall"
 max_temp_min_label = "max_temp_min"
 max_temp_max_label = "max_temp_max"
 max_evaporation_label = "max_exaporation"
-
+spell_length_label  = "spell_length"
 #Labels for meta data which will be recognised by the Climate objects
 data_name_label="data_name"
 constructor_label="constructor"
@@ -548,4 +548,9 @@ doy_as_date <- function(doy, year) {
 mode_stat <- function(x) {
   ux <- unique(x)
   ux[which.max(tabulate(match(x, ux)))]
+}
+
+
+spell_length_count <- function(column_var){
+  (!(column_var)) * unlist(lapply(rle(column_var)$lengths, seq_len))
 }

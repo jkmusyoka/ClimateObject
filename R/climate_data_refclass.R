@@ -1261,3 +1261,39 @@ climate_data$methods(date_format_check = function(convert = TRUE, messages=TRUE)
   
 }
 )
+
+
+climate_data$methods(add_spell_length_col = function(col_name = "spell_length", threshold=0.85)
+{
+  
+  # Complete dates needed for calculations
+  missing_dates_check()
+  
+  rain_col = getvname(rain_label)  
+  
+  curr_data_list = get_data_for_analysis(data_info = list())
+  
+  for( curr_data in curr_data_list ) {    
+    
+    num_rows <- nrow(curr_data)       
+    
+    spell_length_col = curr_data[[rain_col]]    
+    
+    spell_length_col[spell_length_col <= threshold] <- 0 
+    
+    if (spell_length_col[1]<threshold|is.na(spell_length_col[[1]])){
+      spell_length_col[1]=NA      
+    }
+    for (i in 2:num_rows){
+      if ((spell_length_col[i]<threshold|is.na(spell_length_col[i])) & is.na(spell_length_col[i-1])){
+        spell_length_col[i]=NA 
+      }        
+    }
+    
+    spell_length_col=spell_length_count (spell_length_col)   
+    
+  }    
+    append_column_to_data(spell_length_col,col_name)
+    append_to_variables(spell_length_label, col_name)
+}
+)
