@@ -1,3 +1,4 @@
+#==================================================================================================
 # change format of the date
 #' @title Get the format of date as day+month
 #' @name day_month
@@ -5,8 +6,16 @@
 #' 
 #' @description \code{change format of date to be day+month }
 #' create a date column in the format day-month
-#'  
-#' @return It adds a day-month column on the data
+#' 
+#' @param data_list() list 
+#' 
+#'  @examples
+#'  climateObj <- climate (data_tables = list (data), date_formats = list( "%m/%d/%Y" )) 
+#'  Default dateformats: "%Y/%m/%d"
+#' # where "data" is a data.frame containing the desired data to be computed.
+#' 
+#' @return Adds a day-month column on the data
+#' 
 
 
 climate$methods(day_month = function(data_list = list(), time_period = daily_label, col_name = "Day_Month", month_format = "%m", required_format = "%d-%b"){
@@ -28,7 +37,7 @@ climate$methods(day_month = function(data_list = list(), time_period = daily_lab
     for (curr_data in curr_data_list){
       #Initialise the vector which will contain the result
       day_month_col <- c()
-     day_month_col <- format( strptime(curr_data[[date_col]], format="%Y-%m-%d"), format = required_format)          
+     day_month_col <- format( strptime(curr_data[[ date_col ]], format="%Y-%m-%d"), format = required_format)          
     }
   }
   data_obj$append_column_to_data(day_month_col, col_name)
