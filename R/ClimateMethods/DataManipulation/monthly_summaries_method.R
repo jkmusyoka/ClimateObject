@@ -1,4 +1,4 @@
-climate$methods(monthly_summary=function( data_list=list(),upper_lim = " ", lower_lim = 0, start_day = 1, end_day = 366, threshold=0, na.rm=TRUE, summ = min, decimals = 2){
+climate$methods(monthly_summary=function( data_list=list(),upper_lim = " ", lower_lim = 0, start_day = 1, end_day = 366, threshold=0, na.rm=TRUE, summ = mean, decimals = 2){
   #--------------------------------------------------------------------------------------------#
   # This function plots the boxplot of the daily rainfall observations per month for all the years
   #-------------------------------------------------------------------------------------------#
