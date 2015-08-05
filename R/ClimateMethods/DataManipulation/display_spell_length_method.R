@@ -1,7 +1,23 @@
 #==================================================================================================
+# Climatic Extremes
+#' @title Spell Length Table.
+#' @name display_spell_length
+#' @author Fanuel and Steve 2015 (AMI)
 
+#' @description  
+#' Displays the spell length table per year per month.
+#' @param col_name  The name of the spell length column.  
+#' @param months_list The names of the months.
+#' @param day_display The name of the first column in th table.
+#' @param na.rm  A logical indicating whether missing values should be removed.
+#' @examples
+#' ClimateObj <- climate( data_tables = list( dataframe=dataframe ), date_formats = list( "%m/%d/%Y" ) )
+#' Default dateformats: "%Y/%m/%d"
+#' where "data" is a data.frame containing the desired data to be computed.
+#' climateObj$display_spell_length().
+#' @return return yearly tables of spell lengths.
 climate$methods(display_spell_length = function(data_list = list(), col_name = "spell length", na.rm=TRUE,
-                                                decimal_places = 0, months_list = month.abb, day_display = "Day"){
+                                                months_list = month.abb, day_display = "Day"){
   
   data_list=add_to_data_info_required_variable_list(data_list, list(rain_label))
   

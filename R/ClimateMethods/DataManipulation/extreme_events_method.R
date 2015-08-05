@@ -29,8 +29,9 @@
 #' climateObj$extreme_events() ; View(climateObj$used_data_objects$dataframe$data)
 #' @return return columns of extreme events i.e maximum or minimum with the day of event and the values over threshold
 #'
-climate$methods(extreme_events=function(data_list=list(), year, required_var=rain_label,na.rm=TRUE,max_min=TRUE,extreme=max,sum_day=1,val_threshold=FALSE,
-                                        threshold_value=0,start_day=1, end_day=366, values_between=FALSE,lower_lim,upper_lim,col_name="Yearly Maximum",col_name2="extreme event day",replace=FALSE){
+climate$methods(extreme_events=function(data_list=list(), required_var=rain_label,na.rm=TRUE,max_min=TRUE,extreme=max,sum_day=1,val_threshold=FALSE,
+                                        threshold_value=0,start_day=1, end_day=366, values_between=FALSE,lower_lim,upper_lim,
+                                        col_name=c("Yearly Maximum","extreme event day"),replace=FALSE){
   
   #required variable
   data_list = add_to_data_info_required_variable_list(data_list, list(required_var))
@@ -39,8 +40,7 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
   
   # a list of climate data objects
   climate_data_objs = get_climate_data_objects(data_list)
-  for(data_obj in climate_data_objs) {
-    
+  for(data_obj in climate_data_objs) {    
     
     #add season column to the data
     if ( !(data_obj$is_present(season_label))) {
@@ -62,62 +62,46 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
     
     continue = TRUE
     
-    curr_definition = list(sum_day = sum_day, start_day = start_day, end_day=end_day, threshold_value=threshold_value,values_between=values_between)
-                        
+    curr_definition = list(sum_day = sum_day, start_day = start_day, end_day=end_day)
     
-    if(max_min && !val_threshold){
-      if(col_name %in% names(summary_obj$get_data()) && !replace) {
-        message(paste("A column named", col_name, "already exists. The column will not be replaced.
-                      To replace to column, re run this function and specify replace = TRUE."))
-        continue = FALSE
-      }
-      if(col_name %in% names(summary_obj$get_data()) && !replace) {
-        message(paste("A column named", col_name2, "already exists. The column will not be replaced.
-                      To replace to column, re run this function and specify replace = TRUE."))
-        continue = FALSE
-      }
-      
-      if(col_name %in% names(summary_obj$get_data()) && replace){
-        message(paste("A column named", col_name, "already exists. The column will be replaced 
-                      in the data."))
-      }
-      
-      if(col_name %in% names(summary_obj$get_data()) && replace){
-        message(paste("A column named", col_name2, "already exists. The column will be replaced 
-                      in the data."))
-      }
-      
-      if( continue && summary_obj$is_definition(required_var,max_min_label,curr_definition)) {
-        message("A column with this defintion already exists in the data.
-                The column will not be added again.")
-        continue = FALSE
-      }
-      
-      if( continue && summary_obj$is_definition(required_var,extreme_event_day_label,curr_definition)) {
-        message("A column with this defintion already exists in the data.
-                The column will not be added again.")
-        continue = FALSE
-      }
-      }    
+    #labels=c(max_min_label, extreme_event_label)
   
+    if(max_min && !val_threshold){
+      for (i in 1:length(col)){
+          
+        if(col_name[i] %in% names(summary_obj$get_data()) && !replace) {
+          message(paste("A column named", col_name[i], "already exists. The column will not be replaced.
+                        To replace to column, re run this function and specify replace = TRUE."))
+          continue = FALSE
+        }
+        
+        if(col_name[i] %in% names(summary_obj$get_data()) && replace){
+          message(paste("A column named", col_name[i], "already exists. The column will be replaced 
+                        in the data."))
+        }
+        
+        if( continue && summary_obj$is_definition(required_var,extreme_event_day_label,curr_definition)) {
+          message("A column with this defintion already exists in the data.
+                  The column will not be added again.")
+          continue = FALSE
+        }
+      }
+    }  
     if (continue){
     
       curr_data_list = data_obj$get_data_for_analysis(data_list)
       
       for (curr_data in curr_data_list){
         
-        if(missing(year)){  
-          warning("Since no years have been specified, we will take the whole years in the data")
-          
-          year = unique(curr_data[[season_col]])
-        }
-        else {  year = unique(year)}
+        years <- unique(curr_data[[season_col]])
         
-        mx=list()
+        mx=rep(NA,length(years))
+        
+        doy=mx
         
         thresh=list()
         
-        for (yr in year){
+        for (yr in years){
           
           if (values_between){
             if (missing(upper_lim)){
@@ -130,32 +114,31 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
             }else{
               sub=subset(curr_data,curr_data[[season_col]]==yr & curr_data[[dos_col]]>=start_day & curr_data[[dos_col]]<=end_day)
               }
-          val=rowSums(outer(1:(length(sub[[rain_col]])-sum_day+1),1:sum_day,FUN=function(i,j){sub[[rain_col]][(j - 1) + i]}),na.rm=na.rm)      
+           val=rowSums(outer(1:(length(sub[[rain_col]])-sum_day+1),1:sum_day,FUN=function(i,j){sub[[rain_col]][(j - 1) + i]}),na.rm=na.rm)      
           
-          if(max_min && !val_threshold){
-            doy=sub[[dos_col]][sum_day-1+which(val %in% extreme(val,na.rm=na.rm))]
-            if (length(doy)>1){
-              doy=min(doy) 
-              }
-            mx[[yr-min(unique(curr_data[[season_col]])-1)]]=c(yr,doy,extreme(val,na.rm=na.rm))          
+            if(max_min ){
+              doy_1=sub[[dos_col]][sum_day-1+which(val %in% extreme(val,na.rm=na.rm))]
+              if (length(doy_1)>1){
+                doy[[yr-min(unique(curr_data[[season_col]])-1)]]=min(doy_1) 
+                }else{
+                  doy[[yr-min(unique(curr_data[[season_col]])-1)]]=doy_1 
+                }
+              mx[[yr-min(unique(curr_data[[season_col]])-1)]]=extreme(val,na.rm=na.rm)          
           }       
           
           if (val_threshold){
-            doy=sub[[dos_col]][sum_day-1+which(val>threshold_value, arr.ind=TRUE)]
-            thresh[[yr-min(unique(curr_data[[season_col]])-1)]]=c(yr,doy)          
+            doy_1=sub[[dos_col]][sum_day-1+which(val>threshold_value, arr.ind=TRUE)]
+            thresh[[yr-min(unique(curr_data[[season_col]])-1)]]=c(yr,doy_1)          
           }       
         }
-      
-        if (max_min && !val_threshold){
-          df <- data.frame(matrix(unlist(mx), nrow=length(year), byrow=T))
-          names(df)=c("Year",col_name2,col_name)
-          summary_obj$append_column_to_data(df[[col_name2]], col_name2)
-          label = summary_obj$get_summary_label(required_var,extreme_event_day_label,curr_definition)
-          summary_obj$append_to_variables(label, col_name2)
+        result=list(mx,doy)       
+        if (max_min){
+          for (j in 1:length(col_name)){        
+            summary_obj$append_column_to_data(result[[j]], col_name[j])
+            label = summary_obj$get_summary_label(required_var,extreme_event_day_label,curr_definition)
+            summary_obj$append_to_variables(label, col_name[j])
+          } 
           
-          summary_obj$append_column_to_data(df[[col_name]], col_name)
-          label2 = summary_obj$get_summary_label(required_var, max_min_label,curr_definition)
-          summary_obj$append_to_variables(label2, col_name)          
         }
         if (val_threshold){
           return(thresh)
@@ -165,6 +148,6 @@ climate$methods(extreme_events=function(data_list=list(), year, required_var=rai
   }  
 }
 )
-#=========TO Do==============================================================
+#=========TO Do=========================================================================================================
 #Include Peaks over Threshold
 #Include Separate periods by at least 'some' day for both values over threshold and Peaks over threshold

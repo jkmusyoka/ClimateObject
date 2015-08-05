@@ -2,22 +2,36 @@
 # SEASONAL SUMMARIES
 #' @title compute seasonal summaries.
 #' @name seasonal_summary
-#' @author Frederic and Fanuel 2015 (AMI)
+#' @author Frederic, Fanuel and Steve 2015 (AMI)
 
 #' @description \code{seasonal.summary} 
-#' Adds a column of sesonal summaries (e.g rain totals and number of rain days) given climate object
+#' Adds  column(s) of sesonal summaries (e.g rain totals, number of rain days, and longest dry spell)
+#'  given climate object.
 #' 
-#' @param data_list list. 
-#' 
-#' @param seasonal.summary type character. Type of summary to be computed. It can be either
-#'  "season", "year". Default: "season"
-#  
+#' @param month_start A vector of months indicating when the calculation of seasonal summary should be started,
+#' the default is January. 
+#' @param number_month Number of months indicating how many months will be considered in the 
+#' calculation of seasonal summary.The default is three months i.e Jan,Feb and Mar.
+#' @param threshold    A value over which a day is considered rainy.
+#' @param func         A summary function e.g sum, mean, max, median.
+#' @param col_names    A list of vectors of names of columns to be appended to the yearly summary
+#' @param col_name     Name of the spell length column.
+#' @param  season_rain_total A logical indicating whether rain total column should be appended to
+#'the yearly summary object.
+#' @param  season_rain_days A logical indicating whether a column of rain days should be appended to
+#'the yearly summary object.
+#' @param  longest_dry_spell A logical indicating whether a column of longest dry spell in a given 
+#' period should be appended to the yearly summary object.
+#' @param replace  A logical indicating whether the column values in yearly summary object should be 
+#' replaced.
+#' @param  na.rm A logical indicating whether missing values should be removed.
+#' @param  
 #' @examples
-#' ClimateObj <- climate( data_tables = list( data ), date_formats = list( "%m/%d/%Y" ) )
+#' ClimateObj <- climate( data_tables = list(dataframe=dataframe), date_formats = list( "%m/%d/%Y" ) )
 #' Default dateformats: "%Y/%m/%d"
 #' # where "data" is a data.frame containing the desired data to be computed.
-#' climateObj$seasonal_summary()
-#' @return return columns of seasonal summaries
+#' climateObj$seasonal_summary();View(climateObj$used_data_objects$dataframe$data)
+#' @return return columns of seasonal summaries.
 #' 
 
 climate$methods(seasonal_summary = function(data_list = list(), month_start, number_month = 3, threshold = 0.85, func = sum,
@@ -89,7 +103,7 @@ climate$methods(seasonal_summary = function(data_list = list(), month_start, num
       labs = c(seasonal_total_label , seasonal_raindays_label, spell_length_label)
       conditions =c((season_rain_total && !season_rain_days && !longest_dry_spell)|(season_rain_total & season_rain_days & longest_dry_spell)|(season_rain_total & season_rain_days)|(season_rain_total & longest_dry_spell), 
                     (season_rain_days && !season_rain_total && !longest_dry_spell)|(season_rain_days & season_rain_total & longest_dry_spell)|(season_rain_days & season_rain_total)|(season_rain_days & longest_dry_spell),
-                    (!season_rain_days && !season_rain_total && longest_dry_spell)|(season_rain_days & season_rain_total & longest_dry_spell)|(longest_dry_spell & season_rain_total)|(season_rain_days & longest_dry_spell))
+                    (longest_dry_spell && !season_rain_days && !season_rain_total )|(season_rain_days & season_rain_total & longest_dry_spell)|(longest_dry_spell & season_rain_total)|(longest_dry_spell & season_rain_days ))
       for(i in 1:length(col_names[[period]])){
         if(conditions[i]){
           if(col_names[[period]][i] %in% names(summary_obj$get_data()) && !replace) {
@@ -115,8 +129,7 @@ climate$methods(seasonal_summary = function(data_list = list(), month_start, num
               continue = FALSE
             }
           }
-          
-          }
+        }
       }
       
       if(continue) {
@@ -157,12 +170,13 @@ climate$methods(seasonal_summary = function(data_list = list(), month_start, num
               summary_obj$append_to_variables(label, col_names[[period]][j])
             }
           }
-        }
-        
+        }        
       }
     }
-    
-    
-    }
   }
+}
 )
+#==================TO DO=======================================================================================
+# Restrict daily values between a given limit.
+# To consider days of the season instead of the months when specifying the season over which to calculate the summary.
+
