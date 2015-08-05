@@ -1,7 +1,7 @@
 # CUMULATIVE GRAPH and EXCEEDANCE GRAPH
 #' @title plot cumulative and exceedance graphs
 #' @name cumulative_exceedance_graphs
-#' @author Fanuel Omondi Otieno 2015 (AMI)
+#' @author Fanuel 2015 (AMI)
 
 #' @description \code{cumulative_exceedance_graphs} 
 #' Enables plotting cumulative and exceedance graphs given a climate object
@@ -11,8 +11,9 @@
 
 climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interest_var,cumulative_graph =TRUE, legend_bty="n",
                                                         color=rainbow(12),percent=TRUE, main="", xlabel="",ylabel="",line_type="o",
-                                                        convert=TRUE, data_period_label=daily_label, legend_position="center",
-                                                        legend_label=c("plot1","plot2"),station_name=TRUE, plot_window=FALSE,gpar=par(mfrow=c(2,4)))
+                                                        convert=TRUE, data_period_label=yearly_label, legend_position="center",
+                                                        legend_label=c("plot1","plot2"),station_name=TRUE, plot_window=FALSE,gpar=par(mfrow=c(2,4)),
+                                                        grid_sq=TRUE, nx=5, ny=nx,lwd=2,pch=21,box.lty=par("lty"))
 {  
   
   if (!is.list(interest_var)){
@@ -99,20 +100,23 @@ climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interes
           if (percent ==TRUE){
             
             if (ylabel==""){
-              ylabel= " Pencent of days" 
+              ylabel= "Percent of years" 
             }
             plot(sort_col[[i]], cum_perc_col[[i]],
                  main=c(data_name,main), xlab=xlabel, ylab=ylabel,type=line_type, col=color[i],
-                 xlim=range(sort_col),ylim=range(cum_perc_col))
+                 xlim=range(sort_col),ylim=range(cum_perc_col),pch=pch)
           }else{
             if (ylabel==""){
               ylabel= " Proportion of days" 
             }
             plot(sort_col[[i]], prop_col[[i]],main=c(data_name,main), xlab=xlabel, 
                  ylab=ylabel,type=line_type, col=color[i],
-                 xlim=range(sort_col),ylim=range(prop_col))
+                 xlim=range(sort_col),ylim=range(prop_col),pch=pch)
           }
           par(new=TRUE)
+        }
+        if(grid_sq==TRUE){
+          grid(nx, ny, lwd = lwd)
         }
       }else{
         par(new=FALSE)
@@ -128,23 +132,26 @@ climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interes
           if(percent == TRUE){
             # Plotting the exceedance graph
             if (ylabel==""){
-              ylabel= " Pencent of days" 
+              ylabel= " Percent of years" 
             }
             plot(sort_col[[i]], exceedance_col[[i]],xlab=xlabel,ylab=ylabel,xlim=range(sort_col),
-                 ylim=range(exceedance_col),col=color[i], main=c(data_name,main),type=line_type)
+                 ylim=range(exceedance_col),col=color[i], main=c(data_name,main),type=line_type,pch=pch)
             #         par(new=TRUE)
           }else{
             if (ylabel==""){
               ylabel= " Proportion of days" 
             }
             plot(sort_col[[i]], exceedance_prop[[i]],xlab=xlabel,ylab=ylabel,xlim=range(sort_col),
-                 ylim=range(exceedance_prop),col=color[i],main=c(data_name,main),type=line_type)
+                 ylim=range(exceedance_prop),col=color[i],main=c(data_name,main),type=line_type,pch=pch)            
           }
-          par(new=TRUE)
+          par(new=TRUE) 
         }
-      }
+        if(grid_sq==TRUE){
+          grid(nx, ny, lwd = lwd)
+        } 
+      }      
       if (length(interest_var)>1){
-        legend(legend_position,legend_label,fill = color, bty = legend_bty)
+        legend(legend_position,legend_label,fill = color, bty = legend_bty,box.lty=box.lty)
       }
     }    
   }

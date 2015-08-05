@@ -1,6 +1,6 @@
 #' Read multiple filenames and load files into R.
 #'This was inspired by work for James K. Musyoka.
-#' @title read and load multiple files.  
+#' @title read and write multiple files.  
 #' @name read_load_multifile()
 #' @author Abib Duut 2015 
 #'
@@ -9,24 +9,25 @@
 #' It is particularly useful when loading data for multiple stations, 
 #' and when creating a climate object for multiple stations. 
 #' It writes a file to the user's current working directory in the users specified format, 
-#' .csv or .txt.
+#' .csv or .txt. The user should have organise the files in a directory.
 #' @param filename
 #' format this could one of the two flat file formats .csv, .txt
 #' 
 #' @examples
-#'        read_load_multistat() # run this line in the working directory of your files.
+#'        read_write_multistat() # run this line in the working directory of your files.
 #' @return This writes a file with the filename passed in by the user to the user's current directory.
 #' 
 #'------------------------------------------------------------------------------------------------
 #'------------------------------------------------------------------------------------------------
 
-read_load_multistat<-function( filename="", format= "csv"){
+read_write_multistat<-function( filename="", format= "csv"){
                       f<-list.files()  
                       f<-as.data.frame(f)
                       f<-f[1]
                       nf<-noquote(tools::file_path_sans_ext(f$f))
                       mv<-paste(nf,'<-','read.', format, '("',f$f, '", header=T)' , sep='')
                       write.table(noquote(mv), file=as.character(filename), quote=F, row.names=F, sep=",")
-                      
+                      filen<-noquote(paste(paste(nf,'=', nf),"",collapse=","))
+                  filen    
 }
   

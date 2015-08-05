@@ -20,10 +20,9 @@
 #' @return return columns of seasonal summaries
 #' 
 
-climate$methods(seasonal_summary = function(data_list = list(), month_start, number_month = 3, threshold = 0.85, 
-                                            col_name = "Rain Total JFM", season_rain_total=FALSE, season_rain_days=FALSE,
-                                            col_name2 = "Number Raindays JFM", print_season = FALSE, 
-                                            na.rm = FALSE, replace = FALSE){  
+climate$methods(seasonal_summary = function(data_list = list(), month_start, number_month = 3, threshold = 0.85, func = sum,
+                                            col_names = list(c("Rain Total","Number Raindays", "Dry Spell Max")),col_name = "spell length", season_rain_total=TRUE, season_rain_days=FALSE,
+                                           longest_dry_spell = FALSE, na.rm = FALSE, replace = FALSE){  
   # rain required
   data_list = add_to_data_info_required_variable_list(data_list, list(rain_label))
   # date time period is "daily"
@@ -36,6 +35,11 @@ climate$methods(seasonal_summary = function(data_list = list(), month_start, num
     curr_threshold = data_obj$get_meta(threshold_label,threshold)
     
     rain_col  = data_obj$getvname(rain_label) 
+    
+    if( !(data_obj$is_present(spell_length_label)) ) {
+      data_obj$add_spell_length_col(col_name=col_name)
+    }
+    spell_length_col = data_obj$getvname(spell_length_label)
     
     # Must add month column if not present
     if( !( data_obj$is_present(month_label)) ) {
@@ -56,107 +60,109 @@ climate$methods(seasonal_summary = function(data_list = list(), month_start, num
       date = doy_as_date(curr_season_start_day, year) 
       month_start = month(date)
     }
-    
-    if (is.character(month_start)){
-      if (!month_start %in% c(month.abb, month.name,tolower(c(month.abb, month.name)))){
-        stop("Enter the upper or lower case of English names for the months of the year; e.g Jan,January,jan,january")
+    col_name0=col_names
+    month_start0=c()
+    for (period in 1:length(month_start)){
+          
+      if (is.character(month_start[period])){
+        if (!month_start[period] %in% c(month.abb, month.name,tolower(c(month.abb, month.name)))){
+          stop("Enter the upper or lower case of English names for the months of the year; e.g Jan,January,jan,january")
+        }
+        month_start0[period]= 1 + ((match(tolower(month_start[period]), tolower(c(month.abb, month.name))) - 1) %% 12)
+      }else {
+        month_start0[period] = month_start[period]
       }
-      month_start= 1 + ((match(tolower(month_start), tolower(c(month.abb, month.name))) - 1) %% 12)
-    }else {
-      month_start = month_start
-    }
-    
-    months = 1+(((month_start:(month_start+number_month-1)) -1) %% 12)
-    
-    summary_obj <- get_summary_name(yearly_label, data_obj)
-    
-    continue = TRUE
-    
-    curr_definition = list(month_start = month_start, number_month = number_month, threshold = threshold)
-    
-    if(season_rain_total || !season_rain_days){
-      if(col_name %in% names(summary_obj$get_data()) && !replace) {
-        message(paste("A column named", col_name, "already exists. The column will not be replaced.
-                      To replace to column, re run this function and specify replace = TRUE."))
-        continue = FALSE
-      }
-      if(col_name %in% names(summary_obj$get_data()) && replace){
-        message(paste("A column named", col_name, "already exists. The column will be replaced 
-                      in the data."))
-      }
-      if( continue && summary_obj$is_definition(rain_label,seasonal_total_label,curr_definition)) {
-        message("A column with this defintion already exists in the data.
-                The column will not be added again.")
-        continue = FALSE
-      }
-      }
-    
-    if (season_rain_days || !season_rain_total){
-      if(col_name2 %in% names(summary_obj$get_data()) && !replace) {
-        message(paste("A column named", col_name2, "already exists. The column will not be replaced.
-                      To replace to column, re run this function and specify replace = TRUE."))
-        continue = FALSE
-      }
-      if(col_name2 %in% names(summary_obj$get_data()) && replace){
-        message(paste("A column named", col_name2, "already exists. The column will be replaced
-                      in the data."))
-      }
-      if( continue && summary_obj$is_definition(rain_label,seasonal_raindays_label,curr_definition)) {
-        message("A column with this defintion already exists in the data.
-                The column will not be added again.")
-        continue = FALSE
-      }
-      }    
-    
-    if(continue) {
+      months = 1+(((month_start0[period]:(month_start0[period]+number_month-1)) -1) %% 12)
       
-      curr_data_list = data_obj$get_data_for_analysis(data_list)
+      if (length(month_start) > length(col_names) && period==1){
+        col_names = list(paste(col_names[[1]], month_start0[1], sep = "_"))
+      }
+      if (length(month_start) > length(col_names) && period>1){
+        col_names = append(col_names, list(paste(col_name0[[1]], month_start0[period], sep = "_")))
+      }
       
-      for( curr_data in curr_data_list ) {
-        month_tot=matrix(NA,length(unique(curr_data[[season_col]])),12)
-        rownames(month_tot)=as.character(unique(curr_data[[season_col]]))
-        colnames(month_tot)=c(month.abb)
-        raindays=month_tot
-        #   loop over months and years to get summary statistics
-        for (mon in months) {
-          rain.season = curr_data[curr_data[month_col]==mon,c(season_col,rain_col)]   
-          for (yr in unique(curr_data[[season_col]])) {
-            if(season_rain_total || !season_rain_days){
-              month_tot[yr-min(unique(curr_data[[season_col]])-1),mon]=sum(rain.season[rain.season[,season_col]==yr,rain_col])
+      summary_obj <- get_summary_name(yearly_label, data_obj)
+      
+      continue = TRUE
+      
+      curr_definition = list(month_start = month_start[period], number_month = number_month, threshold = threshold)
+      labs = c(seasonal_total_label , seasonal_raindays_label, spell_length_label)
+      conditions =c((season_rain_total && !season_rain_days && !longest_dry_spell)|(season_rain_total & season_rain_days & longest_dry_spell)|(season_rain_total & season_rain_days)|(season_rain_total & longest_dry_spell), 
+                    (season_rain_days && !season_rain_total && !longest_dry_spell)|(season_rain_days & season_rain_total & longest_dry_spell)|(season_rain_days & season_rain_total)|(season_rain_days & longest_dry_spell),
+                    (!season_rain_days && !season_rain_total && longest_dry_spell)|(season_rain_days & season_rain_total & longest_dry_spell)|(longest_dry_spell & season_rain_total)|(season_rain_days & longest_dry_spell))
+      for(i in 1:length(col_names[[period]])){
+        if(conditions[i]){
+          if(col_names[[period]][i] %in% names(summary_obj$get_data()) && !replace) {
+            message(paste("A column named", col_names[[period]][i], "already exists. The column will not be replaced.
+                          To replace to column, re run this function and specify replace = TRUE."))
+            continue = FALSE
+          }
+          if(col_names[[period]][i] %in% names(summary_obj$get_data()) && replace){
+            message(paste("A column named", col_names[[period]][i], "already exists. The column will be replaced 
+                          in the data."))
+          }
+          if(labs[i] ==spell_length_label ){
+            if( continue && summary_obj$is_definition(spell_length_col,labs[i],curr_definition)) {
+              message("A column with this defintion already exists in the data.
+                    The column will not be added again.")
+              continue = FALSE
             }
-            if(season_rain_days || !season_rain_total){
-              raindays[yr-min(unique(curr_data[[season_col]])-1),mon]=sum(rain.season[rain.season[,season_col]==yr,rain_col]>threshold)
+          
+          }else{
+            if( continue && summary_obj$is_definition(rain_label,labs[i],curr_definition)) {
+              message("A column with this defintion already exists in the data.
+                    The column will not be added again.")
+              continue = FALSE
+            }
+          }
+          
+          }
+      }
+      
+      if(continue) {
+        
+        curr_data_list = data_obj$get_data_for_analysis(data_list)
+        
+        for( curr_data in curr_data_list ) {
+          month_tot=rep(NA,length(unique(curr_data[[season_col]])))
+          dry_spells=raindays=month_tot
+          
+          rain.season = curr_data[which(curr_data[[month_col]] %in% months),c(season_col,rain_col,spell_length_col)]
+          
+          for (yr in unique(curr_data[[season_col]])) {
+            if(conditions[1]){
+              month_tot[yr-min(unique(curr_data[[season_col]])-1)]=func(rain.season[rain.season[,season_col]==yr,rain_col], na.rm = na.rm)
+            }
+            if(conditions[2]){
+              raindays[yr-min(unique(curr_data[[season_col]])-1)]=sum(rain.season[rain.season[,season_col]==yr,rain_col]>threshold, na.rm = na.rm)
+            }
+            if(conditions[3]){
+              dry_spells[yr-min(unique(curr_data[[season_col]])-1)]=max(rain.season[rain.season[,season_col]==yr,spell_length_col], na.rm = na.rm)
+            }
+          }
+          
+          result = list(month_tot, raindays, dry_spells)        
+        }
+                
+        for (j in 1:length(col_names[[period]])){
+          if (conditions[j]){
+            if(labs[j] == spell_length_label ){
+              summary_obj$append_column_to_data(result[[j]], col_names[[period]][j])
+              label = summary_obj$get_summary_label(spell_length_label, labs[j],curr_definition)
+              summary_obj$append_to_variables(label, col_names[[period]][j])
+            }
+            else{
+              summary_obj$append_column_to_data(result[[j]], col_names[[period]][j])
+              label = summary_obj$get_summary_label(rain_label, labs[j],curr_definition)
+              summary_obj$append_to_variables(label, col_names[[period]][j])
             }
           }
         }
-        month_tot <- rowSums(month_tot[,months], na.rm = na.rm) 
-        raindays <-  rowSums(raindays[,months], na.rm = na.rm)
-        
-        if(season_rain_total && print_season){
-          print(month_tot)
-        }
-        if(season_rain_days && print_season){
-          print(raindays)
-        }
-        # Only print if requested
-        if(print_season && !season_rain_total && !season_rain_days) {
-          rain_tot <- data.frame(cbind(month_tot, raindays )) 
-          colnames(rain_tot) <- c(col_name,col_name2)
-          print(rain_tot)
-        }
         
       }
-      if (season_rain_total || !season_rain_days){
-        summary_obj$append_column_to_data(month_tot, col_name)
-        label = summary_obj$get_summary_label(rain_label, seasonal_total_label,curr_definition)
-        summary_obj$append_to_variables(label, col_name)      
-      }
-      if (season_rain_days || !season_rain_total){
-        summary_obj$append_column_to_data(raindays, col_name2)
-        label2 = summary_obj$get_summary_label(rain_label, seasonal_raindays_label,curr_definition)
-        summary_obj$append_to_variables(label2,col_name2)
-        }
-      }
+    }
+    
+    
     }
   }
 )
