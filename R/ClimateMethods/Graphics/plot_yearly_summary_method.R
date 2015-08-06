@@ -9,7 +9,7 @@
 #' @return it returns a timesies plot of the summary
 
 climate$methods(plot_yearly_summary = function (data_list=list(), col1="blue",ylab,xlab="Year",na.rm=TRUE, pch=20,ylim=0,type="b",lty=2,col2="red",lwd = 2,lwd2 = 1.5,
-                                                interest_var,var_label = rain_label,plot_line = FALSE,ygrid=0, graph_parameter = par(mfrow=c(2,2)),plot_window = FALSE,
+                                                interest_var="Total Rain",var_label = rain_label,plot_line = FALSE,ygrid=0, graph_parameter = par(mfrow=c(2,2)),plot_window = FALSE,
                                                 main_title="Plot - Summary per Year",grid=FALSE){
   # convert data 
   data_list = c(data_list, convert_data=TRUE)
