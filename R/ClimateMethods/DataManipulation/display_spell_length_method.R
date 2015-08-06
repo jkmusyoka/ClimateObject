@@ -16,7 +16,7 @@
 #' where "data" is a data.frame containing the desired data to be computed.
 #' climateObj$display_spell_length().
 #' @return return yearly tables of spell lengths.
-climate$methods(display_spell_length = function(data_list = list(), col_name = "spell length", na.rm=TRUE,
+climate$methods(display_spell_length = function(data_list = list(), col_name = "spell length", na.rm=TRUE, threshold=0.85, 
                                                 months_list = month.abb, day_display = "Day"){
   
   data_list=add_to_data_info_required_variable_list(data_list, list(rain_label))
@@ -30,7 +30,7 @@ climate$methods(display_spell_length = function(data_list = list(), col_name = "
   for(data_obj in climate_data_objs) {
     
     if( !(data_obj$is_present(spell_length_label)) ) {
-      data_obj$add_spell_length_col(col_name=col_name)
+      data_obj$add_spell_length_col(col_name=col_name, threshold = threshold)
     }
     spell_length_col = data_obj$getvname(spell_length_label)
 
