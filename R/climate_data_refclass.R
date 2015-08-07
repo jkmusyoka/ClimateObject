@@ -1263,7 +1263,7 @@ climate_data$methods(date_format_check = function(convert = TRUE, messages=TRUE)
 )
 
 
-climate_data$methods(add_spell_length_col = function(col_name = "spell_length", threshold=0.85)
+climate_data$methods(add_spell_length_col = function(col_name = "spell_length", threshold)
 {
   
   # Complete dates needed for calculations
@@ -1295,5 +1295,34 @@ climate_data$methods(add_spell_length_col = function(col_name = "spell_length", 
   }    
     append_column_to_data(spell_length_col,col_name)
     append_to_variables(spell_length_label, col_name)
+}
+)
+
+
+climate_data$methods(add_running_rain_totals_col = function(col_name = "Running Rain Total",threshold = 0.85, sum_over = 1)
+{
+  
+  # Complete dates needed for calculations
+  missing_dates_check()
+  
+  rain_col = getvname(rain_label)  
+  
+  curr_data_list = get_data_for_analysis(data_info = list())
+  
+  for( curr_data in curr_data_list ) {    
+    
+    num_rows <- nrow(curr_data)      
+    
+    
+    running_totals_col = curr_data[[rain_col]]
+    
+    
+    running_totals_col[running_totals_col <= threshold] <- 0
+    
+    running_totals_col = c(rep(NA, (sum_over -1)),running_sum(data = running_totals_col, sum_over = sum_over))
+        
+  }    
+  append_column_to_data(running_totals_col,col_name)
+  append_to_variables(running_rain_totals_label, col_name)
 }
 )

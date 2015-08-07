@@ -1,23 +1,26 @@
 #==================================================================================================
 # Climatic Extremes
-#' @title Spell Length Table.
-#' @name display_spell_length
+#' @title Display of running totals.
+#' @name display_rain_running_total
 #' @author Fanuel and Steve 2015 (AMI)
 
 #' @description  
-#' Displays the spell length table per year per month.
-#' @param col_name  The name of the spell length column.  
+#' Displays the running totals per year per month.
+#' @param col_name  The name of the running total column.  
 #' @param months_list The names of the months.
-#' @param day_display The name of the first column in th table.
+#' @param day_display The name of the first column in the table.
 #' @param na.rm  A logical indicating whether missing values should be removed.
+#' @param sum_over Number of days to be totalled over.
+#' @param decimal_places Number of decimal places.
+#' @param threshold A value over which a day is considered rainy. 
 #' @examples
 #' ClimateObj <- climate( data_tables = list( dataframe=dataframe ), date_formats = list( "%m/%d/%Y" ) )
 #' Default dateformats: "%Y/%m/%d"
 #' where "data" is a data.frame containing the desired data to be computed.
-#' climateObj$display_spell_length().
-#' @return return yearly tables of spell lengths.
-climate$methods(display_spell_length = function(data_list = list(), col_name = "spell length", na.rm=TRUE, threshold=0.85, 
-                                                months_list = month.abb, day_display = "Day"){
+#' climateObj$display_rain_running_total().
+#' @return return yearly tables of rain running totals
+climate$methods(display_rain_running_total = function(data_list = list(), col_name = "Running Rain Total", na.rm=TRUE, threshold=0.85, 
+                                                months_list = month.abb, day_display = "Day", sum_over = 1,  decimal_places = 0){
   
   data_list=add_to_data_info_required_variable_list(data_list, list(rain_label))
   
@@ -30,10 +33,10 @@ climate$methods(display_spell_length = function(data_list = list(), col_name = "
   for(data_obj in climate_data_objs) {
     
     if( !(data_obj$is_present(spell_length_label)) ) {
-      data_obj$add_spell_length_col(col_name=col_name, threshold = threshold)
+      data_obj$add_running_rain_totals_col(col_name=col_name, threshold = threshold, sum_over = sum_over)
     }
-    spell_length_col = data_obj$getvname(spell_length_label)
-
+    running_total_col = data_obj$getvname(running_rain_totals_label)
+    head(data_obj$data)
     if( !(data_obj$is_present(year_label) && data_obj$is_present(month_label) && data_obj$is_present(day_label)) ) {
       data_obj$add_year_month_day_cols()
     }
@@ -45,32 +48,26 @@ climate$methods(display_spell_length = function(data_list = list(), col_name = "
     curr_data_list = data_obj$get_data_for_analysis(data_list)
     
     for( curr_data in curr_data_list ) {
-      
-      for (k in 1:length(curr_data[[spell_length_col]])){
-        if (is.na(curr_data[[spell_length_col]][[k]])){
-          curr_data[[spell_length_col]][[k]]="m" 
+      curr_data[[running_total_col]] <- round(curr_data[[running_total_col]], digits = decimal_places)
+      for (k in 1:length(curr_data[[running_total_col]])){
+        if (is.na(curr_data[[running_total_col]][[k]])){
+          curr_data[[running_total_col]][[k]]="m" 
         }        
       }
-
+      
       tables = list()
       years_split <- split(curr_data, list(as.factor(curr_data[[year_col]])))
       
       # initialize the counter
       i = 1
       for ( single_year in years_split ) {
-        tables[[i]] <- dcast(single_year, single_year[[ day_col ]]~single_year[[ month_col ]], value.var = spell_length_col)
+        tables[[i]] <- dcast(single_year, single_year[[ day_col ]]~single_year[[ month_col ]], value.var = running_total_col)
         
         end = length(colnames(tables[[i]]))
         names(tables[[i]])[ 1 ] <- day_display
         colnames(tables[[i]])[2:end] <- months_list[1:end-1]
         
         Day = " "
-        dat1 = tables[[i]][,2:13]
-        dat2 = sapply(dat1[,1:12], as.numeric)
-        summ =suppressWarnings(as.data.frame(lapply(as.data.frame(dat2), max, na.rm = na.rm)))
-        overall_max = c("Maximum",rep(NA,10),"(Overall:",paste(max(summ, na.rm=na.rm),")",sep = ""))
-        tables[[i]] = rbind(tables[[i]], overall_max)
-        tables[[i]] = join(tables[[i]], cbind(Day,summ), by = c("Day",month.abb), type = "full", match = "all")
         missing = c(" ",rep(NA,13))
         
         for(j in 2:13){
@@ -89,7 +86,7 @@ climate$methods(display_spell_length = function(data_list = list(), col_name = "
         }
         i = i + 1
       }
-
+      
       names(tables) <- names(years_split)
       rettables[[data_obj$get_station_data( curr_data, station_label )]] = tables
     }

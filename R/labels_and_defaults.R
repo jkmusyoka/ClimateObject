@@ -44,9 +44,8 @@ start_of_label="start_of"
 end_of_label="end_of"
 seasonal_total_label = "seasonal_total"
 seasonal_raindays_label = "seasonal_raindays"
-max_min_label = "max_min"
 extreme_event_day_label = "extreme_event_day"
-
+running_rain_totals_label = "running_rain_total"
 waterbalance_label = "waterbalance"
 end_of_rain_label="end_of_rain"
 start_of_rain_label="start_of_rain"
@@ -553,4 +552,15 @@ mode_stat <- function(x) {
 
 spell_length_count <- function(column_var){
   (!(column_var)) * unlist(lapply(rle(column_var)$lengths, seq_len))
+}
+
+
+running_sum <- function(data, sum_over = 1, func = sum){
+  h=c()
+  for (i in 1:(length(data)-sum_over+1)){
+    j<- func(data[i:(i+sum_over-1)])
+    h[i] <- j
+  }
+  
+  return(h)
 }
