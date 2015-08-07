@@ -51,7 +51,7 @@ climate$methods(seasonal_summary = function(data_list = list(), month_start, num
     rain_col  = data_obj$getvname(rain_label) 
     
     if( !(data_obj$is_present(spell_length_label)) ) {
-      data_obj$add_spell_length_col(col_name=col_name)
+      data_obj$add_spell_length_col(col_name=col_name, threshold=threshold)
     }
     spell_length_col = data_obj$getvname(spell_length_label)
     

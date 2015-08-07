@@ -555,10 +555,10 @@ spell_length_count <- function(column_var){
 }
 
 
-running_sum <- function(data, sum_over = 1, func = sum){
+running_sum <- function(data, total_days = 1, func = sum){
   h=c()
-  for (i in 1:(length(data)-sum_over+1)){
-    j<- func(data[i:(i+sum_over-1)])
+  for (i in 1:(length(data)-total_days+1)){
+    j<- func(data[i:(i+total_days-1)])
     h[i] <- j
   }
   

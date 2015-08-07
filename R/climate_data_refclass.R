@@ -1299,7 +1299,7 @@ climate_data$methods(add_spell_length_col = function(col_name = "spell_length", 
 )
 
 
-climate_data$methods(add_running_rain_totals_col = function(col_name = "Running Rain Total",threshold = 0.85, sum_over = 1)
+climate_data$methods(add_running_rain_totals_col = function(col_name = "Running Rain Total",threshold = 0.85, total_days = 1)
 {
   
   # Complete dates needed for calculations
@@ -1319,7 +1319,7 @@ climate_data$methods(add_running_rain_totals_col = function(col_name = "Running 
     
     running_totals_col[running_totals_col <= threshold] <- 0
     
-    running_totals_col = c(rep(NA, (sum_over -1)),running_sum(data = running_totals_col, sum_over = sum_over))
+    running_totals_col = c(rep(NA, (total_days -1)),running_sum(data = running_totals_col, total_days = total_days))
         
   }    
   append_column_to_data(running_totals_col,col_name)

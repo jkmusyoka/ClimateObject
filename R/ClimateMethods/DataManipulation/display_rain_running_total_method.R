@@ -10,7 +10,7 @@
 #' @param months_list The names of the months.
 #' @param day_display The name of the first column in the table.
 #' @param na.rm  A logical indicating whether missing values should be removed.
-#' @param sum_over Number of days to be totalled over.
+#' @param total_days Number of days to be totalled over.
 #' @param decimal_places Number of decimal places.
 #' @param threshold A value over which a day is considered rainy. 
 #' @examples
@@ -20,7 +20,7 @@
 #' climateObj$display_rain_running_total().
 #' @return return yearly tables of rain running totals
 climate$methods(display_rain_running_total = function(data_list = list(), col_name = "Running Rain Total", na.rm=TRUE, threshold=0.85, 
-                                                months_list = month.abb, day_display = "Day", sum_over = 1,  decimal_places = 0){
+                                                months_list = month.abb, day_display = "Day", total_days = 1,  decimal_places = 0){
   
   data_list=add_to_data_info_required_variable_list(data_list, list(rain_label))
   
@@ -33,7 +33,7 @@ climate$methods(display_rain_running_total = function(data_list = list(), col_na
   for(data_obj in climate_data_objs) {
     
     if( !(data_obj$is_present(spell_length_label)) ) {
-      data_obj$add_running_rain_totals_col(col_name=col_name, threshold = threshold, sum_over = sum_over)
+      data_obj$add_running_rain_totals_col(col_name=col_name, threshold = threshold, total_days = total_days)
     }
     running_total_col = data_obj$getvname(running_rain_totals_label)
     head(data_obj$data)
