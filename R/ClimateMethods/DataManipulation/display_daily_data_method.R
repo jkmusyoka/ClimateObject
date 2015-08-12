@@ -75,7 +75,7 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
         #produce second table with summary stats
         tables_2[[j]] <- rbind(colSums(tables[[j]][,-1], na.rm = na.rm), apply(tables[[j]][,-1],2, max, na.rm = na.rm), apply(tables[[j]][,-1],2,largerthan, val = curr_threshold))
         # add dimnames
-        tables_2[[j]] <- cbind(c("Total","Maximum","Number >0.85"), tables_2[[j]])
+        tables_2[[j]] <- cbind(c("Total","Maximum","Number>0.85"), tables_2[[j]])
         # Making dataframe for second table
         tables_2[[j]] <- data.frame(tables_2[[j]])
         #add dimnames for the first column.
