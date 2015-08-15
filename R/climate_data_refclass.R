@@ -1263,7 +1263,7 @@ climate_data$methods(date_format_check = function(convert = TRUE, messages=TRUE)
 )
 
 
-climate_data$methods(add_spell_length_col = function(col_name = "spell_length", threshold)
+climate_data$methods(add_spell_length_col = function(col_name = "spell_length", threshold=0.85)
 {
   
   # Complete dates needed for calculations
