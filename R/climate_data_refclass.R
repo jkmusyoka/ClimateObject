@@ -939,14 +939,14 @@ climate_data$methods(summarize_data = function(new_time_period, summarize_name =
   
   if(new_time_period != yearly_label) {
     if( !summary_obj$is_present(month_label) && .self$is_present(month_label) ) {
-      summary_obj$append_column_to_data(month(summ_date_col_name),getvname(month_label))
+      summary_obj$append_column_to_data(month(summary_obj$get_data()[[summ_date_col_name]]),getvname(month_label))
       summary_obj$append_to_variables(month_label,getvname(month_label))
     }
   }
   
   if( new_time_period == daily_label ) {
     if( !summary_obj$is_present(season_label) && .self$is_present(day_label) ) {
-      summary_obj$append_column_to_data(day(summ_date_col_name),getvname(day_label))
+      summary_obj$append_column_to_data(day(summary_obj$get_data()[[summ_date_col_name]]),getvname(day_label))
       summary_obj$append_to_variables(day_label,getvname(day_label))
     }
   }
@@ -957,7 +957,7 @@ climate_data$methods(summarize_data = function(new_time_period, summarize_name =
   }
   
   if( !summary_obj$is_present(year_label) && .self$is_present(year_label) ) {
-    summary_obj$append_column_to_data(year(summ_date_col_name),getvname(year_label))
+    summary_obj$append_column_to_data(year(summary_obj$get_data()[[summ_date_col_name]]),getvname(year_label))
     summary_obj$append_to_variables(year_label,getvname(year_label))
   }
   
