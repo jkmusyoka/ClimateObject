@@ -159,6 +159,8 @@ climate$methods(get_climate_data_objects = function(data_info= list()) {
   } else {
     time_period="any"
   } 
+  #Convert data by default
+  data_list = add_to_data_info_convert(data_list)
 
   for (temp in climate_data_objects) {
     name = temp$meta_data[[data_name_label]]
@@ -266,6 +268,18 @@ climate$methods(add_to_data_info_merge = function(data_info=list(), merged=FALSE
     }
   }
   else data_info[[merge_data_label]]<-merged
+  return (data_info)
+}
+)
+
+climate$methods(add_to_data_info_convert = function(data_info=list(), convert=TRUE) {
+  if (convert_data_label %in% names(data_info)){
+    if (data_info[[convert_data_label]]!=convert & !missing(convert)){
+      warning ("overwriting user choice for converting data")
+      data_info[[convert_data_label]]<-convert
+    }
+  }
+  else data_info[[convert_data_label]]<-convert
   return (data_info)
 }
 )
