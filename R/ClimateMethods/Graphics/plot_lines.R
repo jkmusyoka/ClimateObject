@@ -8,10 +8,20 @@
 #' Plot multiple lines on the same plot given a climate object 
 #' 
 #' @param data_list list. 
-#' 
-#' 
+#' @param Col  the color of the points or lines appearing in the legend
+#' @param Lty  the line types for lines appearing in the legend
 #' @param variables list containing the title of the columns to be plotted on the same plot 
-#  
+#' @param Type  character indicating the type of plotting
+#' @param Lty_points  the line type for the points
+#' @param Ylabel  the label on y axis
+#' @param Xlabel  the label on x axis
+#' @param Main  character string or expression giving a title of the plot
+#' @param Time_period  time period of the data
+#' @param Legend.location  the location of the legend on the graph
+#' @param Legend   a character to appear in the legend
+#' @param Legend_text_width  the width of the character of the legend
+#' @param Na.rm A logical indicating whether missing values should be removed
+#'   
 #' @examples
 #' data_obj = climate$new( data_tables = list(data = data), data_time_periods = list("yearly"))
 #' #where "data" is a data.frame containing the desired data to be plotted.
