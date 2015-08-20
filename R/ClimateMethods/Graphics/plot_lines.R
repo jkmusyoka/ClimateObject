@@ -31,9 +31,9 @@
 
 
 
-climate$methods(plot_multiple_lines = function(data_list=list(), variables, col = c("blue", "red", "green"), type = c("h", "h", "h"), lty= c(1,2,3), lty_points= c(1,2,3), ylabel="Observations", xlabel = "Year",lwd=c(2), 
+climate$methods(plot_yearly_comparison = function(data_list=list(), variables, col = c("blue", "red", "green"), type = c("h", "h", "h"), lty= c(1,2,3), lty_points= c(1,2,3), ylabel="Observations", xlabel = "Year",lwd=c(2), 
                                       lwd_points=c(2,2,2), pch = c(2,20,4),bty = "o", main="Vertical Lines", time_period = yearly_label, legend.location = rep(list("topright"), length(variables)), 
-                                      legend=rep(list(c("1", "2","3")), length(variables)), legend_text_width = strwidth("0.001"), na.rm=TRUE ){    
+                                      legend=rep(list(variables), length(variables)), legend_text_width = strwidth("0.001"), na.rm=TRUE ){    
   
   # get_climate_data_objects returns a list of the climate_data objects specified in the arguments.
   # If no objects specified then all climate_data objects will be taken by default.
@@ -49,6 +49,8 @@ climate$methods(plot_multiple_lines = function(data_list=list(), variables, col 
   
   #a count for the number of data sets 
   j = 1
+
+  if(length(climate_data_objs_list)==0) print("No data found for your selection")
   
   for(data_obj in climate_data_objs_list) {
     #get the name of the data set
@@ -59,7 +61,7 @@ climate$methods(plot_multiple_lines = function(data_list=list(), variables, col 
       data_obj$add_year_month_day_cols() 
     }
     year_col = data_obj$getvname( year_label )
-    
+        
     curr_data_list = data_obj$get_data_for_analysis(data_list)
     
     for( curr_data in curr_data_list ) {
