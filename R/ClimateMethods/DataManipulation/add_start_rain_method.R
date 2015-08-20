@@ -89,8 +89,8 @@ climate$methods(add_start_rain = function(data_list=list(), earliest_day=92, tot
         j = 1 
         for( single_season in seasons_split ) {
           
-          # initialize to NA incase conditions are never met
-          start_of_rain_col[j] = NA
+          # initialize to 0 incase conditions are never met
+          start_of_rain_col[j] = 0
           
           # initialize current earliest day
           curr_earliest_day = earliest_day
@@ -114,7 +114,7 @@ climate$methods(add_start_rain = function(data_list=list(), earliest_day=92, tot
             # close to the end of year we continue looking for the start of the rain
             # if the dry_length is greater than the remaining number of rows
             # we will not be able to check for dry spells so we cannot get a start of the rain
-            # NA will be returned
+            
             if(data_obj$meta_data$data_name=="chief") {
               print(dry_length)
               print(num_rows)

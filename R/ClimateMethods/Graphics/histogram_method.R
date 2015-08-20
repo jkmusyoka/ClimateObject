@@ -1,7 +1,7 @@
 ##############################################################################
-# TIMESERIES
-#' @title Get timeseries from the Climsoft data
-#' @name timeseries
+# HISTOGRAM
+#' @title Get histogram from the Climsoft data
+#' @name histogram
 #' @author Rafael Posada 2015 (SASSCAL/DWD)
 #' @description 
 #' Allows plotting the data in a timeseries plot.

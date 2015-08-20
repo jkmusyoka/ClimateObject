@@ -11,12 +11,12 @@
 #' @param month_start A vector of months indicating when the calculation of seasonal summary should be started,
 #' the default is January. 
 #' @param number_month Number of months indicating how many months will be considered in the 
-#' calculation of seasonal summary.The default is three months i.e Jan,Feb and Mar.
+#' calculation of seasonal summary.The default is three months.
 #' @param threshold    A value over which a day is considered rainy.
 #' @param func         A summary function e.g sum, mean, max, median.
 #' @param col_names    A list of vectors of names of columns to be appended to the yearly summary
 #' @param col_name     Name of the spell length column.
-#' @param  season_rain_total A logical indicating whether rain total column should be appended to
+#' @param season_rain_total A logical indicating whether rain total column should be appended to
 #'the yearly summary object.
 #' @param  season_rain_days A logical indicating whether a column of rain days should be appended to
 #'the yearly summary object.
