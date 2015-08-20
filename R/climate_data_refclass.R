@@ -582,7 +582,7 @@ climate_data$methods(get_split_data = function(return_data) {
 # Created replace_column_in_data method for climate_data to use to change class of date column
 # TODO implement full range of options particularly for subdaily data
 
-climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert = TRUE, create = TRUE, messages=TRUE)
+climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert = TRUE, create = TRUE, messages=TRUE,time.zone = "UTC")
 { 
   # Check if there is a date column already
   # Check if the date is in the Date class
@@ -597,7 +597,7 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
         if (messages) message("date-time column is not stored as POSIXct class.")
         if (convert) {
           if (messages) message("Attempting to convert date column to POSIXct class.")
-          new_col = as.POSIXct(data[[date_time_col]], format = date_format)
+          new_col = as.POSIXct(data[[date_time_col]], format = date_format,tz=time.zone)
           .self$replace_column_in_data(date_time_col,new_col)
         }
       }
@@ -614,19 +614,19 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
       else stop("Cannot recognise the format of time column.")
       date_col = getvname(date_label)
       new_col = as.POSIXct(paste(data[[date_col]],data[[time_col]]),
-                           format = paste("%Y-%m-%d",time_format))
+                           format = paste("%Y-%m-%d",time_format),tz=time.zone)
       .self$append_column_to_data(new_col, getvname(date_time_label))        
     }
     else if (create && is_present(date_asstring_label)) 
     {
       date_string_col = getvname(date_asstring_label)
-      new_col = as.POSIXct(data[[date_string_col]], format = date_format)
+      new_col = as.POSIXct(data[[date_string_col]], format = date_format,tz = time.zone)
       .self$append_column_to_data(new_col,getvname(date_time_label))
     }
     else if (create && is_present(date_label)) 
     {
       date_col = getvname(date_label)
-      new_col = as.POSIXct(data[[date_col]], format = date_format)
+      new_col = as.POSIXct(data[[date_col]], format = date_format,tz = time.zone)
       .self$append_column_to_data(new_col,getvname(date_time_label))
     }
   }
