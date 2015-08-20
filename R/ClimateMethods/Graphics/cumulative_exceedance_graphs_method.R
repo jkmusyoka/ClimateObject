@@ -11,7 +11,7 @@
 
 climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interest_var = "Total Rain",cumulative_graph =TRUE, legend_bty="n",
                                                         color=rainbow(12),percent=TRUE, main="", xlabel="",ylabel="",line_type="o",
-                                                        convert=TRUE, data_period_label=yearly_label, legend_position="center",
+                                                        data_period_label=yearly_label, legend_position="center",
                                                         legend_label=c("plot1","plot2"),station_name=TRUE, plot_window=FALSE,gpar=par(mfrow=c(2,4)),
                                                         grid_sq=TRUE, nx=5, ny=nx,lwd=2,pch=21,box.lty=par("lty"))
 {  
@@ -22,9 +22,7 @@ climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interes
   data_list=add_to_data_info_required_variable_list(data_list, interest_var) 
   
   data_list=add_to_data_info_time_period(data_list, data_period_label)
-  
-  data_list=c(data_list,convert_data=convert)
-  
+ 
   climate_data_objs_list = get_climate_data_objects(data_list)
   
   for(data_obj in climate_data_objs_list) {
