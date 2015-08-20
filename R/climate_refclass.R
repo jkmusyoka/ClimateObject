@@ -160,7 +160,7 @@ climate$methods(get_climate_data_objects = function(data_info= list()) {
     time_period="any"
   } 
   #Convert data by default
-  data_list = add_to_data_info_convert(data_list)
+  data_info = .self$add_to_data_info_convert(data_info)
 
   for (temp in climate_data_objects) {
     name = temp$meta_data[[data_name_label]]
