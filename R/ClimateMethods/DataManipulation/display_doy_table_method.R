@@ -7,10 +7,17 @@
 #' @description \code{get.table_doy }
 #' Display day of the year in a table  
 #'  
-#' @param data_list list. 
+#' @param data_list  this is a list containing stations for analysis, the years or periods to be analyzed and the required variables from the data 
+#' @param Row.names logical, if FALSE the row names attributed to the dataframe are removed 
+#' @param Month_list  the three-letter abbreviations for the English month names
+#' @param File   the path of the output file
+#' @param Width  the width of the output page
+#' @param Height   the width of the output page
+#' @param Day_display  column name in showing the day of the month
+#' @param Font_size  default font size for the document in the points
+#' @param Na.string character string of missing value to be displayed in the table
+#' @param Save_table Logical, if TRUE save the output file
 #' 
-#' @param variable.type character. Type of variable to be displayed.It is for each year. 
-#  
 #' @examples
 #' ClimateObj <- climate( data_table = list( data ), date_formats = list( "%m/%d/%Y" ) )
 #' Default dateformats: "%Y/%m/%d"
@@ -44,20 +51,16 @@ climate$methods(display_doy = function(data_list = list(), months_list = month.a
     curr_data_list = data_obj$get_data_for_analysis( data_list )
     
     for( curr_data in curr_data_list ) {
-      # Split curr_data into single data frames for each year
-      # It returns a list of data.frames, splited by year 
-      # This is much faster (6x faster when checked) than subsetting
-      # Split is not always appropriate but it is in this case
-      years_split <- split( curr_data, list( as.factor( curr_data[[year_col]] ) ) )
-      # loop through the splited data frames 
-      for ( single_year in years_split ) {
-        # produce table with data
-        table <- dcast( single_year, single_year[[ day_col ]] ~ single_year[[ month_col ]], value.var = doy_col)
-        # Added day_display and months_list as extra arguments so it is more flexible
-        end = length( colnames( table ) )
-        names( table )[ 1 ] <- day_display
-        colnames( table )[2:end] <- months_list[1:end-1]
-      }
+      # subset curr_data into single data frame for a specific year 
+      # note that all years have equal day of the year
+      # It returns a data.frame of the first year in the data 
+      first_year<-subset(curr_data, curr_data[[year_col]]==min(unique(curr_data[[year_col]])))
+      # produce table with day of the year
+      table <- dcast( first_year, first_year[[ day_col ]] ~ first_year[[ month_col ]], value.var = doy_col)
+      # Added day_display and months_list as extra arguments so it is more flexible
+      end = length( colnames( table ) )
+      names( table )[ 1 ] <- day_display
+      colnames( table )[2:end] <- months_list[1:end-1]  
     }
     #Always print table
     print( table, row.names = row.names )
