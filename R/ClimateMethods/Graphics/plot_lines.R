@@ -1,11 +1,11 @@
 #=============================================================================
 # Multiple Lines Plot
 #' @title Plot Multiple lines 
-#' @name plot_multiple_lines
-#' @author Andree Nenkam and Frederic Ntirenganya AMI (2015)
+#' @name plot_yearly_comparison
+#' @author Frederic Ntirenganya and Andree Nenkam AMI (2015)
 
-#' @description \code{get.plot_multiple_lines} 
-#' Plot multiple lines on the same plot given a climate object 
+#' @description \code{get.plot_yearly.comparison} 
+#' Plot multiple graphs on the same plot given a climate object 
 #' 
 #' @param data_list list. 
 #' @param Col  the color of the points or lines appearing in the legend
