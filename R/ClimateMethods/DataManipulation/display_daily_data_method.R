@@ -7,10 +7,15 @@
 #' @description \code{Display daily data in tables }
 #' Display daily data in tables for any variable 
 #'  
-#' @param data_list list. 
-#' 
-#' @param variable.type character. Type of variable to be displayed.It is for each year. 
-#  
+#' @param data_list list. this is a list containing stations for analysis, the years or periods to be analyzed and the required variables from the data 
+#' @param Print_tables Logical,if true, the method print the table in the console
+#' @param Row.names Logical, if FALSE the row names attributed to the dataframe are removed
+#' @param Na.rm Logical, if true remove the missing value
+#' @param Variable  This is the variable to be displayed
+#' @param Threshold The least amount of rainfall for which a day is considered rainy
+#' @param Month_list The three-letter abbreviations for the English month names
+#' @param Day_display Column name showing the day of the month
+#'   
 #' @examples
 #' ClimateObj <- climate( data_tables = list( data ), date_formats = list( "%m/%d/%Y" ) )
 #' Default dateformats: "%Y/%m/%d"
@@ -69,13 +74,14 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
         colnames( tables[[i]] )[2:end] <- months_list[1:end-1]
         
         #create quick function to count number of obs larger than a certain value which can be run in an apply
-        largerthan <- function(x,val){
-          length(na.omit(x[x>val]))
-        }
+#         largerthan <- function(x,val){
+#           length(na.omit(x[x>val]))
+#         }
         #produce second table with summary stats
-        tables_2[[j]] <- rbind(colSums(tables[[j]][,-1], na.rm = na.rm), apply(tables[[j]][,-1],2, max, na.rm = na.rm), apply(tables[[j]][,-1],2,largerthan, val = curr_threshold))
+        tables_2[[j]] <- suppressWarnings(rbind(colSums(tables[[j]][,-1], na.rm = na.rm), apply(tables[[j]][,-1],2, max, na.rm = na.rm)))#, apply(tables[[j]][,-1],2,largerthan, val = curr_threshold))
         # add dimnames
-        tables_2[[j]] <- cbind(c("Total","Maximum","Number>0.85"), tables_2[[j]])
+        tables_2[[j]] <- cbind(c("Total","Maximum"), tables_2[[j]])
+# tables_2[[j]] <- cbind(c("Total","Maximum","Number>0.85"), tables_2[[j]])
         # Making dataframe for second table
         tables_2[[j]] <- data.frame(tables_2[[j]])
         #add dimnames for the first column.
