@@ -1013,3 +1013,8 @@ climate_data$methods(add_running_rain_totals_col = function(col_name = "Running 
   append_to_variables(running_rain_totals_label, col_name)
 }
 )
+
+climate_data$methods(join_data = function(joining_data, match = "first", type = "full") {
+  set_data(join(joining_data, get_data(), match=match, type=type))
+}
+)
