@@ -7,9 +7,14 @@
 #' @description \code{compute.end_rain} 
 #' compute end of the rains given climate object
 #' 
-#' @param data_list list. 
-#' 
-#' @param end.rains type character. Type of end of rains to be computed. It is yearly summary. 
+#' @param data_list	A list containing stations for analysis, the years or periods to be analysed and the required variables from the data.
+#'  If blank, the system will choose all data appropriate for the analysis.
+#' @param earliest_day  The earliest possible day for the end of the rains.
+#' @param water_balance_col_name  The column name to use for the water balance column if it needs to be created. 
+#' @param col_name  The column name to use for the end of the rains.
+#' @param capacity_max	The maximum water balance.
+#' @param evaporation  	Evaporation per day
+#' @param Replace  	Logical indicating whether the column should be replaced if there is already a column in the data with the value of col_name.
 #  
 #' @examples
 #' ClimateObj <- climate( data_tables = list( data ), date_formats = list( "%m/%d/%Y" ) )
