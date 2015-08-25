@@ -5,7 +5,34 @@
 
 #' @description \code{cumulative_exceedance_graphs} 
 #' Enables plotting cumulative and exceedance graphs given a climate object
-
+#' @param data_list 	A list containing stations for analysis, the years or periods to be analysed and the required variables from the data. 
+#' If blank, the system will choose all data appropriate for the analysis.
+#' @param interest_var The variable of interest to be plotted.
+#' @param cumulative_graph A logical indicating whether cumulative graph should be plotted. 
+#' Cumulative graph is produced when it is TRUE. Otherwise an exceedance graph is produced. 
+#' @param legend_bty  The type of box to be drawn around the legend.
+#' @param Percent   A logical indicating whether the calculated values should be in percent or not.
+#' @param Color	 The legend color.
+#' @param Main   The title of the plot.
+#' @param Xlabel The X axis label.
+#' @param Ylabel The Y axis label.
+#' @param line_type	The type of plot to be drawn. 
+#' @param legend_position The position of the legend.
+#' @param legend_label	The label of the legend. This is needed when interest_var>1
+#' @param station_name  A logical indicating whether the name of the station should be included in the title of the plot.
+#' @param Plot_window  	A logical indicating whether the plots per station should be on the same plot window.
+#' @param Gpar  	Used to arrange figures in n rows and m columns when plot_window is TRUE.
+#' @param grid_sq	A logical indicating whether a grid should be included in the plot.
+#' @param grid_sq A logical indicating whether an nx by ny rectangular grid should be added to an existing plot.
+#' @param nx,ny  	Dimension of the rectangular grid.
+#' @param Lwd   	The width of the grid lines.
+#' @param box.lty  par("lty")	grid line type.
+#' 
+#' @examples
+#' ClimateObj <- climate( data_tables = list( data ), data_time_periods = list("yearly") )
+#' # where "data" is a data.frame containing the desired data to be plotted.
+#' climateObj$cumulative_exceedance_graphs()
+#' 
 #' @return cumulative graph or exceedance graph. the default is cumulative graph
 
 
