@@ -883,12 +883,6 @@ climate$methods(add_start_rain = function(data_list=list(), earliest_day=92, tot
             # if the dry_length is greater than the remaining number of rows
             # we will not be able to check for dry spells so we cannot get a start of the rain
             # NA will be returned
-            if(data_obj$meta_data$data_name=="chief") {
-              print(dry_length)
-              print(num_rows)
-              print(curr_earliest_day)
-              
-            }
             while( !found && sum(single_season[[1]]==curr_earliest_day)>0 && dry_length <= num_rows -  which(single_season[[1]]==curr_earliest_day) ) {
               # get the first day after earliest_day which is over rain_total
               day = sum_check(single_season, curr_earliest_day, total_days, rain_total)[1]

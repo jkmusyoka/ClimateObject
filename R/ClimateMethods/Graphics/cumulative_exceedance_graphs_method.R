@@ -36,7 +36,7 @@
 #' @return cumulative graph or exceedance graph. the default is cumulative graph
 
 
-climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interest_var = "Total Rain",cumulative_graph =TRUE, legend_bty="n",
+climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interest_var,cumulative_graph =TRUE, legend_bty="n",
                                                         color=rainbow(12),percent=TRUE, main="", xlabel="",ylabel="",line_type="o",
                                                         data_period_label=yearly_label, legend_position="center",
                                                         legend_label=c("plot1","plot2"),station_name=TRUE, plot_window=FALSE,gpar=par(mfrow=c(2,4)),
