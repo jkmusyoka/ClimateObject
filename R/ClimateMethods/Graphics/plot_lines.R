@@ -67,11 +67,11 @@ climate$methods(plot_yearly_comparison = function(data_list=list(), variables, c
     for( curr_data in curr_data_list ) {
       #Plot multiple line at once
       #print(curr_data[year_col])     
-      plot(x= curr_data[[year_col]], y=curr_data[interest_var[[j]]], col=col, lwd=lwd, type=type, lty=lty, xlab=xlabel,ylab=ylabel,main=c(data_name, main),
+      matplot(x= curr_data[[year_col]], y=curr_data[interest_var[[j]]], col=col, lwd=lwd, type=type, lty=lty, xlab=xlabel,ylab=ylabel,main=c(data_name, main),
                ylim=c( range( curr_data[interest_var[[j]]], na.rm=na.rm) ))
       
       #Add points on top of the lines
-      points(curr_data[[ year_col ]], curr_data[ interest_var[[ j ]] ], type = "p", pch = pch,  col=col, lwd=lwd_points[[j]], lty=lty_points)
+      matpoints(curr_data[[ year_col ]], curr_data[ interest_var[[ j ]] ], type = "p", pch = pch,  col=col, lwd=lwd_points[[j]], lty=lty_points)
       
       #Add the legend
       legend( legend.location[[j]], legend=legend[[j]],  col=col, text.width = legend_text_width, bty=bty, lty = lty, text.col= col )
