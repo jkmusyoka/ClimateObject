@@ -7,8 +7,13 @@
 #' @description \code{change format of date to be day+month }
 #' create a date column in the format day-month
 #' 
-#' @param data_list() list 
-#' 
+#' @param data_list() data_list	A list containing stations for analysis, the years or periods to be analyzed and the required variables from the data. 
+#' If blank, the system will choose all data appropriate for the analysis.
+#' @param Time_period data time period.
+#' @param Col_name	The name of the new column created.
+#' @param Month_format  The format in which the months are stored.
+#' @param Required_format  The required format of the day + month.
+#'  
 #'  @examples
 #'  climateObj <- climate (data_tables = list (data), date_formats = list( "%m/%d/%Y" )) 
 #'  Default dateformats: "%Y/%m/%d"

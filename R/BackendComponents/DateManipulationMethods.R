@@ -254,7 +254,7 @@ climate_data$methods(missing_dates_check = function(messages = TRUE)
     }
     dates_merge = do.call("rbind",dates_tables)
     if (changed) {
-      set_data(join(dates_merge, get_data(), match="first", type="full"))
+      .self$join_data(dates_merge, match="first", type="full")
       append_to_meta_data(complete_dates_label,TRUE)
       update_date_cols() 
     }

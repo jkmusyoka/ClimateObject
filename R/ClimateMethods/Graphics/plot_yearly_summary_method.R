@@ -18,7 +18,6 @@
 #' @param lwd , lwd2  The line width
 #' @param interest_var This indicates the variable to be plotted
 #' @param var_label  The variable to be summarized 
-#' @param plot_line  logical, if it is true the regression line will be added
 #' @param ygrid where the rectangular grid starts 
 #' @param graph_parameter  Set graphical parameter
 #' @param plot_window logical, if true set up the coordinate system for a graphics window
@@ -29,7 +28,7 @@
 #' @return it returns a timesies plot of the summary
 
 climate$methods(plot_yearly_summary = function (data_list=list(), col1="blue",ylab,xlab="Year",na.rm=TRUE, pch=20,ylim=0,type="b",lty=2,col2="red",lwd = 2,lwd2 = 1.5,
-                                                interest_var="Total Rain",var_label = rain_label,plot_line = FALSE,ygrid=0, graph_parameter = par(mfrow=c(2,2)),plot_window = FALSE,
+                                                interest_var ,var_label = rain_label,ygrid=0, graph_parameter = par(mfrow=c(2,2)),plot_window = FALSE,
                                                 main_title="Plot - Summary per Year",grid=FALSE){
   
   # time period
@@ -63,13 +62,7 @@ climate$methods(plot_yearly_summary = function (data_list=list(), col1="blue",yl
       
       if (grid){
         grid(length(curr_data[[year_col]]),ygrid, lwd = lwd)
-      }      
-      
-      if (plot_line) {
-        reg=lm(curr_data[[interset_var_col]] ~ curr_data[[year_col]])
-        abline(reg,col=col2,lwd=lwd2 )
-        print(summary(reg))
-      }
+      }  
     }
   }
   par(mfrow=c(1,1))
