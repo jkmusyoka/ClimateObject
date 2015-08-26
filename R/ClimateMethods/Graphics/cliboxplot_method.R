@@ -4,7 +4,7 @@
 #' @name boxplot_monthly_daily_rainfall
 #' @author Fanuel 2015 (AMI)
 
-#' @description \code{Spell lengths} 
+#' @description \code{Box plot} 
 #' produces box-and-whisker plot(s) of daily rainfall observation
 #'  
 #' @param whisklty Whisker line type.
@@ -26,18 +26,19 @@
 #' @return return box-and-whisker plot(s).
 #'
 
-climate$methods(boxplot_monthly_daily_rainfall=function( data_list=list(), threshold=0.85, whisklty=1, whiskcol="red", fill_col="blue", connect_median=FALSE, lty_median=1,
-                                                          col_median="black", lwd=1, title="Monthly Rainfall Amount",ylab="Rainfall (mm)",xlab="Month"){
+climate$methods(cliboxplot=function( data_list=list(),var=rain_label,factor_level=TRUE, factor=month_label, threshold=0.85, whisklty=1, whiskcol="red",
+                                                         fill_col="blue",lwd=1, title="Monthly Rainfall Amount",ylab="Rainfall (mm)",xlab="Month",data_period_label=yearly_label,
+                                                         range = 1.5, width = NULL, varwidth = FALSE,notch = FALSE, outline = TRUE, plot = TRUE,
+                                                         border = par("fg"), col = NULL, log = "",pars = list(boxwex = 0.8, staplewex = 0.5, outwex = 0.5),
+                                                         horizontal = FALSE, add = FALSE, at = NULL,names=month.abb){
   #--------------------------------------------------------------------------------------------#
   # This function plots the boxplot of the daily rainfall observations per month for all the years
   #-------------------------------------------------------------------------------------------#
   
   # rain variable is required for this method
-  data_list = add_to_data_info_required_variable_list( data_list, list(rain_label) )
+  data_list = add_to_data_info_required_variable_list( data_list, list(var))  
   
-  # daily data is required for this method
-  data_list=add_to_data_info_time_period( data_list, daily_label )
-  
+  data_list=add_to_data_info_time_period(data_list, data_period_label)  
   # use data_list to get the required data objects
   climate_data_objs = get_climate_data_objects( data_list )
   
@@ -50,23 +51,27 @@ climate$methods(boxplot_monthly_daily_rainfall=function( data_list=list(), thres
       data_obj$add_year_month_day_cols()
     }
     # Get the title of the column of months
-    month_col = data_obj$getvname(month_label)
-    rain_col =  data_obj$getvname(rain_label)
+    factor_col = data_obj$getvname(factor)
+    var_col =  data_obj$getvname(var)
     
     # Access data in methods
     curr_data_list = data_obj$get_data_for_analysis(data_list)
     
     for( curr_data in curr_data_list ) {
-      dat <- curr_data[curr_data[[rain_col]] > threshold, c(rain_col,month_col)]
-      #print(curr_data[ which(curr_data[[rain_col]]>threshold),])
-      mon = month(dat[[month_col]], label=T)
+      curr_dat <- curr_data[curr_data[[var_col]] > threshold, c(var_col,factor_col)]
+      #print(curr_data[ which(curr_data[[var_col]]>threshold),])
+      #mon = month(dat[[factor_col]], label=T)
       
-      if( connect_median == TRUE) {
-        lines(  boxplot(dat[[rain_col]]~mon,whisklty=whisklty,whiskcol=whiskcol,col=fill_col,xlab=xlab,
-                        ylab=ylab, main= c(data_name, title) )$stats[3,], col=col_median, lty=lty_median, lwd=lwd )
+      if( factor_level == TRUE) {
+        boxplot(curr_dat[[var_col]]~curr_dat[[factor_col]],whisklty=whisklty,whiskcol=whiskcol,col=fill_col,xlab=xlab,
+                ylab=ylab, main= c(data_name, title),range = range, width = width, varwidth = varwidth,
+                notch = notch, outline = outline, plot = plot,border = border, log = log,
+                pars = pars,horizontal = horizontal, add = add, at = at,names=names )
       }else{
-        boxplot(dat[[rain_col]]~mon,whisklty=whisklty,whiskcol=whiskcol,col=fill_col,xlab=xlab,
-                ylab=ylab, main= c(data_name, title) )
+        boxplot(dat[[var_col]],whisklty=whisklty,whiskcol=whiskcol,col=fill_col,xlab=xlab,
+                ylab=ylab, main= c(data_name, title),range = range, width = width, varwidth = varwidth,
+                notch = notch, outline = outline, plot = plot,border = border, log = log,
+                pars = pars,horizontal = horizontal, add = add, at = at )
       }
       
     }
