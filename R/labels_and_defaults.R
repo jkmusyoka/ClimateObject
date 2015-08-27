@@ -30,21 +30,27 @@ lat_label="lat"
 lon_label="lon"
 alt_label="alt"
 
+variables_to_summarize = c(rain_label, temp_min_label, temp_max_label, evaporation_label,temp_air_label)
+
 rd_label = "rain_day"
 dd_label = "dry_day"
 rain_amount_label = "rain_amount"
 
 
-total_label="total"
-number_of_label="number_of"
+sum_label="sum"
+count_over_threshold_label="count_over_threshold"
 min_label="min"
 max_label="max"
-mean_label="mean"
+mean_label="Mean"
 start_of_label="start_of"
 end_of_label="end_of"
 seasonal_total_label = "seasonal_total"
 seasonal_raindays_label = "seasonal_raindays"
 extreme_event_day_label = "extreme_event_day"
+mean_over_threshold_label = "mean_over_threshold"
+
+summaries_list=c(sum_label, count_label, min_label, max_label, mean_label, mean_over_threshold_label)
+
 running_rain_totals_label = "running_rain_total"
 waterbalance_label = "waterbalance"
 end_of_rain_label="end_of_rain"
@@ -563,4 +569,65 @@ running_sum <- function(data, total_days = 1, func = sum){
   }
   
   return(h)
+}
+
+summary_calculation <- function (summaries = list(), variables = list(), summaries_variables = list(), factor = list(), threshold = 0, strict_ineq = FALSE, total_days = 1, na.rm = FALSE) {
+  
+  if(missing(summaries)) stop("summaries must be specified")
+  if(missing(variables)) stop("variables must be specified")
+  if(!all(summaries %in% summaries_list)) {
+    stop("summaries can only contain recognise summary functions")
+  }
+  
+  if(missing(factor)) stop("factor must be specified")
+  
+  len = -1
+  for(var in variables) {
+    if(len==-1) len = length(var)
+    else if(len != length(var)) stop("Each variable's data must be the same length")
+  }
+  if(missing(summaries_variables)) {
+    summaries_variables <- rep(list(names(variables)),length(summaries))
+    names(summaries_variables) <- summaries
+  }
+  
+  for(summary_list in summaries_variables) {
+    if(!all(summary_list %in% names(variables))) {
+      stop(paste("Some of the values in summaries_variables were not found in the variables list.", summary_list))
+    }
+  }
+  
+  out = list()
+  for(summary in summaries) {
+    if( !(summary %in% names(summaries_variables)) ) {
+      summaries_variables[[summary]] <- names(variables)
+    }
+    curr_vars = summaries_variables[[summary]]
+    
+    for(var_name in curr_vars) {
+      out[[paste(summary, var_name)]] = as.vector(by(variables[[var_name]],factor, match.fun(summary), threshold = threshold, na.rm = na.rm))
+    }
+  }
+  out
+}
+
+Mean <- function (x, na.rm = FALSE) {
+  if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
+  else mean(x, na.rm=na.rm)
+}
+
+mean_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE) {
+  if(na.rm) x = x[!is.na(x)]
+  if(length(x)==0 || any(is.na(x))) return(NA)
+  if(strict_ineq) x = x[x>threshold]
+  else x = x[x>=threshold]
+  
+  return(mean(x))
+}
+
+count_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE) {
+#  if(length(x)==0 || any(is.na(x))) return(NA)
+  if(strict_ineq) return(sum(x>threshold, na.rm=na.rm))
+  else return(sum(x>=threshold, na.rm=na.rm))
+  
 }

@@ -588,7 +588,7 @@ climate$methods(get_summary_name = function(time_period, data_obj)
     stop("Specify the time period of the summarized data.")
   }
   
-  data_name = data_obj$get_meta_new(data_name_label)
+  data_name = data_obj$get_meta(data_name_label)
   
   if(compare_time_periods(time_period,data_obj$data_time_period)) {
     # Check if needs to be created first.
@@ -628,7 +628,7 @@ climate$methods(append_to_summary = function(time_period, data_obj, col_data, co
     stop("Specify the data to be added to the summary data.")
   }
   
-  data_name = data_obj$get_meta_new(data_name_label)
+  data_name = data_obj$get_meta(data_name_label)
   
   if(compare_time_periods(time_period,data_obj$data_time_period)) {
     # Check if needs to be created first.
@@ -801,7 +801,7 @@ climate$methods(add_start_rain = function(data_list=list(), earliest_day=92, tot
     summary_obj <- get_summary_name(yearly_label, data_obj)
 
     # use get_meta to determine the correct threshold value to use
-    threshold = data_obj$get_meta_new(threshold_label,missing(threshold),threshold)
+    threshold = data_obj$get_meta(threshold_label,missing(threshold),threshold)
     
     # to do
     continue = TRUE
