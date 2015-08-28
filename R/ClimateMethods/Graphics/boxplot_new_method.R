@@ -37,7 +37,7 @@
 #' 
 
 climate$methods(box_jitter = function(data_list = list(), var,  names = c(), method = "jitter",jitter = 0.1, time_period = yearly_label, connect.mean = FALSE,
-                                       horizontal = FALSE, plot_jitter = FALSE, ylab = "Day number for planting", add = TRUE, colpoints = "red", na.rm = TRUE,connect.median = FALSE,
+                                       horizontal = FALSE, plot_jitter = TRUE, ylab = "Day number for planting", add = TRUE, colpoints = "red", na.rm = TRUE,connect.median = FALSE,
                                        plot.sd = FALSE, lty = 1, col.sd = "blue", main = c(data_name,"Start of the rain"), varwidth = FALSE, outline = TRUE, show.names = TRUE){
   
   #required variable
