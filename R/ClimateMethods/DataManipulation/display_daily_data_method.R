@@ -23,7 +23,7 @@
 #' climateObj$display_daily()
 #' @return It returns tables list
 
-climate$methods(display_daily = function(data_list = list(), print_tables = FALSE, row.names = FALSE, col_name = "spell length",
+climate$methods(display_daily = function(data_list = list(), print_tables = FALSE, row.names = FALSE, col_name = "spell length",month_summary = max,
                                          na.rm = TRUE, variable = rain_label, threshold = 0.85, months_list = month.abb, day_display = "Day"){
     
   #required variable
@@ -84,7 +84,7 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
 #           length(na.omit(x[x>val]))
 #         }
         #produce second table with summary stats
-        tables_2[[j]] <- suppressWarnings(rbind(colSums(tables[[j]][,-1], na.rm = na.rm), apply(tables[[j]][,-1],2, max, na.rm = na.rm)))#, apply(tables[[j]][,-1],2,largerthan, val = curr_threshold))
+        tables_2[[j]] <- suppressWarnings(rbind(colSums(tables[[j]][,-1], na.rm = na.rm), apply(tables[[j]][,-1],2, FUN = month_summary, na.rm = na.rm)))#, apply(tables[[j]][,-1],2,largerthan, val = curr_threshold))
         # add dimnames
         tables_2[[j]] <- cbind(c("Total","Maximum"), tables_2[[j]])
 # tables_2[[j]] <- cbind(c("Total","Maximum","Number>0.85"), tables_2[[j]])
