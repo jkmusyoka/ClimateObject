@@ -23,7 +23,8 @@
 #' climateObj$display_daily()
 #' @return It returns tables list
 
-climate$methods(display_daily = function(data_list = list(), print_tables = FALSE, row.names = FALSE, na.rm = TRUE, variable = rain_label, threshold = 0.85, months_list = month.abb, day_display = "Day"){
+climate$methods(display_daily = function(data_list = list(), print_tables = FALSE, row.names = FALSE, col_name = "spell length",
+                                         na.rm = TRUE, variable = rain_label, threshold = 0.85, months_list = month.abb, day_display = "Day"){
     
   #required variable
   data_list = add_to_data_info_required_variable_list(data_list, list(variable))
@@ -46,6 +47,11 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
     year_col = data_obj$getvname( year_label )
     month_col = data_obj$getvname( month_label )
     day_col = data_obj$getvname( day_label )
+    # add spell length column in the dataset if not present
+    if( !(data_obj$is_present(spell_length_label)) ) {
+      data_obj$add_spell_length_col(col_name=col_name, threshold = threshold)
+    }
+    spell_length_col = data_obj$getvname(spell_length_label)
     
     # access data for analysis
     curr_data_list = data_obj$get_data_for_analysis( data_list )
