@@ -23,7 +23,7 @@
 #' climateObj$display_daily()
 #' @return It returns tables list
 
-climate$methods(display_daily = function(data_list = list(), print_tables = FALSE, row.names = FALSE, col_name = "spell length",month_summary = max,
+climate$methods(display_daily = function(data_list = list(), print_tables = FALSE, row.names = FALSE, col_name = "spell length",month_summary = max,dinnames = list("Total","Maximum", "Number>0.85"),
                                          na.rm = TRUE, variable = rain_label, threshold = 0.85, months_list = month.abb, day_display = "Day"){
     
   #required variable
@@ -80,13 +80,13 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
         colnames( tables[[i]] )[2:end] <- months_list[1:end-1]
         
         #create quick function to count number of obs larger than a certain value which can be run in an apply
-#         largerthan <- function(x,val){
-#           length(na.omit(x[x>val]))
-#         }
+        largerthan <- function(x,val){
+          length(na.omit(x[x>val]))
+        }
         #produce second table with summary stats
-        tables_2[[j]] <- suppressWarnings(rbind(colSums(tables[[j]][,-1], na.rm = na.rm), apply(tables[[j]][,-1],2, FUN = month_summary, na.rm = na.rm)))#, apply(tables[[j]][,-1],2,largerthan, val = curr_threshold))
+        tables_2[[j]] <- suppressWarnings(rbind(colSums(tables[[j]][,-1], na.rm = na.rm), apply(tables[[j]][,-1],2, FUN = month_summary, na.rm = na.rm), apply(tables[[j]][,-1],2,largerthan, val = curr_threshold)))
         # add dimnames
-        tables_2[[j]] <- cbind(c("Total","Maximum"), tables_2[[j]])
+        tables_2[[j]] <- cbind(c(dinnames), tables_2[[j]])
 # tables_2[[j]] <- cbind(c("Total","Maximum","Number>0.85"), tables_2[[j]])
         # Making dataframe for second table
         tables_2[[j]] <- data.frame(tables_2[[j]])
