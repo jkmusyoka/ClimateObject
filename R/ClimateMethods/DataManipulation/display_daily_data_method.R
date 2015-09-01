@@ -23,7 +23,8 @@
 #' climateObj$display_daily()
 #' @return It returns tables list
 
-climate$methods(display_daily = function(data_list = list(), print_tables = FALSE, row.names = FALSE, na.rm = TRUE, variable = rain_label, threshold = 0.85, months_list = month.abb, day_display = "Day"){
+climate$methods(display_daily = function(data_list = list(), print_tables = FALSE, row.names = FALSE, col_name = "spell length",month_summary = max,dinnames = list("Total","Maximum", "Number>0.85"),
+                                         na.rm = TRUE, variable = rain_label, threshold = 0.85, months_list = month.abb, day_display = "Day"){
     
   #required variable
   data_list = add_to_data_info_required_variable_list(data_list, list(variable))
@@ -46,6 +47,11 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
     year_col = data_obj$getvname( year_label )
     month_col = data_obj$getvname( month_label )
     day_col = data_obj$getvname( day_label )
+    # add spell length column in the dataset if not present
+    if( !(data_obj$is_present(spell_length_label)) ) {
+      data_obj$add_spell_length_col(col_name=col_name, threshold = threshold)
+    }
+    spell_length_col = data_obj$getvname(spell_length_label)
     
     # access data for analysis
     curr_data_list = data_obj$get_data_for_analysis( data_list )
@@ -74,13 +80,13 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
         colnames( tables[[i]] )[2:end] <- months_list[1:end-1]
         
         #create quick function to count number of obs larger than a certain value which can be run in an apply
-#         largerthan <- function(x,val){
-#           length(na.omit(x[x>val]))
-#         }
+        largerthan <- function(x,val){
+          length(na.omit(x[x>val]))
+        }
         #produce second table with summary stats
-        tables_2[[j]] <- suppressWarnings(rbind(colSums(tables[[j]][,-1], na.rm = na.rm), apply(tables[[j]][,-1],2, max, na.rm = na.rm)))#, apply(tables[[j]][,-1],2,largerthan, val = curr_threshold))
+        tables_2[[j]] <- suppressWarnings(rbind(colSums(tables[[j]][,-1], na.rm = na.rm), apply(tables[[j]][,-1],2, FUN = month_summary, na.rm = na.rm), apply(tables[[j]][,-1],2,largerthan, val = curr_threshold)))
         # add dimnames
-        tables_2[[j]] <- cbind(c("Total","Maximum"), tables_2[[j]])
+        tables_2[[j]] <- cbind(c(dinnames), tables_2[[j]])
 # tables_2[[j]] <- cbind(c("Total","Maximum","Number>0.85"), tables_2[[j]])
         # Making dataframe for second table
         tables_2[[j]] <- data.frame(tables_2[[j]])
