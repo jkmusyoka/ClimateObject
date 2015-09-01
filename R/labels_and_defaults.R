@@ -49,7 +49,8 @@ seasonal_raindays_label = "seasonal_raindays"
 extreme_event_day_label = "extreme_event_day"
 #mean_over_threshold_label = "mean_over_threshold"
 
-summaries_list=c(sum_label, count_label, min_label, max_label, mean_label, mean_over_threshold_label)
+
+summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label)
 
 running_rain_totals_label = "running_rain_total"
 waterbalance_label = "waterbalance"
