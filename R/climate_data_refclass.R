@@ -108,7 +108,7 @@ climate_data$methods(get_data_for_analysis = function(data_info) {
   if (date_list_label %in% names(data_info)) {
     for (tempname in names(data_info[[date_list_label]])){
       if (.self$is_present(tempname)){
-        return_data=return_data[return_data[[.self$getvname(tempname)]]==data_info[[date_list_label]][[tempname]],] #TO DO check this syntax is correct and also add functionallity for start and end dates.
+        return_data=return_data[return_data[[.self$getvname(tempname)]] %in% data_info[[date_list_label]][[tempname]],] #TO DO add functionallity for start and end dates.
       }
     }
   }  
@@ -572,8 +572,6 @@ climate_data$methods(summarize_data = function(new_time_period, start_point = 1,
     stop("Specify the time period you want the summarized data to be in.")
   }
   
-  print(data_time_period)
-  print(new_time_period)
   if(!compare_time_periods(new_time_period,data_time_period)) {
     stop("Cannot summarize data to a shorter time period.")
   }
@@ -960,38 +958,26 @@ climate_data$methods(time_period_check = function(messages=TRUE) {
 }
 )
 
-climate_data$methods(add_spell_length_col = function(col_name = "spell_length", threshold=0.85)
+climate_data$methods(add_spell_length_col = function(col_name = "Spell Length", threshold=0.85)
 {
   
   # Complete dates needed for calculations
   missing_dates_check()
-  
+
+  if(!is_present(rain_label)) stop("rain variable is required to calculate spell length")
   rain_col = getvname(rain_label)  
-  
+  threshold = get_meta(threshold_label, missing(threshold), threshold)
   curr_data_list = get_data_for_analysis(data_info = list())
   
   for( curr_data in curr_data_list ) {    
     
     num_rows <- nrow(curr_data)       
     
-    spell_length_col = curr_data[[rain_col]]    
+    spell_length_col=spell_length_count(curr_data[[rain_col]], threshold)   
     
-    spell_length_col[spell_length_col <= threshold] <- 0 
-    
-    if (spell_length_col[1]<threshold|is.na(spell_length_col[[1]])){
-      spell_length_col[1]=NA      
-    }
-    for (i in 2:num_rows){
-      if ((spell_length_col[i]<threshold|is.na(spell_length_col[i])) & is.na(spell_length_col[i-1])){
-        spell_length_col[i]=NA 
-      }        
-    }
-    
-    spell_length_col=spell_length_count (spell_length_col)   
-    
-  }    
-    append_column_to_data(spell_length_col,col_name)
-    append_to_variables(spell_length_label, col_name)
+  }
+  append_column_to_data(spell_length_col,col_name)
+  append_to_variables(spell_length_label, col_name)
 }
 )
 
