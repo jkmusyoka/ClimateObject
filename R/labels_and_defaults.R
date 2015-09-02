@@ -39,6 +39,7 @@ rain_amount_label = "rain_amount"
 
 sum_label="Sum"
 count_over_threshold_label="count_over_threshold"
+mean_over_threshold_label = "mean_over_threshold"
 min_label="min"
 max_label="max"
 mean_label="Mean"
