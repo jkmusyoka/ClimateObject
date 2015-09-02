@@ -37,7 +37,7 @@ dd_label = "dry_day"
 rain_amount_label = "rain_amount"
 
 
-sum_label="sum"
+sum_label="Sum"
 count_over_threshold_label="count_over_threshold"
 min_label="min"
 max_label="max"
@@ -47,7 +47,7 @@ end_of_label="end_of"
 seasonal_total_label = "seasonal_total"
 seasonal_raindays_label = "seasonal_raindays"
 extreme_event_day_label = "extreme_event_day"
-mean_over_threshold_label = "mean_over_threshold"
+#mean_over_threshold_label = "mean_over_threshold"
 
 
 summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label)
@@ -557,10 +557,26 @@ mode_stat <- function(x) {
 }
 
 
-spell_length_count <- function(column_var){
-  (!(column_var)) * unlist(lapply(rle(column_var)$lengths, seq_len))
+spell_length_count <- function(spell_length_col, threshold){
+  
+  spell_length_col[spell_length_col <= threshold] <- 0 
+  
+  if (spell_length_col[1]<threshold|is.na(spell_length_col[[1]])){
+    spell_length_col[1]=NA      
+  }
+  for (i in 2:num_rows){
+    if ((spell_length_col[i]<threshold|is.na(spell_length_col[i])) & is.na(spell_length_col[i-1])){
+      spell_length_col[i]=NA 
+    }        
+  }
+  
+  (!(spell_length_col)) * unlist(lapply(rle(spell_length_col)$lengths, seq_len))
 }
 
+longest_spell_length <- function(spell_length_col, threshold, factor, na.rm = FALSE) {
+  spell_count = spell_length_count(spell_length_col, threshold)
+  summary_calculation(summaries = list(max_label), variables = list(spell_count=spell_count), factor=factor, na.rm=na.rm)
+}
 
 running_sum <- function(data, total_days = 1, func = sum){
   h=c()
@@ -604,7 +620,6 @@ summary_calculation <- function (summaries = list(), variables = list(), summari
       summaries_variables[[summary]] <- names(variables)
     }
     curr_vars = summaries_variables[[summary]]
-    
     for(var_name in curr_vars) {
       out[[paste(summary, var_name)]] = as.vector(by(variables[[var_name]],factor, match.fun(summary), threshold = threshold, na.rm = na.rm))
     }
@@ -612,10 +627,14 @@ summary_calculation <- function (summaries = list(), variables = list(), summari
   out
 }
 
-Mean <- function (x, na.rm = FALSE) {
+Mean <- function (x, na.rm = FALSE,...) {
   if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
   else mean(x, na.rm=na.rm)
 }
+
+Sum <- function (x, na.rm = FALSE,...) {
+  sum(x, na.rm = FALSE)
+} 
 
 mean_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE) {
   if(na.rm) x = x[!is.na(x)]
