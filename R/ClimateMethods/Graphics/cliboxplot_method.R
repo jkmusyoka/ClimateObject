@@ -1,11 +1,11 @@
 #==================================================================================================
 # 
 #' @title Boxplot of daily rainfall per month.
-#' @name boxplot_monthly_daily_rainfall
+#' @name cliboxplot
 #' @author Fanuel 2015 (AMI)
 
 #' @description \code{Box plot} 
-#' produces box-and-whisker plot(s) of daily rainfall observation
+#' produces box-and-whisker plot(s).
 #'  
 #' @param whisklty Whisker line type.
 #' @param fill_col Box color.
@@ -58,10 +58,9 @@ climate$methods(cliboxplot=function( data_list=list(),var=rain_label,factor_leve
     curr_data_list = data_obj$get_data_for_analysis(data_list)
     
     for( curr_data in curr_data_list ) {
-      curr_dat <- curr_data[curr_data[[var_col]] > threshold, c(var_col,factor_col)]
-      #print(curr_data[ which(curr_data[[var_col]]>threshold),])
-      #mon = month(dat[[factor_col]], label=T)
       
+      curr_dat <- curr_data[curr_data[[var_col]] > threshold, c(var_col,factor_col)]
+
       if( factor_level == TRUE) {
         boxplot(curr_dat[[var_col]]~curr_dat[[factor_col]],whisklty=whisklty,whiskcol=whiskcol,col=fill_col,xlab=xlab,
                 ylab=ylab, main= c(data_name, title),range = range, width = width, varwidth = varwidth,
