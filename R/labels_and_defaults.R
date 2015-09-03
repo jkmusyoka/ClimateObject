@@ -48,8 +48,6 @@ end_of_label="end_of"
 seasonal_total_label = "seasonal_total"
 seasonal_raindays_label = "seasonal_raindays"
 extreme_event_day_label = "extreme_event_day"
-#mean_over_threshold_label = "mean_over_threshold"
-
 
 summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label)
 
@@ -589,26 +587,40 @@ running_sum <- function(data, total_days = 1, func = sum){
   return(h)
 }
 
+
+# summaries : list of summary functions to be used e.g. mean, min, max etc.
+# summaries_list on line 52 shows which summary functions are recognised. This may be added to as more summaries are needed.
+# variable  : list of variables to be summaried. Each element should be a vector i.e. a column from a data frame
+#             the list must be labeled with the variable names
+# summaries_variables : list of the same length as summaries. For each summary, it indicates which variables should have that summary calculated.
+#                       If not specified, the summary will be calculated for all variables
+# factor    : A list of factor columns to be used by the by function, or a single factor column. Either is acceptable. Factor columns must be the same length as the data.
+# other arguments are used for the summary functions and may not be needed for all summaries
+
 summary_calculation <- function (summaries = list(), variables = list(), summaries_variables = list(), factor = list(), threshold = 0, strict_ineq = FALSE, total_days = 1, na.rm = FALSE) {
   
   if(missing(summaries)) stop("summaries must be specified")
   if(missing(variables)) stop("variables must be specified")
+  # check that summaries are in the summaries_list
   if(!all(summaries %in% summaries_list)) {
     stop("summaries can only contain recognise summary functions")
   }
   
   if(missing(factor)) stop("factor must be specified")
   
+  # check if all vectors in variables have the same length
   len = -1
   for(var in variables) {
     if(len==-1) len = length(var)
     else if(len != length(var)) stop("Each variable's data must be the same length")
   }
+  # if summaries_variables not given then assign all variables to each summary
   if(missing(summaries_variables)) {
     summaries_variables <- rep(list(names(variables)),length(summaries))
     names(summaries_variables) <- summaries
   }
   
+  # check if the summaries_variables contains names of variables that were not given.
   for(summary_list in summaries_variables) {
     if(!all(summary_list %in% names(variables))) {
       stop(paste("Some of the values in summaries_variables were not found in the variables list.", summary_list))
@@ -620,8 +632,11 @@ summary_calculation <- function (summaries = list(), variables = list(), summari
     if( !(summary %in% names(summaries_variables)) ) {
       summaries_variables[[summary]] <- names(variables)
     }
+    # get the list of variables to calculate summary for.
     curr_vars = summaries_variables[[summary]]
     for(var_name in curr_vars) {
+      # use the by function to calculate the summary based on the facotr given
+      # match.fun converts the variable summary into a function to be used
       out[[paste(summary, var_name)]] = as.vector(by(variables[[var_name]],factor, match.fun(summary), threshold = threshold, na.rm = na.rm))
     }
   }

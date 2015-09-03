@@ -39,9 +39,9 @@
 #' @return 
 #' 
 
-climate$methods(seasonal_summary = function(data_list = list(), variable_to_summarize = rain_label, month_start, number_month = 3, threshold = 0.85, 
+climate$methods(seasonal_summary = function(data_list = list(), variable_to_summarize = rain_label, month_start = -1, number_month = 3, threshold = 0.85, 
                                             summaries = list(sum_label, count_over_threshold_label, mean_over_threshold_label),
-                                            month_col_names, summary_col_names, na.rm = FALSE, replace = FALSE){
+                                            month_col_names = "" , summary_col_names, na.rm = FALSE, replace = FALSE){
 
   
   # variable_to_require is requied and may not be rain
@@ -51,7 +51,7 @@ climate$methods(seasonal_summary = function(data_list = list(), variable_to_summ
   # a list of climate data objects
   climate_data_objs = get_climate_data_objects(data_list)
 
-  if(!missing(month_col_names) && length(month_col_names) != length(month_start) ) stop("If specified, month_col_names must be a list the same length as month_start")
+  if(month_col_names != "" && length(month_col_names) != length(month_start) ) stop("If specified, month_col_names must be a list the same length as month_start")
   if(!missing(summary_col_names) && length(summary_col_names) != length(summaries) ) stop("If specified, summary_col_names must be a list the same length as summaries")
   if(number_month > 12) stop("number_month must be an integer less than or equal to 12.")
   for(data_obj in climate_data_objs) {
@@ -71,7 +71,7 @@ climate$methods(seasonal_summary = function(data_list = list(), variable_to_summ
     }
     season_col = data_obj$getvname(season_label) 
     
-    if(missing(month_start)) {
+    if(-1 %in% month_start) {
       curr_season_start_day = data_obj$get_meta(season_start_day_label)
       date = doy_as_date(curr_season_start_day, 1952)
       month_start = month(date)
@@ -119,8 +119,8 @@ climate$methods(seasonal_summary = function(data_list = list(), variable_to_summ
         # use summary_calculation function to calculate the summaries needed by the year column as the factor
         summ_cols = summary_calculation(summaries, list(var = curr_data[[var_col]]), factor = curr_data[[season_col]], threshold = threshold, na.rm = na.rm)
         # use month_col_names and summary_col_names for column names if they are given, otherwise use default names
-        if(!missing(month_col_names) && !missing(summary_col_names)) names(summ_cols) = paste(month_col_names[[i]], summary_col_names)
-        else if(!missing(month_col_names)) names(summ_cols) = paste(month_col_names[[i]], summaries)
+        if(month_col_names != "" && !missing(summary_col_names)) names(summ_cols) = paste(month_col_names[[i]], summary_col_names)
+        else if(month_col_names != "") names(summ_cols) = paste(month_col_names[[i]], summaries)
         else if(!missing(summary_col_names)) names(summ_cols) = paste(names(months_lists)[i], summary_col_names)
         else names(summ_cols) = paste(names(months_lists)[i], summaries, var_col)
 
