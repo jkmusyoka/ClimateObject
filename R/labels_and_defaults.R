@@ -563,7 +563,7 @@ spell_length_count <- function(spell_length_col, threshold){
   if (spell_length_col[1]<threshold|is.na(spell_length_col[[1]])){
     spell_length_col[1]=NA      
   }
-  for (i in 2:num_rows){
+  for (i in 2:length(spell_length_col)){
     if ((spell_length_col[i]<threshold|is.na(spell_length_col[i])) & is.na(spell_length_col[i-1])){
       spell_length_col[i]=NA 
     }        
