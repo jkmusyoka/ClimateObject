@@ -41,8 +41,8 @@ sum_label="Sum"
 count_over_threshold_label="count_over_threshold"
 mean_over_threshold_label = "mean_over_threshold"
 sd_over_threshold_label = "sd_over_threshold"
-min_label="min"
-max_label="max"
+min_label="Min"
+max_label="Max"
 mean_label="Mean"
 start_of_label="start_of"
 end_of_label="end_of"
@@ -684,3 +684,12 @@ sd_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FAL
 # }
 
 
+Max <- function (x, na.rm = FALSE,...) {
+  if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
+  else max(x, na.rm = na.rm)
+} 
+
+Min <- function (x, na.rm = FALSE,...) {
+  if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
+  else min(x, na.rm = na.rm)
+} 
