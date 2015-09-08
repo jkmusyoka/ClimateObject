@@ -48,8 +48,9 @@ end_of_label="end_of"
 seasonal_total_label = "seasonal_total"
 seasonal_raindays_label = "seasonal_raindays"
 extreme_event_day_label = "extreme_event_day"
+running_summary_label = "running_summary"
 
-summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label)
+summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label, running_summary_label)
 
 running_rain_totals_label = "running_rain_total"
 waterbalance_label = "waterbalance"
@@ -577,14 +578,18 @@ longest_spell_length <- function(spell_length_col, threshold, factor, na.rm = FA
   summary_calculation(summaries = list(max_label), variables = list(spell_count=spell_count), factor=factor, na.rm=na.rm)
 }
 
-running_sum <- function(data, total_days = 1, func = sum){
+running_summary <- function(data, total_days = 1, func = max_label, na.rm = FALSE,...) {
   h=c()
   for (i in 1:(length(data)-total_days+1)){
-    j<- func(data[i:(i+total_days-1)])
-    h[i] <- j
+    h[i] <- Sum(data[i:(i+total_days-1)], na.rm = na.rm)
   }
   
-  return(h)
+  print(h)
+  if(missing(func)) return(h)
+  else {
+    func = match.fun(func)
+    return(func(h, na.rm = na.rm))
+  }
 }
 
 
@@ -597,7 +602,7 @@ running_sum <- function(data, total_days = 1, func = sum){
 # factor    : A list of factor columns to be used by the by function, or a single factor column. Either is acceptable. Factor columns must be the same length as the data.
 # other arguments are used for the summary functions and may not be needed for all summaries
 
-summary_calculation <- function (summaries = list(), variables = list(), summaries_variables = list(), factor = list(), threshold = 0, strict_ineq = FALSE, total_days = 1, na.rm = FALSE) {
+summary_calculation <- function (summaries = list(), variables = list(), summaries_variables = list(), factor = list(), threshold = 0, strict_ineq = FALSE, total_days = 1, na.rm = FALSE, func = max_label) {
   
   if(missing(summaries)) stop("summaries must be specified")
   if(missing(variables)) stop("variables must be specified")
@@ -637,7 +642,7 @@ summary_calculation <- function (summaries = list(), variables = list(), summari
     for(var_name in curr_vars) {
       # use the by function to calculate the summary based on the facotr given
       # match.fun converts the variable summary into a function to be used
-      out[[paste(summary, var_name)]] = as.vector(by(variables[[var_name]],factor, match.fun(summary), threshold = threshold, na.rm = na.rm))
+      out[[paste(summary, var_name)]] = as.vector(by(variables[[var_name]],factor, match.fun(summary), threshold = threshold, na.rm = na.rm, func = func))
     }
   }
   out
@@ -652,7 +657,7 @@ Sum <- function (x, na.rm = FALSE,...) {
   sum(x, na.rm = FALSE)
 } 
 
-mean_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE) {
+mean_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE,...) {
   if(na.rm) x = x[!is.na(x)]
   if(length(x)==0 || any(is.na(x))) return(NA)
   if(strict_ineq) x = x[x>threshold]
@@ -661,7 +666,7 @@ mean_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = F
   return(mean(x))
 }
 
-count_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE) {
+count_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = TRUE,...) {
 #  if(length(x)==0 || any(is.na(x))) return(NA)
   if(strict_ineq) return(sum(x>threshold, na.rm=na.rm))
   else return(sum(x>=threshold, na.rm=na.rm))
