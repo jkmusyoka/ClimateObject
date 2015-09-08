@@ -40,6 +40,7 @@ rain_amount_label = "rain_amount"
 sum_label="Sum"
 count_over_threshold_label="count_over_threshold"
 mean_over_threshold_label = "mean_over_threshold"
+sd_over_threshold_label = "sd_over_threshold"
 min_label="min"
 max_label="max"
 mean_label="Mean"
@@ -50,7 +51,7 @@ seasonal_raindays_label = "seasonal_raindays"
 extreme_event_day_label = "extreme_event_day"
 running_summary_label = "running_summary"
 
-summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label, running_summary_label)
+summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label, sd_over_threshold_label, running_summary_label)
 
 running_rain_totals_label = "running_rain_total"
 waterbalance_label = "waterbalance"
@@ -672,3 +673,14 @@ count_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = 
   else return(sum(x>=threshold, na.rm=na.rm))
   
 }
+
+sd_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE, digits = 4) {
+  if(strict_ineq) return(sd( x > threshold, na.rm = na.rm ))
+  else return(round(sd( x >= threshold, na.rm = na.rm ),digits = digits)) 
+}
+
+# percentile <- function(x, percentiles = c(.10,.20,.50,.80,.90), na.rm = FALSE){
+#   quantile(x, percentiles, na.rm = na.rm)
+# }
+
+
