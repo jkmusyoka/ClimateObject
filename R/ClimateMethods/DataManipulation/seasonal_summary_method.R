@@ -100,7 +100,7 @@ climate$methods(seasonal_summary = function(data_list = list(), variable_to_summ
     # and each list element is a vector of months (in numeric format)
     months_lists = lapply(month_start, function(a,b) 1+(((a:(a+b-1)) -1) %% 12), b = number_month)
     # set the labels of the list in the format: "Jan-Mar"
-    names(months_lists) = paste0(month.abb[month_start],"-", month.abb[month_start+number_month-1])
+    names(months_lists) = paste0(month.abb[month_start],"-", month.abb[(month_start+number_month-1) %% 12])
 
     # get the yearly summary object for this data_obj
     summary_obj <- get_summary_name(yearly_label, data_obj)

@@ -32,7 +32,7 @@
 climate$methods(extreme_events=function(data_list=list(), required_var=rain_label,na.rm=TRUE,extreme_max=TRUE, extreme_min = FALSE,total_days=1,val_threshold=FALSE,
                                         threshold_value=0,start_day=1, end_day=366, values_between=FALSE,lower_lim,upper_lim,
                                         col_names=c("Yearly Maximum","extreme event day"),replace=FALSE){
-  # max, min sum over sum_day days
+  # DONE max, min sum over sum_day days
   # with the doy of last day in the sum where (first - in cases of multiple maximums) max/min occured on
   # print all doys when variable is over a threshold
   # max, min within a range (lower_lim and upper_lim)
@@ -57,9 +57,9 @@ climate$methods(extreme_events=function(data_list=list(), required_var=rain_labe
     }
     
     #get names of the columns in the data   
-    var_col  = data_obj$getvname(required_var)
+    var_col = data_obj$getvname(required_var)
     
-    dos_col   = data_obj$getvname(dos_label) 
+    dos_col = data_obj$getvname(dos_label) 
     
     season_col= data_obj$getvname(season_label)
     
