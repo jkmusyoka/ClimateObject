@@ -33,7 +33,7 @@ climate$methods(add_start_rain = function(data_list=list(), earliest_day=92, tot
     summary_obj <- get_summary_name(yearly_label, data_obj)
     
     # use get_meta to determine the correct threshold value to use
-    threshold = data_obj$get_meta_new(threshold_label,missing(threshold),threshold)
+    threshold = data_obj$get_meta(threshold_label,missing(threshold),threshold)
     
     # to do
     continue = TRUE

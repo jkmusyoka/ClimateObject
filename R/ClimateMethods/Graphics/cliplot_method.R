@@ -9,8 +9,9 @@ climate$methods(cliplot = function(data_list=list(),var_x,var_y, type = "p",  xl
   data_list=add_to_data_info_time_period(data_list, data_time_period)
   #Get the data objects
   climate_data_objs_list = get_climate_data_objects(data_list)
-
   for(data_obj in climate_data_objs_list) {    
+    var_x_name = data_obj$getvname(var_x)
+    var_y_name = data_obj$getvname(var_y)
     par(new=FALSE)
     if (station_name){    
       data_name = data_obj$get_meta(data_name_label)
@@ -48,9 +49,9 @@ climate$methods(cliplot = function(data_list=list(),var_x,var_y, type = "p",  xl
             xlab=NULL
             ylab=NULL
           }
-          plot(curr_data[[var_x]], curr_data[[var_y[i]]], type =type,  xlim = xlim, ylim = ylim,
+          plot(curr_data[[var_x_name]], curr_data[[var_y_name[i]]], type =type,  xlim = xlim, ylim = ylim,
                log =log, main=c(data_name,main), sub = sub, xlab = xlab, ylab = ylab,col=col[i],
-               ann =ann, axes = axes, frame.plot = axes,panel.first = panel.first, panel.last =panel.first, asp = asp, ...) 
+               ann =ann, axes = axes, frame.plot = axes,panel.first = panel.first, panel.last =panel.first, asp = asp) 
           
           par(new=par)
         }        
