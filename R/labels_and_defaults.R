@@ -674,9 +674,9 @@ count_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = 
   
 }
 
-sd_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE, digits = 4) {
+sd_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE) {
   if(strict_ineq) return(sd( x > threshold, na.rm = na.rm ))
-  else return(round(sd( x >= threshold, na.rm = na.rm ),digits = digits)) 
+  else return(sd( x >= threshold, na.rm = na.rm )) 
 }
 
 # percentile <- function(x, percentiles = c(.10,.20,.50,.80,.90), na.rm = FALSE){
