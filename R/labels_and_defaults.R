@@ -674,7 +674,7 @@ count_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = 
   
 }
 
-sd_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE) {
+sd_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE,...) {
   if(strict_ineq) return(sd( x > threshold, na.rm = na.rm ))
   else return(sd( x >= threshold, na.rm = na.rm )) 
 }
