@@ -41,6 +41,8 @@ sum_label="Sum"
 count_over_threshold_label="count_over_threshold"
 mean_over_threshold_label = "mean_over_threshold"
 sd_over_threshold_label = "sd_over_threshold"
+med_label = "med"
+range_label = "Range"
 min_label="Min"
 max_label="Max"
 mean_label="Mean"
@@ -51,7 +53,7 @@ seasonal_raindays_label = "seasonal_raindays"
 extreme_event_day_label = "extreme_event_day"
 running_summary_label = "running_summary"
 
-summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label, sd_over_threshold_label, running_summary_label)
+summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label, sd_over_threshold_label, running_summary_label, med_label,range_label)
 
 running_rain_totals_label = "running_rain_total"
 waterbalance_label = "waterbalance"
@@ -693,3 +695,16 @@ Min <- function (x, na.rm = FALSE,...) {
   if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
   else min(x, na.rm = na.rm)
 } 
+
+#get the range of the data
+Range <- function(x, na.rm = TRUE, ...){
+  max(x, na.rm = na.rm) - min(x, na.rm = na.rm)  
+}
+
+# median function
+med <- function(x, ...) {
+  odd.even <- length(x)%%2
+  if (odd.even == 0)(sort(x)[length(x)/2] + sort(x)[1 + length(x)/2])/2
+  else sort(x)[ceiling(length(x)/2)]
+}
+
