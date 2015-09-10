@@ -54,7 +54,7 @@ climate$methods(get_var_labels = function(data_obj){
 #'  
 #' @return Creates a zooObject
 #' 
-climate$methods(get_zooObj= function(x,y){
+climate$methods(get_zooObj= function(x,y,data_time_period){
   #######################################################################
   require(zoo)
   # Make sure to use always the same time format:

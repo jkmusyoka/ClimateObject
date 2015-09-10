@@ -75,7 +75,7 @@ climate$methods(histogram_shiny = function(){
         var_col = data_obj$getvname(as.character(var_labels[i0]))
         y <- curr_data[[var_col]]
         x <- curr_data[[date_col]]
-        z5 <- .self$get_zooObj(x,y)
+        z5 <- .self$get_zooObj(x,y,data_time_period)
         n <- length(z5[1,])
         
         #####################################################################
