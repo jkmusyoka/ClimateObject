@@ -43,6 +43,7 @@ mean_over_threshold_label = "mean_over_threshold"
 sd_over_threshold_label = "sd_over_threshold"
 med_label = "med"
 range_label = "Range"
+count_label = "count"
 min_label="Min"
 max_label="Max"
 mean_label="Mean"
@@ -53,7 +54,7 @@ seasonal_raindays_label = "seasonal_raindays"
 extreme_event_day_label = "extreme_event_day"
 running_summary_label = "running_summary"
 
-summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label, sd_over_threshold_label, running_summary_label, med_label,range_label)
+summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label, sd_over_threshold_label, running_summary_label, med_label,range_label, count_label)
 
 running_rain_totals_label = "running_rain_total"
 waterbalance_label = "waterbalance"
@@ -706,5 +707,14 @@ med <- function(x, ...) {
   odd.even <- length(x)%%2
   if (odd.even == 0)(sort(x)[length(x)/2] + sort(x)[1 + length(x)/2])/2
   else sort(x)[ceiling(length(x)/2)]
+}
+
+#in progress with return and print 
+count <- function(x, proportions = c(120,140,160,180,200), na.rm = TRUE, ...){
+  count = c()
+  for (i in 1:length(proportions)){
+    count[i] = sum(x <= proportions[i], na.rm = na.rm)
+    return(paste("count <=", proportions[i], "is", count[i]))
+  }
 }
 
