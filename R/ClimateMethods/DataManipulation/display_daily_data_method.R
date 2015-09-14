@@ -50,7 +50,7 @@ climate$methods(display_daily = function(data_list = list(), print_tables = FALS
     day_col = data_obj$getvname( day_label )
     
     # access data for analysis
-#    curr_data_list = data_obj$get_data_for_analysis( data_list )
+    curr_data_list = data_obj$get_data_for_analysis( data_list )
     for( curr_data in curr_data_list ) {
       
       # initialize tables as a list
