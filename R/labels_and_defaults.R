@@ -2,6 +2,8 @@ library(reshape2)
 library(lubridate)
 library(plyr)
 library(rtf)
+library(ggplot2)
+library(reshape)
 #Labels for variables which will be recognised by the Climate objects
 rain_label="rain"
 date_label="date"
