@@ -93,6 +93,12 @@ complete_dates_label="complete_dates"
 summary_statistics_label="summary_statistics"
 data_start_date_label="data_start_date"
 data_end_date_label="data_end_date"
+var_label="var"
+lower_threshold_label="lower_threshold"
+upper_threshold_label="upper_threshold"
+lower_strict_label="lower_strict"
+upper_strict_label="upper_strict"
+
 
 #Labels to specify data in function specification list
 station_list_label="station_list"
@@ -104,6 +110,7 @@ required_variable_list_label="required_variable_list"
 merge_data_label="merge_data"
 convert_data_label="convert_data"
 require_all_variables_label="require_all_variables"
+threshold_list_label = "threshold_list"
 
 #Labels for data time periods
 daily_label="daily"
@@ -599,59 +606,92 @@ running_summary <- function(data, total_days = 1, func = max_label, na.rm = FALS
 }
 
 
+# data      : a data frame containing the variables and factor columns.
 # summaries : list of summary functions to be used e.g. mean, min, max etc.
 # summaries_list on line 52 shows which summary functions are recognised. This may be added to as more summaries are needed.
-# variable  : list of variables to be summaried. Each element should be a vector i.e. a column from a data frame
-#             the list must be labeled with the variable names
-# summaries_variables : list of the same length as summaries. For each summary, it indicates which variables should have that summary calculated.
-#                       If not specified, the summary will be calculated for all variables
-# factor    : A list of factor columns to be used by the by function, or a single factor column. Either is acceptable. Factor columns must be the same length as the data.
+# variable  : list of variable names to be summaried. Each element should be a character corresponding to a column in data
+# factor    : A list of names of factor columns to be used by the by function. Each factor must correspond to a column in the data.
 # other arguments are used for the summary functions and may not be needed for all summaries
 
-summary_calculation <- function (summaries = list(), variables = list(), summaries_variables = list(), factor = list(), threshold = 0, strict_ineq = FALSE, total_days = 1, na.rm = FALSE, func = max_label) {
+
+# single subset of the data for each call
+# do all summaries on all variables
+# single or multiple thresholds allowed. Convert single into list of multiple repeated
+summary_calculation <- function (data, summaries = list(), variables = list(), factor = list(), lower_threshold, upper_threshold, lower_strict = rep(FALSE, length(variables)), upper_strict = rep(FALSE, length(variables)), total_days = 1, na.rm = FALSE, func = max_label,...) {
   
   if(missing(summaries)) stop("summaries must be specified")
   if(missing(variables)) stop("variables must be specified")
+  if(missing(factor)) stop("factor must be specified")
+  if(!is.logical(lower_strict)) stop("lower_strict must be a logical value or vector")
+  if(!is.logical(upper_strict)) stop("upper_strict must be a logical value or vector")
+  if(!missing(lower_strict) && (length(lower_strict) != 1 || length(lower_strict) != length(variables))) stop("lower_strict must be a logical vector of length 1 or length of variables")
+  if(!missing(upper_strict) && (length(upper_strict) != 1 || length(upper_strict) != length(variables))) stop("upper_strict must be a logical vector of length 1 or length of variables")
+
+  if( !all(variables %in% names(data)) ) stop("Some variables not found in the data.")
+  if( !all(factor %in% names(data)) ) stop("Some factors not found in the data.")
+
+  if(length(lower_strict) == 1) lower_strict = rep(lower_strict,length(variables))        
+  if(length(upper_strict) == 1) upper_strict = rep(upper_strict,length(variables))        
+  
+  
+  # Check factor columns are stored as factors.
+  for( fact in factor) {
+    if(!is.factor(data[[fact]])) {
+      message(paste("Converting", fact, "to a factor for summary calculations"))
+      data[[fact]] <- as.factor(data[[fact]])
+    }
+  }
+  
   # check that summaries are in the summaries_list
   if(!all(summaries %in% summaries_list)) {
     stop("summaries can only contain recognise summary functions")
   }
   
-  if(missing(factor)) stop("factor must be specified")
-  
-  # check if all vectors in variables have the same length
-  len = -1
-  for(var in variables) {
-    if(len==-1) len = length(var)
-    else if(len != length(var)) stop("Each variable's data must be the same length")
-  }
-  # if summaries_variables not given then assign all variables to each summary
-  if(missing(summaries_variables)) {
-    summaries_variables <- rep(list(names(variables)),length(summaries))
-    names(summaries_variables) <- summaries
-  }
-  
-  # check if the summaries_variables contains names of variables that were not given.
-  for(summary_list in summaries_variables) {
-    if(!all(summary_list %in% names(variables))) {
-      stop(paste("Some of the values in summaries_variables were not found in the variables list.", summary_list))
-    }
-  }
-  
   out = list()
-  for(summary in summaries) {
-    if( !(summary %in% names(summaries_variables)) ) {
-      summaries_variables[[summary]] <- names(variables)
+  i = 1
+  for(curr_var_name in variables) {
+    
+    curr_data = data[,c(curr_var_name, factor)]
+    curr_data = subset_with_threshold(curr_data, curr_var_name, lower_threshold, upper_threshold, lower_strict, upper_strict)
+
+    curr_factors = list()
+    for(fac in curr_factor) {
+      curr_factors[[fac]] = curr_data[[fac]]
     }
-    # get the list of variables to calculate summary for.
-    curr_vars = summaries_variables[[summary]]
-    for(var_name in curr_vars) {
-      # use the by function to calculate the summary based on the facotr given
+
+    for(single_summary in summaries) {
+      # use the by function to calculate the summary based on the factor given
       # match.fun converts the variable summary into a function to be used
-      out[[paste(summary, var_name)]] = as.vector(by(variables[[var_name]],factor, match.fun(summary), threshold = threshold, na.rm = na.rm, func = func))
+      out[[paste(single_summary, curr_var_name)]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), na.rm = na.rm, func = func,...))
     }
+    i = i + 1
   }
   out
+}
+
+test <- function(y,...) {
+  if(y==1) Mean(...)
+}
+
+subset_with_threshold <- function(curr_data, var, lower_threshold, upper_threshold, lower_strict = FALSE, upper_strict = FALSE) {
+  if(!missing(lower_threshold) && !missing(upper_threshold)) {
+    if(lower_strict && upper_strict) subset(curr_data, curr_data[[var]] > lower_threshold & curr_data[[var]] < upper_threshold)
+    else if(lower_strict) subset(curr_data, curr_data[[var]] > lower_threshold & curr_data[[var]] <= upper_threshold)
+    else if(upper_strict) subset(curr_data, curr_data[[var]] >= lower_threshold & curr_data[[var]] < upper_threshold)
+    else subset(curr_data, curr_data[[var]] >= lower_threshold & curr_data[[var]] <= upper_threshold)
+  }
+  
+  else if(!missing(lower_threshold)) {
+    if(lower_strict) subset(curr_data, curr_data[[var]] > lower_threshold)
+    else subset(curr_data, curr_data[[var]] >= lower_threshold)
+  }
+
+  else if(!missing(upper_threshold)) {
+    if(upper_strict) subset(curr_data, curr_data[[var]] < upper_threshold)
+    else subset(curr_data, curr_data[[var]] <= upper_threshold)
+  }
+  
+  else curr_data
 }
 
 Mean <- function (x, na.rm = FALSE,...) {
