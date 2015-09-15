@@ -112,6 +112,41 @@ climate_data$methods(get_data_for_analysis = function(data_info) {
       }
     }
   }  
+  
+  if(threshold_list_label %in% names(data_info)) {
+    if(var_label %in% names(data_info[[threshold_list_label]]) 
+       && .self$is_present(data_info[[threshold_list_label]][[var_label]])) {
+      var = .self$getvname(data_info[[threshold_list_label]][[var_label]])
+      
+      if(!(lower_strict_label %in% names(data_info[[threshold_list_label]]))) lower_strict = FALSE
+      else lower_strict = data_info[[threshold_list_label]][[lower_strict_label]]
+
+      if(!(upper_strict_label %in% names(data_info[[threshold_list_label]]))) upper_strict = FALSE
+      else upper_strict = data_info[[threshold_list_label]][[upper_strict_label]]
+
+      if(lower_threshold_label %in% names(data_info[[threshold_list_label]])) lower_threshold = data_info[[threshold_list_label]][[lower_threshold_label]]
+      if(upper_threshold_label %in% names(data_info[[threshold_list_label]])) upper_threshold = data_info[[threshold_list_label]][[upper_threshold_label]]
+      
+      if( all(c(lower_threshold_label,upper_threshold_label) %in% names(data_info[[threshold_list_label]])) ) {
+        if(lower_strict && upper_strict) return_data = return_data[return_data[[var]] > lower_threshold & return_data[[var]] < upper_threshold,]
+        else if(lower_strict) return_data = return_data[return_data[[var]] > lower_threshold & return_data[[var]] <= upper_threshold,]
+        else if(upper_strict) return_data = return_data[return_data[[var]] >= lower_threshold & return_data[[var]] < upper_threshold,]
+        else return_data = return_data[return_data[[var]] >= lower_threshold & return_data[[var]] <= upper_threshold,]
+      }
+      
+      else if(lower_threshold_label %in% names(data_info[[threshold_list_label]])) {
+        if(lower_strict) return_data = return_data[return_data[[var]] > lower_threshold,]
+        else return_data = return_data[return_data[[var]] >= lower_threshold,]
+      }
+      
+      else if(upper_threshold_label %in% names(data_info[[threshold_list_label]])) {
+        if(upper_strict) return_data = return_data[return_data[[var]] < upper_threshold,]
+        else return_data = return_data[return_data[[var]] <= upper_threshold,]
+      }
+      
+    } 
+  }
+  
   if (!merged_data) return_data = .self$get_split_data(return_data)
   return (return_data)
   
