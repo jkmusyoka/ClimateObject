@@ -760,3 +760,25 @@ count <- function(x, proportions = c(120,140,160,180,200), na.rm = TRUE, ...){
   }
 }
 
+# results as percent of data (in progress)
+percents = function(x,data, proportions = c(120,140,160,180,200), na.rm = FALSE, ...){
+  count = c()
+  percent = c()
+  for (i in 1:length(proportions)){
+    count[i] = sum(x <= proportions[i], na.rm = na.rm)
+    percent[i] = (count[i]/nrow(data))*100
+    print(paste("% of data <=", proportions[i], "is", percent[i]))
+  }
+}
+
+# proportion of data (in progress)
+proportions <- function(x, data, proportions = c(120,140,160,180,200), na.rm = FALSE, ...){
+  count = c()
+  proportion = c()
+  for (i in 1:length(proportions)){
+    count[i] = sum(x <= proportions[i], na.rm = na.rm)
+    proportion[i] = (count[i]/nrow(data))
+    print(paste("proportion <=", proportions[i], "is", proportion[i]))
+  }
+}
+
