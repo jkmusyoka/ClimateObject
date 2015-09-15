@@ -41,7 +41,8 @@
 
 climate$methods(seasonal_summary = function(data_list = list(), variable_to_summarize = rain_label, month_start = -1, number_month = 3, threshold = 0.85, 
                                             summaries = list(sum_label, count_over_threshold_label, mean_over_threshold_label),
-                                            month_col_names = "" , summary_col_names, na.rm = FALSE, replace = FALSE){
+                                            arguments = rep(list(list()),length(summaries)),
+                                            month_col_names = "" , summary_col_names, na.rm = FALSE, replace = FALSE) {
 
   
   # variable_to_require is requied and may not be rain
