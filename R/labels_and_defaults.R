@@ -39,24 +39,12 @@ dd_label = "dry_day"
 rain_amount_label = "rain_amount"
 
 
-sum_label="Sum"
-count_over_threshold_label="count_over_threshold"
-mean_over_threshold_label = "mean_over_threshold"
-sd_over_threshold_label = "sd_over_threshold"
-med_label = "med"
-range_label = "Range"
-count_label = "count"
-min_label="Min"
-max_label="Max"
-mean_label="Mean"
 start_of_label="start_of"
 end_of_label="end_of"
 seasonal_total_label = "seasonal_total"
 seasonal_raindays_label = "seasonal_raindays"
 extreme_event_day_label = "extreme_event_day"
 running_summary_label = "running_summary"
-
-summaries_list=c(sum_label, count_over_threshold_label, min_label, max_label, mean_label, mean_over_threshold_label, sd_over_threshold_label, running_summary_label, med_label,range_label, count_label)
 
 running_rain_totals_label = "running_rain_total"
 waterbalance_label = "waterbalance"
@@ -564,12 +552,6 @@ doy_as_date <- function(doy, year) {
   
 }
 
-mode_stat <- function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
-
-
 spell_length_count <- function(spell_length_col, threshold){
   
   spell_length_col[spell_length_col <= threshold] <- 0 
@@ -591,194 +573,16 @@ longest_spell_length <- function(spell_length_col, threshold, factor, na.rm = FA
   summary_calculation(summaries = list(max_label), variables = list(spell_count=spell_count), factor=factor, na.rm=na.rm)
 }
 
-running_summary <- function(data, total_days = 1, func = max_label, na.rm = FALSE,...) {
-  h=c()
-  for (i in 1:(length(data)-total_days+1)){
-    h[i] <- Sum(data[i:(i+total_days-1)], na.rm = na.rm)
-  }
+add_to_data_info_threshold_list = function(data_info=list(), new_threshold_list="") {
   
-  print(h)
-  if(missing(func)) return(h)
-  else {
-    func = match.fun(func)
-    return(func(h, na.rm = na.rm))
-  }
-}
-
-
-# data      : a data frame containing the variables and factor columns.
-# summaries : list of summary functions to be used e.g. mean, min, max etc.
-# summaries_list on line 52 shows which summary functions are recognised. This may be added to as more summaries are needed.
-# variable  : list of variable names to be summaried. Each element should be a character corresponding to a column in data
-# factor    : A list of names of factor columns to be used by the by function. Each factor must correspond to a column in the data.
-# other arguments are used for the summary functions and may not be needed for all summaries
-
-
-# single subset of the data for each call
-# do all summaries on all variables
-# single or multiple thresholds allowed. Convert single into list of multiple repeated
-summary_calculation <- function (data, summaries = list(), variables = list(), factor = list(), lower_threshold, upper_threshold, lower_strict = rep(FALSE, length(variables)), upper_strict = rep(FALSE, length(variables)), total_days = 1, na.rm = FALSE, func = max_label,...) {
-  
-  if(missing(summaries)) stop("summaries must be specified")
-  if(missing(variables)) stop("variables must be specified")
-  if(missing(factor)) stop("factor must be specified")
-  if(!is.logical(lower_strict)) stop("lower_strict must be a logical value or vector")
-  if(!is.logical(upper_strict)) stop("upper_strict must be a logical value or vector")
-  if(!missing(lower_strict) && (length(lower_strict) != 1 || length(lower_strict) != length(variables))) stop("lower_strict must be a logical vector of length 1 or length of variables")
-  if(!missing(upper_strict) && (length(upper_strict) != 1 || length(upper_strict) != length(variables))) stop("upper_strict must be a logical vector of length 1 or length of variables")
-
-  if( !all(variables %in% names(data)) ) stop("Some variables not found in the data.")
-  if( !all(factor %in% names(data)) ) stop("Some factors not found in the data.")
-
-  if(length(lower_strict) == 1) lower_strict = rep(lower_strict,length(variables))        
-  if(length(upper_strict) == 1) upper_strict = rep(upper_strict,length(variables))        
-  
-  
-  # Check factor columns are stored as factors.
-  for( fact in factor) {
-    if(!is.factor(data[[fact]])) {
-      message(paste("Converting", fact, "to a factor for summary calculations"))
-      data[[fact]] <- as.factor(data[[fact]])
+  if (threshold_list_label %in% names(data_info)) {
+    for(label in names(new_threshold_list)) {
+      if(label %in% names(data_info[[threshold_list_label]])) warning(paste("overwriting user choice for", label))
+      data_info[[threshold_list_label]][[label]] = new_threshold_list[[label]]
     }
-  }
-  
-  # check that summaries are in the summaries_list
-  if(!all(summaries %in% summaries_list)) {
-    stop("summaries can only contain recognise summary functions")
-  }
-  
-  out = list()
-  i = 1
-  for(curr_var_name in variables) {
     
-    curr_data = data[,c(curr_var_name, factor)]
-    curr_data = subset_with_threshold(curr_data, curr_var_name, lower_threshold, upper_threshold, lower_strict, upper_strict)
-
-    curr_factors = list()
-    for(fac in curr_factor) {
-      curr_factors[[fac]] = curr_data[[fac]]
-    }
-
-    for(single_summary in summaries) {
-      # use the by function to calculate the summary based on the factor given
-      # match.fun converts the variable summary into a function to be used
-      out[[paste(single_summary, curr_var_name)]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), na.rm = na.rm, func = func,...))
-    }
-    i = i + 1
   }
-  out
-}
-
-test <- function(y,...) {
-  if(y==1) Mean(...)
-}
-
-subset_with_threshold <- function(curr_data, var, lower_threshold, upper_threshold, lower_strict = FALSE, upper_strict = FALSE) {
-  if(!missing(lower_threshold) && !missing(upper_threshold)) {
-    if(lower_strict && upper_strict) subset(curr_data, curr_data[[var]] > lower_threshold & curr_data[[var]] < upper_threshold)
-    else if(lower_strict) subset(curr_data, curr_data[[var]] > lower_threshold & curr_data[[var]] <= upper_threshold)
-    else if(upper_strict) subset(curr_data, curr_data[[var]] >= lower_threshold & curr_data[[var]] < upper_threshold)
-    else subset(curr_data, curr_data[[var]] >= lower_threshold & curr_data[[var]] <= upper_threshold)
-  }
+  else data_info[[threshold_list_label]] <- new_threshold_list
   
-  else if(!missing(lower_threshold)) {
-    if(lower_strict) subset(curr_data, curr_data[[var]] > lower_threshold)
-    else subset(curr_data, curr_data[[var]] >= lower_threshold)
-  }
-
-  else if(!missing(upper_threshold)) {
-    if(upper_strict) subset(curr_data, curr_data[[var]] < upper_threshold)
-    else subset(curr_data, curr_data[[var]] <= upper_threshold)
-  }
-  
-  else curr_data
+  return (data_info)
 }
-
-Mean <- function (x, na.rm = FALSE,...) {
-  if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
-  else mean(x, na.rm=na.rm)
-}
-
-Sum <- function (x, na.rm = FALSE,...) {
-  sum(x, na.rm = FALSE)
-} 
-
-mean_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE,...) {
-  if(na.rm) x = x[!is.na(x)]
-  if(length(x)==0 || any(is.na(x))) return(NA)
-  if(strict_ineq) x = x[x>threshold]
-  else x = x[x>=threshold]
-  
-  return(mean(x))
-}
-
-count_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = TRUE,...) {
-#  if(length(x)==0 || any(is.na(x))) return(NA)
-  if(strict_ineq) return(sum(x>threshold, na.rm=na.rm))
-  else return(sum(x>=threshold, na.rm=na.rm))
-  
-}
-
-sd_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = FALSE,...) {
-  if(strict_ineq) return(sd( x > threshold, na.rm = na.rm ))
-  else return(sd( x >= threshold, na.rm = na.rm )) 
-}
-
-# percentile <- function(x, percentiles = c(.10,.20,.50,.80,.90), na.rm = FALSE){
-#   quantile(x, percentiles, na.rm = na.rm)
-# }
-
-
-Max <- function (x, na.rm = FALSE,...) {
-  if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
-  else max(x, na.rm = na.rm)
-} 
-
-Min <- function (x, na.rm = FALSE,...) {
-  if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
-  else min(x, na.rm = na.rm)
-} 
-
-#get the range of the data
-Range <- function(x, na.rm = TRUE, ...){
-  max(x, na.rm = na.rm) - min(x, na.rm = na.rm)  
-}
-
-# median function
-med <- function(x, ...) {
-  odd.even <- length(x)%%2
-  if (odd.even == 0)(sort(x)[length(x)/2] + sort(x)[1 + length(x)/2])/2
-  else sort(x)[ceiling(length(x)/2)]
-}
-
-#in progress with return and print 
-count <- function(x, proportions = c(120,140,160,180,200), na.rm = TRUE, ...){
-  count = c()
-  for (i in 1:length(proportions)){
-    count[i] = sum(x <= proportions[i], na.rm = na.rm)
-    return(paste("count <=", proportions[i], "is", count[i]))
-  }
-}
-
-# results as percent of data (in progress)
-percents = function(x,data, proportions = c(120,140,160,180,200), na.rm = FALSE, ...){
-  count = c()
-  percent = c()
-  for (i in 1:length(proportions)){
-    count[i] = sum(x <= proportions[i], na.rm = na.rm)
-    percent[i] = (count[i]/nrow(data))*100
-    print(paste("% of data <=", proportions[i], "is", percent[i]))
-  }
-}
-
-# proportion of data (in progress)
-proportions <- function(x, data, proportions = c(120,140,160,180,200), na.rm = FALSE, ...){
-  count = c()
-  proportion = c()
-  for (i in 1:length(proportions)){
-    count[i] = sum(x <= proportions[i], na.rm = na.rm)
-    proportion[i] = (count[i]/nrow(data))
-    print(paste("proportion <=", proportions[i], "is", proportion[i]))
-  }
-}
-
