@@ -12,7 +12,7 @@ mean_label="summary_mean"
 running_summary_label="summary_running_summary"
 
 # list of summary functions
-summaries_list=c(sum_label, mode_label, count_label, sd_label, median_label, range_label, count_label, min_label, max_label, mean_label)
+summaries_list=c(sum_label, mode_label, count_label, sd_label, median_label, range_label, count_label, min_label, max_label, mean_label, running_summary_label)
 
 summary_mode <- function(x,...) {
   ux <- unique(x)

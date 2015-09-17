@@ -1103,7 +1103,7 @@ climate_data$methods(summary_calculation = function(required_summaries = list(),
     for(single_summary in required_summaries) {
       # use the by function to calculate the summary based on the factor given
       # match.fun converts the variable summary into a function to be used
-      out[[paste(single_summary, curr_var_name)]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), na.rm = na.rm, func = func, total_days = total_days...))
+      out[[paste(single_summary, curr_var_name)]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), na.rm = na.rm, func = func, total_days = total_days, ...))
     }
     i = i + 1
   }
