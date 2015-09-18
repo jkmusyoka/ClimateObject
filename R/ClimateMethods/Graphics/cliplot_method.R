@@ -1,6 +1,6 @@
 
 
-climate$methods(cliplot2 = function(data_list=list(),var_x,var_y, melt_var=Year, data_time_period=yearly_label,  linetype=1,color=c("blue"),
+climate$methods(cliplot = function(data_list=list(),var_x,var_y, melt_var=Year, data_time_period=yearly_label,  linetype=1,color=c("blue"),
                                     xlabel=xlab(""), ylabel=ylab(""), main_title=" ",size=0,xlim = NULL, ylim = NULL, wise = NULL,
                                     stat = "identity", position = "identity", show.legend = NA, inherit.aes = TRUE, by_factor=FALSE, factor_var,
                                     station_name=TRUE,value.name="value",variable.name = "variable", na.rm = FALSE){    
@@ -11,12 +11,16 @@ climate$methods(cliplot2 = function(data_list=list(),var_x,var_y, melt_var=Year,
   #Get the data objects
   climate_data_objs_list = get_climate_data_objects(data_list)
   
+  #print(climate_data_objs_list)
+  
   for(data_obj in climate_data_objs_list) {    
     var_x_name = data_obj$getvname(var_x)
     var_y_name=c()
     for (i in 1:length(var_y)){
       var_y_name[i] = data_obj$getvname(var_y[i])
     }
+   # print( var_y_name)
+    
     
     if (station_name){    
       data_name = data_obj$get_meta(data_name_label)
@@ -28,24 +32,32 @@ climate$methods(cliplot2 = function(data_list=list(),var_x,var_y, melt_var=Year,
     
     
     curr_data_list = data_obj$get_data_for_analysis(data_list)
-    print(curr_data_list)
-    if (by_factor && length(var_y)==1){
-      curr_data=merge_recurse(curr_data_list)
-      print(ggplot(data= curr_data,aes_string(x=var_x_name, y=var_y_name, group=factor_var,colour=factor_var))+
+    for( curr_data in curr_data_list ) { 
+      #print(curr_data_list)
+      
+      if (by_factor && length(var_y)==1){
+       # merge the data by factor variable THIS HAVE TO CHANGE FOR THE FACTOR. STILL WORKING ON IT!
+      curr_data = merge_recurse(curr_data, by = factor_var)
+      
+      print(curr_data)
+      
+      p.plot <- ggplot(data= curr_data,aes_string(x=var_x_name, y=var_y_name, group=factor_var,colour=factor_var))+
               geom_line(linetype=linetype,stat = stat, position = position, show.legend = show.legend,
                         inherit.aes = inherit.aes, size=size) + xlabel+ylabel+main_title2 +
               scale_colour_manual(values=color)+ coord_cartesian(xlim = xlim, ylim = ylim, wise = wise)             
-      )
+      return(p.plot)
+      
     }else{
-      for( curr_data in curr_data_list ) {      
+           
         curr_data=subset(curr_data,select=c(var_x_name, var_y_name))
         curr_data <- melt(curr_data, id.vars=var_x_name, value.name=value.name,variable.name = variable.name, na.rm = na.rm) 
-        print(ggplot(data= curr_data,aes_string(x=var_x_name, y=value.name, group=variable.name,colour=variable.name))+
+        #print(curr_data)
+       p.plot <- ggplot(data= curr_data,aes_string(x=var_x_name, y=value.name, group=variable.name,colour=variable.name))+
                 geom_line(linetype=linetype,stat = stat, position = position, show.legend = show.legend,
                           inherit.aes = inherit.aes, size=size) + xlabel+ylabel+main_title2 +
                 scale_colour_manual(values=color)+ coord_cartesian(xlim = xlim, ylim = ylim, wise = wise)             
-        ) 
-      }
+       return(p.plot)
+      }#else
     }
   }
 }
