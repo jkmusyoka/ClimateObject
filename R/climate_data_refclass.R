@@ -1049,3 +1049,64 @@ climate_data$methods(join_data = function(joining_data, match = "first", type = 
   set_data(join(joining_data, get_data(), match=match, type=type))
 }
 )
+
+# summaries : list of summary functions to be used e.g. mean, min, max etc.
+#             summaries_list on line 52 shows which summary functions are recognised. This may be added to as more summaries are needed.
+# variable  : list of variable names to be summaried. Each element should be a character corresponding to a column in data
+# factor    : A list of names of factor columns to be used by the by function. Each factor must correspond to a column in the data.
+# other arguments are used for the summary functions and may not be needed for all summaries
+
+
+# single subset of the data for each call
+# do all summaries on all variables
+# single or multiple thresholds allowed. Convert single into list of multiple repeated
+climate_data$methods(summary_calculation = function(required_summaries = list(), required_variables = list(), factor = list(), lower_threshold = rep("", length(variables)), upper_threshold = rep("", length(variables)), lower_strict = rep(FALSE, length(variables)), upper_strict = rep(FALSE, length(variables)), total_days = 1, na.rm = FALSE, func = max_label,...) {
+  
+  if(missing(required_summaries)) stop("required_summaries must be specified")
+  if(missing(required_variables)) stop("required_variables must be specified")
+  if(missing(factor)) stop("factor must be specified")
+  if(!is.logical(lower_strict)) stop("lower_strict must be a logical value or vector")
+  if(!is.logical(upper_strict)) stop("upper_strict must be a logical value or vector")
+  for(arg in c(lower_strict, upper_strict, lower_threshold, upper_threshold)) {
+    if(!missing(arg) && (length(arg) != 1 || length(arg) != length(required_variables))) stop(paste(arg,"must be a logical vector of length 1 or length of required_variables"))
+  }
+  if( !.self$is_present(required_variables) ) stop("Some required_variables not found in the data.")
+  if( !.self$is_present(factor) ) stop("Some factors not found in the data.")
+  if(!all(required_summaries %in% summaries_list)) stop("required_summaries can only contain recognise summary functions")
+  
+  if(length(lower_strict) == 1) lower_strict = rep(lower_strict,length(required_variables))        
+  if(length(upper_strict) == 1) upper_strict = rep(upper_strict,length(required_variables))        
+  if(length(lower_threshold) == 1) lower_threshold = rep(lower_threshold,length(required_variables))        
+  if(length(upper_threshold) == 1) upper_threshold = rep(upper_threshold,length(required_variables))        
+  
+  required_variables = as.vector(sapply(required_variables, function(x) .self$getvname(x)))
+
+  # Check factor columns are stored as factors.
+  for( fact in factor) {
+    if(!is.factor(.self$get_data()[[fact]])) {
+      message(paste("Converting", .self$getvname(fact), "to a factor for summary calculations"))
+      .self$replace_column_in_data(.self$getvname(fact),as.factor(.self$get_data()[[.self$getvname(fact)]]))
+    }
+  }
+  
+  out = list()
+  i = 1
+  for(curr_var_name in required_variables) {
+    
+    data_list = add_to_data_info_threshold_list(data_info = list(merge_data = TRUE), new_threshold_list = list(var = curr_var_name, lower_threshold = lower_threshold[[i]], upper_threshold = upper_threshold[[i]], lower_strict = lower_strict[[i]], upper_strict = upper_strict[[i]]))
+    curr_data = .self$get_data_for_analysis(data_list)
+    curr_factors = list()
+    for(fac in factor) {
+      curr_factors[[.self$getvname(fac)]] = curr_data[[.self$getvname(fac)]]
+    }
+
+    for(single_summary in required_summaries) {
+      # use the by function to calculate the summary based on the factor given
+      # match.fun converts the variable summary into a function to be used
+      out[[paste(single_summary, curr_var_name)]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), na.rm = na.rm, func = func, total_days = total_days, ...))
+    }
+    i = i + 1
+  }
+  out
+}
+)
