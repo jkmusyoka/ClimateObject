@@ -40,9 +40,11 @@
 #' 
 
 climate$methods(seasonal_summary = function(data_list = list(), variable_to_summarize = rain_label, month_start = -1, number_month = 3, threshold = 0.85, 
-                                            summaries = list(sum_label, count_over_threshold_label, mean_over_threshold_label),
-                                            arguments = rep(list(list()),length(summaries)),
-                                            month_col_names = "" , summary_col_names, na.rm = FALSE, replace = FALSE) {
+                                            summaries = list(sum_label, count_label, mean_label),
+                                            lower_threshold = rep("", length(summaries)), 
+                                            upper_threshold = rep("", length(summaries)),
+                                            use_thresold_as_lower = rep(FALSE, length(summaries)),
+                                            month_col_names = "" , summary_col_names, na.rm = FALSE, replace = FALSE, ...) {
 
   
   # variable_to_require is requied and may not be rain

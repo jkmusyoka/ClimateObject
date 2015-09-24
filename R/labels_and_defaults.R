@@ -86,7 +86,7 @@ lower_threshold_label="lower_threshold"
 upper_threshold_label="upper_threshold"
 lower_strict_label="lower_strict"
 upper_strict_label="upper_strict"
-
+na.rm_label="na.rm"
 
 #Labels to specify data in function specification list
 station_list_label="station_list"
@@ -99,6 +99,7 @@ merge_data_label="merge_data"
 convert_data_label="convert_data"
 require_all_variables_label="require_all_variables"
 threshold_list_label = "threshold_list"
+required_data_objs_list_label="required_data_objs_list"
 
 #Labels for data time periods
 daily_label="daily"
@@ -308,11 +309,11 @@ add_defaults <- function (imported_from,user) {
     if(!(date_time_label %in% names(merged))) merged[[date_time_label]]<-"Date time"
     if(!(rain_label %in% names(merged))) merged[[rain_label]]<-"Rain"
     if(!(year_label %in% names(merged))) merged[[year_label]]<-"Year"
-#    if(!(season_label %in% names(merged))) merged[[season_label]]<-merged[[year_label]]
+    if(!(season_label %in% names(merged))) merged[[season_label]]<-merged[[year_label]]
     if(!(month_label %in% names(merged))) merged[[month_label]]<-"Month"
     if(!(day_label %in% names(merged))) merged[[day_label]]<-"Day"
     if(!(doy_label %in% names(merged))) merged[[doy_label]]<-"DOY"
-#    if(!(dos_label %in% names(merged))) merged[[dos_label]]<-merged[[doy_label]]
+    if(!(dos_label %in% names(merged))) merged[[dos_label]]<-merged[[doy_label]]
     if(!(time_label %in% names(merged))) merged[[time_label]]<-"Time"
     if(!(temp_min_label %in% names(merged))) merged[[temp_min_label]]<-"Temp min"
     if(!(temp_max_label %in% names(merged))) merged[[temp_max_label]]<-"Temp max"
@@ -585,4 +586,14 @@ add_to_data_info_threshold_list = function(data_info=list(), new_threshold_list=
   else data_info[[threshold_list_label]] <- new_threshold_list
   
   return (data_info)
+}
+
+add_to_data_info_required_data_objs_list = function(data_info=list(), new_data_objs_list=c()) {
+  
+  if (required_data_objs_list_label %in% names(data_info)) {
+    data_info[[required_data_objs_list_label]] = unique(c(data_info[[required_data_objs_list_label]], new_data_objs_list))
+  }
+  else data_info[[required_data_objs_list_label]] = new_data_objs_list
+  
+  data_info
 }

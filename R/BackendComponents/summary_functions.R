@@ -28,8 +28,8 @@ summary_sum <- function (x, na.rm = FALSE,...) {
   sum(x, na.rm = FALSE,...)
 } 
 
-summary_count <- function(x, na.rm = FALSE,...) {
-  return(length(x, na.rm = na.rm,...))
+summary_count <- function(x,...) {
+  length(x)
 }
 
 summary_sd <- function(x, na.rm = FALSE,...) {
@@ -59,13 +59,13 @@ summary_median <- function(x, ...) {
 }
 
 #in progress with return and print 
-summary_count <- function(x, proportions = c(120,140,160,180,200), na.rm = TRUE, ...){
-  count = c()
-  for (i in 1:length(proportions)){
-    count[i] = sum(x <= proportions[i], na.rm = na.rm)
-    return(paste("count <=", proportions[i], "is", count[i]))
-  }
-}
+# summary_count <- function(x, proportions = c(120,140,160,180,200), na.rm = TRUE, ...){
+#   count = c()
+#   for (i in 1:length(proportions)){
+#     count[i] = sum(x <= proportions[i], na.rm = na.rm)
+#     return(paste("count <=", proportions[i], "is", count[i]))
+#   }
+# }
 
 # results as percent of data (in progress)
 summary_percents = function(x,data, proportions = c(120,140,160,180,200), na.rm = FALSE, ...){
@@ -92,7 +92,7 @@ summary_proportions <- function(x, data, proportions = c(120,140,160,180,200), n
 summary_running_summary <- function(data, total_days = 1, func = max_label, na.rm = FALSE,...) {
   h=c()
   for (i in 1:(length(data)-total_days+1)){
-    h[i] <- Sum(data[i:(i+total_days-1)], na.rm = na.rm)
+    h[i] <- match.fun(sum_label)(data[i:(i+total_days-1)], na.rm = na.rm)
   }
   
   print(h)
