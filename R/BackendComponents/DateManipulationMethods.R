@@ -53,19 +53,19 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
       date_col = getvname(date_label)
       new_col = as.POSIXct(paste(data[[date_col]],data[[time_col]]),
                            format = paste("%Y-%m-%d",time_format))
-      .self$append_column_to_data(new_col, getvname(date_time_label))        
+      .self$append_column_to_data(new_col, getvname(date_time_label), replace = TRUE)        
     }
     else if (create && is_present(date_asstring_label)) 
     {
       date_string_col = getvname(date_asstring_label)
       new_col = as.POSIXct(data[[date_string_col]], format = date_format)
-      .self$append_column_to_data(new_col,getvname(date_time_label))
+      .self$append_column_to_data(new_col,getvname(date_time_label), replace = TRUE)
     }
     else if (create && is_present(date_label)) 
     {
       date_col = getvname(date_label)
       new_col = as.POSIXct(data[[date_col]], format = date_format)
-      .self$append_column_to_data(new_col,getvname(date_time_label))
+      .self$append_column_to_data(new_col,getvname(date_time_label), replace = TRUE)
     }
     
   }
@@ -99,7 +99,7 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
   {
     date_string_col = getvname(date_asstring_label)
     new_col = as.Date(data[[date_string_col]], format = date_format)
-    .self$append_column_to_data(new_col,getvname(date_label))
+    .self$append_column_to_data(new_col,getvname(date_label), replace = TRUE)
   }
   
   # Else if date time column is there and create == TRUE create date column
@@ -107,7 +107,7 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
   {
     date_string_col = getvname(date_time_label)
     new_col = as.Date(data[[date_string_col]], format = date_format)
-    .self$append_column_to_data(new_col,getvname(date_label))
+    .self$append_column_to_data(new_col,getvname(date_label), replace = TRUE)
   }
   
   # If the year, month, day column are there and create == TRUE create date column
@@ -126,14 +126,14 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
     }
     
     new_col = as.Date(paste(year_col, month_col, day_col, sep="-"))
-    .self$append_column_to_data(new_col, getvname(date_label))
+    .self$append_column_to_data(new_col, getvname(date_label), replace = TRUE)
   }
   
   else if (create && is_present(year_label) && is_present(doy_label)) {
     year_col = data[[getvname(year_label)]]
     doy_col = data[[getvname(doy_label)]]
     new_col = do.call(c,mapply(doy_as_date,as.list(doy_col),as.list(year_col), SIMPLIFY=FALSE))
-    .self$append_column_to_data(new_col,getvname(date_label))
+    .self$append_column_to_data(new_col,getvname(date_label), replace = TRUE)
   }
   
   # Else check time period specific cases
@@ -147,7 +147,7 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
     if (create == TRUE && is_present(year_month_label)) {
       year_month_col = data[[getvname(year_month_label)]]
       new_col = as.Date(paste(year_month_col,"1"), format = paste(date_format,"%d"))
-      .self$append_column_to_data(new_col,variables[[date_label]])
+      .self$append_column_to_data(new_col,variables[[date_label]], replace = TRUE)
     }
     
     else if (create && is_present(year_label) && is_present(month_label)) {
@@ -160,7 +160,7 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
         month_col = match(month_col,month.abb)
       }
       new_col = as.Date(paste(year_col,month_col,"1"), format = "%Y %m %d")
-      .self$append_column_to_data(new_col,variables[[date_label]])
+      .self$append_column_to_data(new_col,variables[[date_label]], replace = TRUE)
     }
     
     else {warning("Cannot create or edit a date column. There is insufficient information in the
@@ -171,7 +171,7 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
     if (create && is_present(year_label)) {
       year_col = variables[[year_label]]
       new_col = as.Date(paste(data[[year_col]],1,1), format = "%Y %m %d")
-      .self$append_column_to_data(new_col,variables[[date_label]])
+      .self$append_column_to_data(new_col,variables[[date_label]], replace = TRUE)
     }
     
     else {warning("Cannot create or edit a date column. There is insufficient information in the
@@ -196,7 +196,7 @@ climate_data$methods(update_date_cols = function()
 {
   updated_year_col = FALSE
   if(is_present(list(doy_label, dos_label, season_label),require_all=FALSE)) {
-    add_doy_col(update=TRUE)
+    .self$add_doy_col(update=TRUE)
     updated_year_col = TRUE
   }
   if(is_present(list(day_label,month_label),require_all=FALSE)||((!updated_year_col)&&is_present(year_label))) {
@@ -256,7 +256,7 @@ climate_data$methods(missing_dates_check = function(messages = TRUE)
     if (changed) {
       .self$join_data(dates_merge, match="first", type="full")
       append_to_meta_data(complete_dates_label,TRUE)
-      update_date_cols() 
+      .self$update_date_cols() 
     }
   }
 } 
@@ -290,7 +290,7 @@ climate_data$methods(add_year_month_day_cols = function(update=FALSE, YearLabel=
       } else {
         .self$append_to_variables(year_label, YearLabel)
       }
-      .self$append_column_to_data (year(data[[date_col]]), YearLabel) 
+      .self$append_column_to_data(factor(year(data[[date_col]]), ordered = TRUE), YearLabel, replace = TRUE) 
     }
     if (!data_time_period==yearly_label){      
       if (!.self$is_present(month_label) || update){
@@ -299,7 +299,7 @@ climate_data$methods(add_year_month_day_cols = function(update=FALSE, YearLabel=
         } else {
           .self$append_to_variables(month_label, MonthLabel)
         }
-        .self$append_column_to_data (month(data[[date_col]]), MonthLabel) 
+        .self$append_column_to_data (factor(month(data[[date_col]]), ordered = TRUE), MonthLabel, replace = TRUE) 
       }
       if (!data_time_period==subyearly_label) {
         if (!.self$is_present(day_label) || update){
@@ -308,7 +308,7 @@ climate_data$methods(add_year_month_day_cols = function(update=FALSE, YearLabel=
           } else {
             .self$append_to_variables(day_label, DayLabel)
           }
-          .self$append_column_to_data (day(data[[date_col]]), DayLabel) 
+          .self$append_column_to_data (factor(day(data[[date_col]]), ordered = TRUE), DayLabel, replace = TRUE) 
         }
       }
     }
@@ -344,7 +344,7 @@ climate_data$methods(add_doy_col = function(update=FALSE, YearLabel="Year", DOYL
     date_col = variables[[date_label]]
     if (!.self$is_present(year_label) || update){
       if (.self$is_present(year_label) && update) YearLabel= variables[[year_label]]
-      .self$append_column_to_data (year(data[[date_col]]), YearLabel) 
+      .self$append_column_to_data (factor(year(data[[date_col]]), ordered = TRUE), YearLabel, replace = TRUE) 
       .self$append_to_variables(year_label, YearLabel)
     }
     if (!.self$is_present(doy_label) || update){
@@ -352,7 +352,7 @@ climate_data$methods(add_doy_col = function(update=FALSE, YearLabel="Year", DOYL
       TEMPDOY = yday(data[[date_col]])      
       temply=leap_year(data[[date_col]])
       TEMPDOY[((TEMPDOY > 59) & (!(temply)))] <- 1 + TEMPDOY[((TEMPDOY > 59)&(!(temply)))]
-      .self$append_column_to_data (TEMPDOY, DOYLabel) 
+      .self$append_column_to_data (TEMPDOY, DOYLabel, replace = TRUE) 
       .self$append_to_variables(doy_label, DOYLabel)
     }
     if (is_meta_data(season_start_day_label)){
@@ -376,9 +376,9 @@ climate_data$methods(add_doy_col = function(update=FALSE, YearLabel="Year", DOYL
           TEMPSEASON[(TEMPDOS < 1)]<-paste(as.numeric(TEMPSEASON[(TEMPDOS < 1)])-1, TEMPSEASON[(TEMPDOS < 1)],sep = "-")
           TEMPSEASON[(TEMPDOS > 0)]<-paste(TEMPSEASON[(TEMPDOS > 0)], as.numeric(TEMPSEASON[(TEMPDOS > 0)])+1,sep = "-")
           TEMPDOS[(TEMPDOS < 1)] <- TEMPDOS[(TEMPDOS < 1)] + 366
-          .self$append_column_to_data (TEMPDOS, DOSLabel) 
+          .self$append_column_to_data (TEMPDOS, DOSLabel, replace = TRUE) 
           .self$append_to_variables(dos_label, DOSLabel)
-          .self$append_column_to_data (as.factor(TEMPSEASON), SeasonLabel) 
+          .self$append_column_to_data (as.factor(TEMPSEASON), SeasonLabel, replace = TRUE) 
           .self$append_to_variables(season_label, SeasonLabel)
         }
         else{
@@ -400,14 +400,24 @@ climate_data$methods(date_format_check = function(convert = TRUE, messages=TRUE)
   
   if(is_present(month_label)) {
     month_col = data[[getvname(month_label)]]
-    if(convert && all(month.abb %in% month_col)) {
-      if(messages) message("Converting month column to ordered factor.")
-      replace_column_in_data(getvname(month_label),factor(data[[getvname(month_label)]], month.abb, ordered=TRUE))
-    }
-    
-    else if(convert && all(month.name %in% month_col)) {
-      if(messages) message("Converting month column to ordered factor.")
-      replace_column_in_data(getvname(month_label),factor(data[[getvname(month_label)]], month.name, ordered=TRUE))
+    if(!is.factor(month_col)) {
+      if(convert && all(month.abb %in% month_col)) {
+        if(messages) message("Converting month column to ordered factor.")
+        replace_column_in_data(getvname(month_label),factor(data[[getvname(month_label)]], month.abb, ordered=TRUE))
+      }
+      
+      else if(convert && all(month.name %in% month_col)) {
+        if(messages) message("Converting month column to ordered factor.")
+        replace_column_in_data(getvname(month_label),factor(data[[getvname(month_label)]], month.name, ordered=TRUE))
+      }
+      else if(convert && is.numeric(month_col)) {
+        if(messages) message("Converting month column to ordered factor.")
+        replace_column_in_data(getvname(month_label),factor(data[[getvname(month_label)]], ordered=TRUE))
+      }
+      
+      else {
+        warning("Month column is not stored as a factor and the format was not recognised so could not be converted to a factor.")
+      }
     }
   }
   

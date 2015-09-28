@@ -1000,7 +1000,7 @@ climate$methods(display_water_balance = function(data_list = list(), print_table
 # single subset of the data for each call
 # do all summaries on all variables
 # single or multiple thresholds allowed. Convert single into list of multiple repeated
-climate$methods(summary_calculation = function(data_list = list(), summary_time_period, required_summaries = list(), required_variables = list(), subyearly_factor, column_names = rep(list(rep("",length(required_summaries))),length(required_variables)), total_days = 1, na.rm = FALSE, func = max_label,...) {
+climate$methods(summary_calculation = function(data_list = list(), summary_time_period, required_summaries = list(), required_variables = list(), subyearly_factor, column_names = rep(list(rep("",length(required_summaries))),length(required_variables)), replace = FALSE, ...) {
   if(missing(summary_time_period)) stop("Specify the time period you want the summarized data to be in.")
   if(missing(required_summaries)) stop("required_summaries must be specified")
   if(missing(required_variables)) stop("required_variables must be specified")
@@ -1055,20 +1055,30 @@ climate$methods(summary_calculation = function(data_list = list(), summary_time_
     }
     
     out = list()
+    labels = list()
     i = 1
     for(curr_var_name in curr_required_variables) {
       j = 1
       for(single_summary in required_summaries) {
         if(column_names[[i]][[j]] == "") {
-          out[[paste(single_summary, curr_var_name)]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), na.rm = na.rm, func = func, total_days = total_days, ...))
+          curr_label = paste(single_summary, curr_var_name)
         }
-        else out[[column_names[[i]][[j]]]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), na.rm = na.rm, func = func, total_days = total_days, ...))
-
+        else curr_label = column_names[[i]][[j]]
+        curr_definition = .self$create_definition(data_list, arguments = list(...))
+        # TODO make get_summary_name a climate method
+        if(.self$get_summary_name(summary_time_period, data_obj)$is_definition(required_variables[[i]], single_summary, curr_definition)) {
+          message(paste("A column for", required_variables[[i]], single_summary, "already exists with the given definition. It will not be added again."))
+          j = j + 1
+          next
+        }
+        out[[curr_label]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), ...))
+        # TODO make get_summary_label a climate method
+        labels[[curr_label]] = .self$get_summary_name(summary_time_period, data_obj)$get_summary_label(required_variables[[i]], single_summary, curr_definition)
         j = j + 1
       }
       i = i + 1
     }
-    sapply(names(out), function(x) .self$append_to_summary(summary_time_period, data_obj, out[[x]], x))
+    mapply(function(x,y) .self$append_to_summary(time_period = summary_time_period, data_obj = data_obj, col_data = out[[x]], col_name = x, label = y, replace = replace), names(out), labels)
   }
   
 }
@@ -1271,3 +1281,7 @@ climate$methods(create_summary = function(data_list = list(), new_time_period, f
 }
 )
 
+climate$methods(create_definition = function(data_list = list(), arguments) {
+  return(c(data_list, arguments))
+}
+)

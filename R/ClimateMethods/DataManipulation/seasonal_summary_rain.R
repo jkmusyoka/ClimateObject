@@ -39,15 +39,25 @@
 #' @return 
 #' 
 
-climate$methods(seasonal_summary.rain = function(data_list = list(), month_start = -1, number_month = 3, threshold = 0.85, 
-                                            summaries = list(sum_label, count_over_threshold_label, mean_over_threshold_label),
+climate$methods(seasonal_summary.rain = function(data_list = list(), month_start = 1, number_month = 3, threshold = use_default_label, 
+                                            summaries = list(sum_label, count_label, mean_label),
+                                            use_threshold_as_lower = c(FALSE, TRUE, TRUE), strict_threshold = FALSE,
                                             longest_dry_spell = TRUE, longest_dry_spell_name = "Longest dry spell", spell_length_name = "Spell Length",
                                             na.rm = FALSE, replace = FALSE, month_col_names = "", 
-                                            summary_col_names = c("Total Rain", "Number of rainy days", "Mean rain per rainy day")) {
+                                            summary_col_names = c("Total Rain", "Number of rainy days", "Mean rain per rainy day"),...) {
   
-  if(missing(threshold)) seasonal_summary(data_list = data_list, variable_to_summarize = rain_label, month_start = month_start, number_month = number_month, summaries = summaries, month_col_names = month_col_names, summary_col_names = summary_col_names, na.rm = na.rm, replace = replace)
-  else seasonal_summary(data_list = data_list, variable_to_summarize = rain_label, month_start = month_start, number_month = number_month, threshold = threshold, summaries = summaries, month_col_names = month_col_names, summary_col_names = summary_col_names, na.rm = na.rm, replace = replace)
-
+  if(length(use_threshold_as_lower) != length(summaries)) stop("use_threshold_as_lower must be the same length as summaries")
+  if(sum(use_threshold_as_lower) > 0) {
+    data_list_with_threshold = add_to_data_info_threshold_list(data_list, list(var = rain_label, lower_threshold = threshold, lower_strict = strict_threshold))
+    summaries_with_threshold = summaries[use_threshold_as_lower]
+    summary_col_names_with_threshold = summary_col_names[use_threshold_as_lower]
+    seasonal_summary(data_list = data_list_with_threshold, variable_to_summarize = rain_label, month_start = month_start, number_month = number_month, summaries = summaries_with_threshold, month_col_names = month_col_names, summary_col_names = summary_col_names_with_threshold, na.rm = na.rm, replace = replace,...)
+  }
+  summaries_without_threshold = summaries[!use_threshold_as_lower]
+  summary_col_names_without_threshold = summary_col_names[!use_threshold_as_lower]
+  summary_col_names_without_threshold = summary_col_names[!use_threshold_as_lower]
+  seasonal_summary(data_list = data_list_with_threshold, variable_to_summarize = rain_label, month_start = month_start, number_month = number_month, summaries = summaries_without_threshold, month_col_names = month_col_names, summary_col_names = summary_col_names_without_threshold, na.rm = na.rm, replace = replace,...)
+  
   if(longest_dry_spell) {
     
     # rain is requied
@@ -62,9 +72,7 @@ climate$methods(seasonal_summary.rain = function(data_list = list(), month_start
       data_obj$add_spell_length_col(col_name = spell_length_name, threshold = curr_threshold)
     }
     
-    if(missing(threshold)) seasonal_summary(data_list = data_list, variable_to_summarize = spell_length_label, month_start = month_start, number_month = number_month, summaries = list(max_label), month_col_names = month_col_names, summary_col_names = longest_dry_spell_name, na.rm = na.rm, replace = replace)
-    else seasonal_summary(data_list = data_list, variable_to_summarize = spell_length_label, month_start = month_start, number_month = number_month, threshold = threshold, summaries = list(max_label), month_col_names = month_col_names, summary_col_names = longest_dry_spell_name, na.rm = na.rm, replace = replace)
-    
+    seasonal_summary(data_list = data_list, variable_to_summarize = spell_length_label, month_start = month_start, number_month = number_month, summaries = max_label, month_col_names = month_col_names, summary_col_names = longest_dry_spell_name, na.rm = na.rm, replace = replace)
   }
   
 }

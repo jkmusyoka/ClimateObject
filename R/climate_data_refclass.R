@@ -137,6 +137,7 @@ climate_data$methods(get_data_for_analysis = function(data_info) {
       }
       
       else if(lower_threshold != "") {
+        if(lower_threshold == use_default_label) lower_threshold = .self$get_meta(threshold_label, overrider = default_threshold)
         if(lower_strict) return_data = return_data[return_data[[var]] > lower_threshold,]
         else return_data = return_data[return_data[[var]] >= lower_threshold,]
       }
@@ -703,7 +704,7 @@ climate_data$methods(add_water_balance_col = function(col_name = "Water Balance"
 )
 
 
-climate_data$methods(get_summary_label = function(element="", statistic="", definition=list()) {
+climate_data$methods(get_summary_label = function(element="", summary_stat="", definition=list()) {
   
   if( !is_meta_data(summary_statistics_label)) {
     append_to_meta_data(summary_statistics_label,list())
@@ -713,49 +714,43 @@ climate_data$methods(get_summary_label = function(element="", statistic="", defi
     meta_data[[summary_statistics_label]][[element]] <<- list()
   }
   
-  if( !(statistic %in% names(meta_data[[summary_statistics_label]][[element]])) ) {
-    meta_data[[summary_statistics_label]][[element]][[statistic]] <<- list()    
+  if( !(summary_stat %in% names(meta_data[[summary_statistics_label]][[element]])) ) {
+    meta_data[[summary_statistics_label]][[element]][[summary_stat]] <<- list()    
   }
   
-  label = paste(element,statistic,length(meta_data[[summary_statistics_label]][[element]][[statistic]])+1)
-  meta_data[[summary_statistics_label]][[element]][[statistic]][[label]] <<- definition
-  
-  return(label)
+  label = paste(element,summary_stat,length(meta_data[[summary_statistics_label]][[element]][[summary_stat]])+1)
+  meta_data[[summary_statistics_label]][[element]][[summary_stat]][[label]] <<- definition
+  label
 }
 )
 
-climate_data$methods(is_definition = function(element="", statistic="", definition=list()) {
+climate_data$methods(get_summary_definition = function() {
+  
+}
+)
+
+climate_data$methods(is_definition = function(element="", summary_stat="", definition=list()) {
   
   found_match = FALSE
-  
-  if( is_meta_data(summary_statistics_label) 
+  if(is_meta_data(summary_statistics_label) 
       && element %in% names(meta_data[[summary_statistics_label]])
-      && statistic %in% names(meta_data[[summary_statistics_label]][[element]]) ) {
-    for(def in meta_data[[summary_statistics_label]][[element]][[statistic]]) {
-      if(length(def) != length(definition)) break
-      match = TRUE
-      for(item in names(def)) {
-        if( !(item %in% names(definition) && def[[item]] == definition[[item]]) ) {
-          match = FALSE
-          break
-        }
-      }
-      if(match) {
+      && summary_stat %in% names(meta_data[[summary_statistics_label]][[element]]) ) {
+    for(def in meta_data[[summary_statistics_label]][[element]][[summary_stat]]) {
+      if(equal_lists(def, definition)) {
         found_match = TRUE
+        print(unique(def,definition))
+        print(length(unique(def,definition)))
         break
       }
     }
   }
-  
-  return(found_match)
-  
+  found_match
 }
 )
 
 climate_data$methods(view_definition = function(col_name) {
   
   if (col_name %in% names(data)) {
-    
     label = names(which(variables==col_name))
     if(is_meta_data(summary_statistics_label)) {
       for(element in meta_data[[summary_statistics_label]]) {
@@ -837,23 +832,26 @@ climate_data$methods(time_period_check = function(messages=TRUE) {
 climate_data$methods(add_spell_length_col = function(col_name = "Spell Length", threshold=0.85)
 {
   
-  # Complete dates needed for calculations
-  missing_dates_check()
-
-  if(!is_present(rain_label)) stop("rain variable is required to calculate spell length")
-  rain_col = getvname(rain_label)  
-  threshold = get_meta(threshold_label, missing(threshold), threshold)
-  curr_data_list = get_data_for_analysis(data_info = list())
+  if(!is_present(spell_length_label)) {
+    
+    # Complete dates needed for calculations
+    missing_dates_check()
   
-  for( curr_data in curr_data_list ) {    
+    if(!is_present(rain_label)) stop("rain variable is required to calculate spell length")
+    rain_col = getvname(rain_label)  
+    threshold = get_meta(threshold_label, missing(threshold), threshold)
+    curr_data_list = get_data_for_analysis(data_info = list())
     
-    num_rows <- nrow(curr_data)       
-    
-    spell_length_col=spell_length_count(curr_data[[rain_col]], threshold)   
-    
+    for( curr_data in curr_data_list ) {    
+      
+      num_rows <- nrow(curr_data)       
+      
+      spell_length_col=spell_length_count(curr_data[[rain_col]], threshold)   
+      
+    }
+    append_column_to_data(spell_length_col,col_name)
+    append_to_variables(spell_length_label, col_name)
   }
-  append_column_to_data(spell_length_col,col_name)
-  append_to_variables(spell_length_label, col_name)
 }
 )
 

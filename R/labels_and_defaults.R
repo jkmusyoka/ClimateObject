@@ -88,6 +88,11 @@ lower_strict_label="lower_strict"
 upper_strict_label="upper_strict"
 na.rm_label="na.rm"
 
+# Defaults
+use_default_label="use_default"
+default_threshold=0.85
+default_na.rm=FALSE
+
 #Labels to specify data in function specification list
 station_list_label="station_list"
 date_list_label="date_list"
@@ -342,11 +347,12 @@ add_defaults_meta <- function (imported_from,user) {
       warning(paste0("The imported_from value: ", imported_from, " was not recognised.
                      Default values for variables will be used."))
     }
-    if(!(threshold_label %in% names(merged))) merged[[threshold_label]]<- 0.85
+    if(!(threshold_label %in% names(merged))) merged[[threshold_label]]<- default_threshold
     if(!(wind_threshold_label %in% names(merged))) merged[[wind_threshold_label]]<- 0.3
     if(!(season_start_day_label %in% names(merged))) merged[[season_start_day_label]]<-1
     if(!(day_start_time_label %in% names(merged))) merged[[day_start_time_label]]<-0
     if(!(complete_dates_label %in% names(merged))) merged[[complete_dates_label]]<-FALSE
+    if(!(na.rm_label %in% names(merged))) merged[[na.rm_label]]<- default_na.rm
     return(merged)    
   }
   
@@ -596,4 +602,34 @@ add_to_data_info_required_data_objs_list = function(data_info=list(), new_data_o
   else data_info[[required_data_objs_list_label]] = new_data_objs_list
   
   data_info
+}
+
+add_to_data_info_date_list = function(data_info=list(), var = "", new_date_item=c()) {
+  
+  if (date_list_label %in% names(data_info)) {
+    if(var %in% names(data_info[[date_list_label]])) {
+      message(paste("Replacing date list in data_info for", var))
+    }
+    data_info[[date_list_label]][[var]] = new_date_item
+  }
+  else {
+    data_info[[date_list_label]] = list(new_date_item)
+    names(data_info[[date_list_label]]) = var
+  }
+  data_info
+}
+
+equal_lists = function(x,y) {
+  length(unique(c(x,y)))==length(y) && length(unique(c(x,y)))==length(x)
+#   if(length(x) != length(y)) return(FALSE)
+#   if(!all(names(x) %in% names(y)) &&  !all(names(y) %in% names(x))) return(FALSE)
+#   for(nam in names(x)) {
+#     if(!is.null(names(x[[nam]]))) {
+#       if(!equal_lists(x[[nam]],y[[nam]])) return(FALSE)
+#     }
+#     else {
+#       if( !(length(unique(x,y))==length(y) && length(unique(x,y))==length(x)) ) return(FALSE)
+#     }
+#   }
+#   TRUE
 }

@@ -39,14 +39,9 @@
 #' @return 
 #' 
 
-climate$methods(seasonal_summary = function(data_list = list(), variable_to_summarize = rain_label, month_start = -1, number_month = 3, threshold = 0.85, 
-                                            summaries = list(sum_label, count_label, mean_label),
-                                            lower_threshold = rep("", length(summaries)), 
-                                            upper_threshold = rep("", length(summaries)),
-                                            use_thresold_as_lower = rep(FALSE, length(summaries)),
-                                            month_col_names = "" , summary_col_names, na.rm = FALSE, replace = FALSE, ...) {
+climate$methods(seasonal_summary = function(data_list = list(), variable_to_summarize = "", month_start = "", number_month = 3,
+                                            summaries = list(), month_col_names = "" , summary_col_names = "", na.rm = FALSE, replace = FALSE, ...) {
 
-  
   # variable_to_require is requied and may not be rain
   data_list = add_to_data_info_required_variable_list(data_list, variable_to_summarize)
   # date time period is "daily"
@@ -57,11 +52,11 @@ climate$methods(seasonal_summary = function(data_list = list(), variable_to_summ
   if(month_col_names != "" && length(month_col_names) != length(month_start) ) stop("If specified, month_col_names must be a list the same length as month_start")
   if(!missing(summary_col_names) && length(summary_col_names) != length(summaries) ) stop("If specified, summary_col_names must be a list the same length as summaries")
   if(number_month > 12) stop("number_month must be an integer less than or equal to 12.")
+  
   for(data_obj in climate_data_objs) {
     
     var_col = data_obj$getvname(variable_to_summarize) 
-    curr_threshold = data_obj$get_meta(threshold_label,missing(threshold),threshold)
-    
+
     # Must add month column if not present
     if( !( data_obj$is_present(month_label)) ) {
       data_obj$add_year_month_day_cols()
@@ -74,7 +69,7 @@ climate$methods(seasonal_summary = function(data_list = list(), variable_to_summ
     }
     season_col = data_obj$getvname(season_label) 
     
-    if(-1 %in% month_start) {
+    if("" %in% month_start) {
       curr_season_start_day = data_obj$get_meta(season_start_day_label)
       date = doy_as_date(curr_season_start_day, 1952)
       month_start = month(date)
@@ -103,44 +98,25 @@ climate$methods(seasonal_summary = function(data_list = list(), variable_to_summ
     # and each list element is a vector of months (in numeric format)
     months_lists = lapply(month_start, function(a,b) 1+(((a:(a+b-1)) -1) %% 12), b = number_month)
     # set the labels of the list in the format: "Jan-Mar"
-    names(months_lists) = paste0(month.abb[month_start],"-", month.abb[(month_start+number_month-1) %% 12])
-
-    # get the yearly summary object for this data_obj
-    summary_obj <- get_summary_name(yearly_label, data_obj)
-    
-    i = 1
-    # loop through the periods of months_lists
-    for (period in months_lists) {
-      
-      month_selection = list(period)
-      names(month_selection) = month_col
-      # use get_data_for_analysis to subset the daily data so that it only contains the months in period
-      curr_data_list = data_obj$get_data_for_analysis(list(date_list = month_selection))
-      
-      curr_definition = list(period, threshold = threshold, na.rm = na.rm)
-      for(curr_data in curr_data_list) {
-        # use summary_calculation function to calculate the summaries needed by the year column as the factor
-        summ_cols = summary_calculation(summaries, list(var = curr_data[[var_col]]), factor = curr_data[[season_col]], threshold = threshold, na.rm = na.rm)
-        # use month_col_names and summary_col_names for column names if they are given, otherwise use default names
-        if(month_col_names != "" && !missing(summary_col_names)) names(summ_cols) = paste(month_col_names[[i]], summary_col_names)
-        else if(month_col_names != "") names(summ_cols) = paste(month_col_names[[i]], summaries)
-        else if(!missing(summary_col_names)) names(summ_cols) = paste(names(months_lists)[i], summary_col_names)
-        else names(summ_cols) = paste(names(months_lists)[i], summaries, var_col)
-
-        # TODO implement checks for duplicate columns and duplicate definitions
-        
-        # append the output columns of summary_calculation to the summary object
-        for(j in 1:length(summ_cols)) {
-          summary_obj$append_column_to_data(summ_cols[[j]], names(summ_cols)[[j]])
-          summ_label = summary_obj$get_summary_label(variable_to_summarize, summaries[[j]], curr_definition)
-          summary_obj$append_to_variables(summ_label, names(summ_cols)[[j]])
-        }
-      }
-
-      i = i + 1
-    }
-
+    names(months_lists) = paste0(month.abb[month_start],"-", month.abb[1 + (month_start+number_month-2 %% 12)])
   }
+
+  # loop through the periods of months_lists
+  i = 1
+  for (period in months_lists) {
+    curr_data_list = add_to_data_info_date_list(data_list, month_col, period)
+    if(month_col_names != "" && !missing(summary_col_names)) col_names = paste(month_col_names[[i]], summary_col_names)
+    else if(month_col_names != "") col_names = paste(month_col_names[[i]], summaries, var_col)
+    else if(!missing(summary_col_names)) col_names = paste(names(months_lists)[i], summary_col_names)
+    else col_names = paste(names(months_lists)[i], summaries, var_col)
+    
+    .self$summary_calculation(curr_data_list, yearly_label, summaries, variable_to_summarize, na.rm = na.rm, replace = replace, column_names = list(col_names), ...)
+    i = i + 1
+  }
+
+
+  
+  
 #       if(col_name %in% names(summary_obj$get_data()) && !replace) {
 #         message(paste("A column named", col_name, "already exists. The column will not be replaced.
 #                       To replace to column, re run this function and specify replace = TRUE."))
