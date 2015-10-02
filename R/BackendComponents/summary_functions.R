@@ -1,5 +1,5 @@
 # summary function labels
-sum_label="Sum"
+sum_label="summary_sum"
 mode_label="summary_mode"
 count_label="summary_count"
 sd_label = "summary_sd"
