@@ -240,7 +240,7 @@ climate_data$methods(missing_dates_check = function(messages = TRUE)
     for (curr_data in curr_data_list){
       full_dates=list()
       if(data_time_period == daily_label) {      
-        start_end_dates = get_data_start_end_dates(curr_data, date_col, season_start_day = data_obj$get_meta(season_start_day_label))
+        start_end_dates = get_data_start_end_dates(curr_data, date_col, season_start_day = .self$get_meta(season_start_day_label))
         full_dates = seq(start_end_dates[[1]], start_end_dates[[2]], by = "day")
       }
       if(length(full_dates) > nrow(curr_data)) {
