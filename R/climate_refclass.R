@@ -335,7 +335,6 @@ climate$methods(append_used_data_objects = function(data, data_name, meta_data =
                                                     create = TRUE, identify_variables = TRUE, 
                                                     check_dates=TRUE, check_missing_dates = TRUE, 
                                                     date_format = "%m/%d/%Y", data_time_period) {
-  
   new_data_obj = climate_data$new(data=data, data_name = data_name, meta_data = meta_data, 
                                   variables = variables, imported_from = imported_from, 
                               data_time_period = data_time_period, start_point = length(used_data_objects) + 1, 
@@ -454,7 +453,7 @@ climate$methods(date_col_check = function(data_list=list(), date_format = "%d/%m
 )
 
 climate$methods(merge_vertical = function(climate_data_objs = climate_data_objects,
-                                          identifier = "Identifier", merge_name = "") 
+                                          identifier = "Station") 
 {
 
   # TO DO: should argument be data_list instead of climate_data_objs?
@@ -557,17 +556,17 @@ climate$methods(merge_vertical = function(climate_data_objs = climate_data_objec
           
         else if( var_name == year_label ) {
           year_col = vars_names[[var_name]]
-          curr_data[[var_name]] <- year(curr_data[[date_col]])
+          curr_data[[year_col]] <- year(curr_data[[date_col]])
         }
     
         else if( var_name == month_label ) {
           month_col = vars_names[[var_name]]
-          curr_data[[var_name]] <- month(curr_data[[date_col]])
+          curr_data[[month_col]] <- month(curr_data[[date_col]])
         }
     
         else if( var_name == day_label ) {
           day_col = vars_names[[var_name]]
-          curr_data[[var_name]] <- day(curr_data[[date_col]])
+          curr_data[[day_col]] <- day(curr_data[[date_col]])
         }
           
       }
@@ -577,15 +576,15 @@ climate$methods(merge_vertical = function(climate_data_objs = climate_data_objec
   }
   merge_data = rbind.fill(data_to_merge)
 
-  merged_obj = climate_data$new(data = merge_data, data_name = merge_name, start_point = length(used_data_objects)+1,
-                                  data_time_period = merge_time_period, check_missing_dates=FALSE)
-    
-  merged_obj$append_to_meta_data(merged_from_label, names(climate_data_objs))
-    
-  .self$append_used_data_objects(merged_obj$meta_data[[data_name_label]],merged_obj)
+#   merged_obj = climate_data$new(data = merge_data, data_name = merge_name, start_point = length(used_data_objects)+1,
+#                                   data_time_period = merge_time_period, check_missing_dates=FALSE)
+#     
+#   merged_obj$append_to_meta_data(merged_from_label, names(climate_data_objs))
+  merge_name = paste(paste(names(climate_data_objs), collapse = '-'),"merged")  
+  .self$append_used_data_objects(merge_data, data_name = merge_name, meta_data = list(merged_from = names(climate_data_objs)), data_time_period = merge_time_period)
   
   # return the merged object
-  used_data_objects[[ merged_obj$get_meta(data_name_label) ]]
+  .self$used_data_objects[[ merge_name ]]
 
 }
 )
