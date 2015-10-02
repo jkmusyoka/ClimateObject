@@ -540,7 +540,7 @@ climate$methods(merge_vertical = function(climate_data_objs = climate_data_objec
       
       # Add an identifier column to each data set containing the data object name
       data_name = data_obj$get_meta(data_name_label)
-      curr_data[[identifier]] <- rep(data_name,nrow(data_obj$data))
+      curr_data[[identifier]] <- factor(rep(data_name,nrow(data_obj$data)))
       date_col = vars_names[[date_label]]
       
       for(var_name in used_vars) {
@@ -556,17 +556,17 @@ climate$methods(merge_vertical = function(climate_data_objs = climate_data_objec
           
         else if( var_name == year_label ) {
           year_col = vars_names[[var_name]]
-          curr_data[[year_col]] <- year(curr_data[[date_col]])
+          curr_data[[year_col]] <- factor(year(curr_data[[date_col]]), ordered = TRUE)
         }
     
         else if( var_name == month_label ) {
           month_col = vars_names[[var_name]]
-          curr_data[[month_col]] <- month(curr_data[[date_col]])
+          curr_data[[month_col]] <- factor(month(curr_data[[date_col]]), ordered = TRUE)
         }
     
         else if( var_name == day_label ) {
           day_col = vars_names[[var_name]]
-          curr_data[[day_col]] <- day(curr_data[[date_col]])
+          curr_data[[day_col]] <- factor(day(curr_data[[date_col]]), ordered = TRUE)
         }
           
       }
