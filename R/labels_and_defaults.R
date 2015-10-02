@@ -31,6 +31,8 @@ wind_direction_label="wind_direction"
 lat_label="lat"
 lon_label="lon"
 alt_label="alt"
+season_station_label="season_station"
+date_station_label="date_station"
 
 variables_to_summarize = c(rain_label, temp_min_label, temp_max_label, evaporation_label,temp_air_label)
 

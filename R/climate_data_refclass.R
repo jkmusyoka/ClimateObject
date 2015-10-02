@@ -304,18 +304,37 @@ climate_data$methods(append_column_to_data = function(column_data, col_name = ""
     col_name = paste0("column_",sprintf("%02d", length(names(data))+1))
   }
   
-  if(.self$is_present(label)) {
-    message(paste("A variable for", label, "already exists."))
-    if(replace) {
-      message("The variable will be replaced in the data")
-      if(!col_name %in% names(data)) #What should happen in this case?
-      data[[col_name]] <<- column_data
-      .self$append_to_variables(label,col_name)
-      .self$append_to_changes(list(Replaced_col, col_name))
+  if(!missing(label)) {
+    if(.self$is_present(label)) {
+      message(paste("A variable for", label, "already exists."))
+      if(replace) {
+        message("The variable will be replaced in the data")
+        data[[col_name]] <<- column_data
+        .self$append_to_variables(label,col_name)
+        .self$append_to_changes(list(Replaced_col, col_name))
+      }
+      else message("The variable will not be replaced. Specify replace = TRUE to replace this variable.")
     }
-    else message("The variable will not be replaced. Specify replace = FALSE to replace this variable.")
+    
+    else {
+      if(col_name %in% names(data)) {
+        message(paste("A column named", col_name, "already exists."))
+        if(replace) {
+          message("The variable will be replaced in the data")
+          data[[col_name]] <<- column_data
+          .self$append_to_variables(label,col_name)
+          .self$append_to_changes(list(Replaced_col, col_name))
+        }
+        else message("The column will not be replaced. Specify replace = TRUE to replace this column.")
+      }
+      else {
+        data[[col_name]] <<- column_data
+        .self$append_to_variables(label,col_name)
+        .self$append_to_changes(list(Added_col, col_name))
+      }
+    }
   }
-  
+
   else if(col_name %in% names(data)) {
     message(paste("A column named", col_name, "already exists."))
     if(replace) {
@@ -323,13 +342,13 @@ climate_data$methods(append_column_to_data = function(column_data, col_name = ""
       data[[col_name]] <<- column_data
       .self$append_to_changes(list(Replaced_col, col_name))
     }
-    else message("The column will not be replaced. Specify replace = FALSE to replace this variable.")
+    else message("The column will not be replaced. Specify replace = TRUE to replace this column.")
   }
+  
   else {
     data[[col_name]] <<- column_data
     .self$append_to_changes(list(Added_col, col_name))
   }
-  
 }
 )
 
@@ -767,10 +786,9 @@ climate_data$methods(view_definition = function(col_name) {
 }
 )
 
-climate_data$methods(get_data_start_end_dates = function() {
+get_data_start_end_dates = function(data, date_col = "Date", season_start_day = 1) {
   # TO DO better method for getting subyeary and yearly dates
-  date_col = getvname(date_label)
-  temp_start_date = doy_as_date(get_meta(season_start_day_label),year(min(data[[date_col]])))
+  temp_start_date = doy_as_date(season_start_day,year(min(data[[date_col]])))
   if( temp_start_date > min(data[[date_col]]) ) {
     start_date = temp_start_date
     year(start_date) <- year(start_date)-1
@@ -792,7 +810,6 @@ climate_data$methods(get_data_start_end_dates = function() {
   
   return(c(start_date,end_date))
 }
-)
 
 climate_data$methods(time_period_check = function(messages=TRUE) {
   

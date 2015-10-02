@@ -1023,14 +1023,37 @@ climate$methods(summary_calculation = function(data_list = list(), summary_time_
     
     # Set factor columns
     factor = c()
-    if(summary_time_period == daily_label) factor = date_label
-    else if(summary_time_period == subyearly_label) {
-      if(missing(subyearly_factor)) stop("To summarize to subyearly level specify a factor column")
-      factor = subyearly_factor
+
+    if(data_obj$is_meta_data(multiple_station_label) && data_obj$get_meta(multiple_station_label)) {
+      station_col = data_obj$getvname(station_label)
+      if(summary_time_period == daily_label) {
+        date_col = data_obj$getvname(date_label)
+        if(!data_obj$is_present(date_station_label)) data_obj$append_column_to_data(factor(paste0(data_obj$get_data()[[date_col]], data_obj$get_data()[[station_col]])), paste0(date_col, "-",station_col), date_station_label)
+        factor = data_obj$getvname(date_station_label)
+      }
+      else if(summary_time_period == subyearly_label) {
+        if(missing(subyearly_factor)) stop("To summarize to subyearly level specify a factor column")
+        factor = subyearly_factor
+      }
+      else if(summary_time_period == yearly_label) {
+        if(!data_obj$is_present(season_label)) data_obj$add_year_month_day_cols()
+        season_col = data_obj$getvname(season_label)
+        if(!data_obj$is_present(season_station_label)) data_obj$append_column_to_data(factor(paste0(data_obj$get_data()[[season_col]], data_obj$get_data()[[station_col]])), paste0(season_col, "-",station_col), season_station_label)
+        factor = data_obj$getvname(season_station_label)
+      }
     }
-    else if(summary_time_period == yearly_label) factor = season_label
-    if(data_obj$get_meta(multiple_station_label, overrider = FALSE)) factor = c(factor, station_label)
     
+    else {
+      if(summary_time_period == daily_label) factor = date_label
+      else if(summary_time_period == subyearly_label) {
+        if(missing(subyearly_factor)) stop("To summarize to subyearly level specify a factor column")
+        factor = subyearly_factor
+      }
+      else if(summary_time_period == yearly_label) {
+        if(!data_obj$is_present(season_label)) data_obj$add_year_month_day_cols()
+        factor = season_label
+      }
+    }
     # Convert factor columns to factors if needed
     for( single_fact in factor) {
       if(!data_obj$is_present(single_fact)) stop(paste(single_fact, "not found in data."))
@@ -1093,7 +1116,7 @@ climate$methods(create_summary = function(data_list = list(), new_time_period, f
   
   # Check time periods of climate_data_objs are compatible with summary_time_period 
   curr_time_periods = unique(as.vector(sapply(climate_data_objs, function(x) x$data_time_period)))
-  if(!all(sapply(curr_time_periods, function(x) compare_time_periods(summary_time_period, x)))) stop(paste("Cannot summarize to",summary_time_period, "from",curr_time_periods))
+  if(!all(sapply(curr_time_periods, function(x) compare_time_periods(new_time_period, x)))) stop(paste("Cannot summarize to",summary_time_period, "from",new_time_periods))
   
   climate_data_objs_to_create = climate_data_objs[as.vector(sapply(climate_data_objs, function(x) !summary_created(new_time_period, x)))]
   
@@ -1106,7 +1129,7 @@ climate$methods(create_summary = function(data_list = list(), new_time_period, f
     date_col = curr_data[[date_col_name]]
     
     # TODO Make 0.85 a threshold constant
-    threshold = data_obj$get_meta(threshold_label, overrider = 0.85)
+    threshold = data_obj$get_meta(threshold_label, TRUE, overrider = 0.85)
     
     # na.rm default value
     # TODO Make FALSE a constant
@@ -1152,26 +1175,38 @@ climate$methods(create_summary = function(data_list = list(), new_time_period, f
     
     else if(new_time_period == yearly_label) {
       
-      start_date = data_obj$get_data_start_end_dates()[[1]]
-      end_date = data_obj$get_data_start_end_dates()[[2]]+1
+      start_date = get_data_start_end_dates(data_obj$get_data(), date_col_name, data_obj$get_meta(season_start_day_label))[[1]]
+      end_date = get_data_start_end_dates(data_obj$get_data(), date_col_name, data_obj$get_meta(season_start_day_label))[[2]]+1
       year(end_date) = year(end_date)-1
       season_dates = seq(start_date,end_date,"year")
       
       if(!data_obj$is_present(season_label)) data_obj$add_doy_col()
       season_col = data_obj$getvname(season_label)
       curr_data = data_obj$get_data()
-      unique_seasons = unique(curr_data[[season_col]])
-      summarized_data = data.frame(unique_seasons)
-      names(summarized_data) <- season_col
-      summarized_data[[date_col_name]] <- season_dates
+      unique_seasons = sort(unique(curr_data[[season_col]]))
       
+      if(data_obj$is_meta_data(multiple_station_label) && data_obj$get_meta(multiple_station_label)) {
+        station_col = data_obj$getvname(station_label)
+        summarized_data = unique(curr_data[c(station_col, season_col)])
+        summarized_data = summarized_data[order(summarized_data[[season_col]], summarized_data[[station_col]]), ]
+        rownames(summarized_data) <- NULL
+        if(!data_obj$is_present(season_station_label)) data_obj$append_column_to_data(paste0(curr_data[[season_col]],"-",curr_data[[station_col]]), "Season-Station", season_station_label)
+        season_station_col = data_obj$getvname(season_station_label)
+        fac_list = list(curr_data[[season_station_col]])
+      }
+      
+      else {
+        summarized_data = data.frame(unique_seasons)
+        names(summarized_data) <- season_col
+        summarized_data[[date_col_name]] <- season_dates
+        fac_list = list(curr_data[[season_col]])
+      }
       .self$append_used_data_objects(data = summarized_data, data_name = summarize_name, 
                                      data_time_period = new_time_period, meta_data = list(summarized_from = data_obj$get_meta(data_name_label)))
 
       summary_obj = .self$get_summary_name(new_time_period, data_obj)
       summary_obj$append_to_variables(season_label,season_col)
       
-      fac_list = list(curr_data[[season_col]])
     }
     
     summary_obj$append_to_variables(date_label,date_col_name)

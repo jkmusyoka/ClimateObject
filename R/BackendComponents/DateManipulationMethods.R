@@ -111,6 +111,7 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
   }
   
   # If the year, month, day column are there and create == TRUE create date column
+  # TODO Should we be able to handle Month column with different formats e.g. 1, "Jan" in same data frame?
   else if (create && is_present(year_label) && is_present(month_label) && is_present(day_label))
   {
     day_col = data[[getvname(day_label)]]
@@ -124,7 +125,6 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
     if(all(month.name %in% month_col)) {
       month_col = match(month_col,month.abb)
     }
-    
     new_col = as.Date(paste(year_col, month_col, day_col, sep="-"))
     .self$append_column_to_data(new_col, getvname(date_label), replace = TRUE)
   }
@@ -240,7 +240,7 @@ climate_data$methods(missing_dates_check = function(messages = TRUE)
     for (curr_data in curr_data_list){
       full_dates=list()
       if(data_time_period == daily_label) {      
-        start_end_dates = .self$get_data_start_end_dates()
+        start_end_dates = get_data_start_end_dates(curr_data, date_col, season_start_day = data_obj$get_meta(season_start_day_label))
         full_dates = seq(start_end_dates[[1]], start_end_dates[[2]], by = "day")
       }
       if(length(full_dates) > nrow(curr_data)) {

@@ -68,7 +68,6 @@ climate$methods(seasonal_summary = function(data_list = list(), variable_to_summ
       data_obj$add_doy_col()
     }
     season_col = data_obj$getvname(season_label) 
-    
     if("" %in% month_start) {
       curr_season_start_day = data_obj$get_meta(season_start_day_label)
       date = doy_as_date(curr_season_start_day, 1952)
