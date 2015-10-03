@@ -1,14 +1,12 @@
 
-climate$methods(cliplot = function(data_list=list(),var_x,var_y,data_time_period=yearly_label,linetype=1,color=c("blue"),merge_data=FALSE,
+climate$methods(cliplot = function(data_list=list(),var_x,var_y,linetype=1,color=c("blue"),merge_data=FALSE,
                                     xlabel=xlab(""), ylabel=ylab(""), main_title=" ",size=0,xlim = NULL, ylim = NULL, wise = NULL,
                                     stat = "identity", position = "identity", show.legend = NA, inherit.aes = TRUE,factor_var,
                                     station_name=TRUE,value.name="value",variable.name = "variable", na.rm = FALSE){    
   
   data_list = add_to_data_info_required_variable_list(data_list,  list(var_x, var_y)) 
   data_list= add_to_data_info_merge(data_list,merge_data)
-  data_list= add_to_data_info_time_period(data_list, data_time_period)
-  #Get the data objects
-  
+  #Get the data objects  
   climate_data_objs_list = get_climate_data_objects(data_list)
   
   for(data_obj in climate_data_objs_list) {    
