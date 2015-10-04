@@ -163,20 +163,25 @@ climate_data$methods(get_variables = function() {
 
 #TO DO replace all direct calls with this!
 climate_data$methods(getvname = function(label, create=FALSE) {
-  if (label %in% names(variables)) {
-    if (create) {
-      if (!is_present(label)){
-        if (label==year_label || label==month_label || label==day_label){
-          add_year_month_day_cols()
-        } else if (label==dos_label || label==season_label || label==doy_label) {
-          .self$add_doy_col()
-        }# TODO Add other columns that could be created on the fly like time!
+  out = c()
+  i = 1
+  for(single_label in label) {
+    if (single_label %in% names(variables)) {
+      if (create) {
+        if (!is_present(single_label)){
+          if (single_label==year_label || single_label==month_label || single_label==day_label){
+            add_year_month_day_cols()
+          } else if (single_label==dos_label || single_label==season_label || single_label==doy_label) {
+            .self$add_doy_col()
+          }# TODO Add other columns that could be created on the fly like time!
+        }
       }
-    }
-    return(variables[[label]])
-  } else{
-    return(label)
+      out[i] = variables[[single_label]]
+    } 
+    else out[i] = label
+    i = i + 1
   }
+  out
 }
 )
 
@@ -658,6 +663,10 @@ climate_data$methods(add_water_balance_col = function(col_name = "Water Balance"
   # Displaying water balance can use a non empty data_list here if we want to view a subset of the data
   curr_data_list = get_data_for_analysis(data_info = list())
   
+  i = 1
+  join_tables = list()
+  joining_columns = .self$get_joining_columns()
+  
   for( curr_data in curr_data_list ) {
     # This needs to be changed to consider case when data will come as split
     # Index comparisions etc.
@@ -713,15 +722,17 @@ climate_data$methods(add_water_balance_col = function(col_name = "Water Balance"
         }
       }
     }
+    
+    curr_join_table = curr_data[joining_columns]
+    curr_join_table[[col_name]] = water_balance_col
+    join_tables[[i]] <- curr_join_table
+    i = i + 1
   }
-  
-  # Last step is to append the water balance column to the data
-  # and add to variables so that water balance can be recognised.
-  append_column_to_data(water_balance_col,col_name)
-  append_to_variables(waterbalance_label, col_name)
+  .self$join_data(join_tables, match="first", type="full")
+  .self$append_to_changes(list(Added_col, col_name))
+  .self$append_to_variables(waterbalance_label, col_name)
 }
 )
-
 
 climate_data$methods(get_summary_label = function(element="", summary_stat="", definition=list()) {
   
@@ -855,19 +866,21 @@ climate_data$methods(add_spell_length_col = function(col_name = "Spell Length", 
     missing_dates_check()
   
     if(!is_present(rain_label)) stop("rain variable is required to calculate spell length")
-    rain_col = getvname(rain_label)  
+    rain_col = .self$getvname(rain_label)
     threshold = get_meta(threshold_label, missing(threshold), threshold)
     curr_data_list = get_data_for_analysis(data_info = list())
-    
+    i = 1
+    join_tables = list()
+    joining_columns = .self$get_joining_columns()
     for( curr_data in curr_data_list ) {    
-      
-      num_rows <- nrow(curr_data)       
-      
-      spell_length_col=spell_length_count(curr_data[[rain_col]], threshold)   
-      
+      curr_join_table = curr_data[joining_columns]
+      curr_join_table[[col_name]] = spell_length_count(curr_data[[rain_col]], threshold)
+      join_tables[[i]] <- curr_join_table
+      i = i + 1
     }
-    append_column_to_data(spell_length_col,col_name)
-    append_to_variables(spell_length_label, col_name)
+    .self$join_data(join_tables, match="first", type="full")
+    .self$append_to_changes(list(Added_col, col_name))
+    .self$append_to_variables(spell_length_label, col_name)
   }
 }
 )
@@ -902,7 +915,23 @@ climate_data$methods(add_running_rain_totals_col = function(col_name = "Running 
 )
 
 climate_data$methods(join_data = function(joining_data, match = "first", type = "full") {
-  set_data(join(joining_data, get_data(), match=match, type=type))
+  if(!is.data.frame(joining_data)) {
+    if(!all(sapply(joining_data,is.data.frame))) stop("joining_data must either be a data frame or list of data frames")
+    joining_data = do.call("rbind",joining_data)
+  }
+  .self$set_data(join(joining_data, get_data(), match=match, type=type))
 }
 )
 
+climate_data$methods(get_joining_columns = function() {
+  if(.self$is_meta_data(multiple_station_label) && .self$get_meta(multiple_station_label)) {
+    
+    joining_columns = c(.self$getvname(station_label), .self$getvname(date_label))
+  }
+  #TODO what to do for multiple elements
+  else if (.self$is_meta_data(multiple_element_label) && .self$get_meta(multiple_element_label)) {
+    joining_columns = c()
+  }
+  else joining_columns = .self$getvname(date_label)
+}
+)
