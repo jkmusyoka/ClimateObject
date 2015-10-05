@@ -14,7 +14,7 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = 1, 
                                             use_threshold_as_lower = c(FALSE, TRUE, TRUE), strict_threshold = FALSE,
                                             longest_dry_spell = TRUE, longest_dry_spell_name = "Longest dry spell", spell_length_name = "Spell Length",
                                             na.rm = FALSE, replace = FALSE, month_col_names = "May-Oct", 
-                                            summary_co l_names = c("Total Rain", "Number of rainy days", "Mean rain per rainy day"),...) 
+                                            summary_col_names = c("Total Rain", "Number of rainy days", "Mean rain per rainy day"),...) 
     
 
 {  
