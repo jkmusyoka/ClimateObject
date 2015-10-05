@@ -56,7 +56,7 @@ climate$methods(seasonal_summary.rain = function(data_list = list(), month_start
   summaries_without_threshold = summaries[!use_threshold_as_lower]
   summary_col_names_without_threshold = summary_col_names[!use_threshold_as_lower]
   summary_col_names_without_threshold = summary_col_names[!use_threshold_as_lower]
-  seasonal_summary(data_list = data_list_with_threshold, variable_to_summarize = rain_label, month_start = month_start, number_month = number_month, summaries = summaries_without_threshold, month_col_names = month_col_names, summary_col_names = summary_col_names_without_threshold, na.rm = na.rm, replace = replace,...)
+  seasonal_summary(data_list = data_list_without_threshold, variable_to_summarize = rain_label, month_start = month_start, number_month = number_month, summaries = summaries_without_threshold, month_col_names = month_col_names, summary_col_names = summary_col_names_without_threshold, na.rm = na.rm, replace = replace,...)
   
   if(longest_dry_spell) {
     
