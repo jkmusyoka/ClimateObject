@@ -2,6 +2,7 @@
 sum_label="summary_sum"
 mode_label="summary_mode"
 count_label="summary_count"
+count_over_threshold_label="summary_count_over_threshold"
 sd_label = "summary_sd"
 median_label = "summary_median"
 range_label = "summary_range"
@@ -27,7 +28,7 @@ summary_mean <- function (x, na.rm = FALSE,...) {
 }
 
 summary_sum <- function (x, na.rm = FALSE,...) {
-  sum(x, na.rm = FALSE,...)
+  sum(x, na.rm = FALSE)
 } 
 
 summary_count <- function(x,...) {
@@ -181,4 +182,10 @@ summary_end_of_rain <- function(data, earliest_day = 228,...) {
     }
   }
   end_rain
+}
+
+summary_count_over_threshold <- function(x, na.rm = FALSE, threshold = 0, strict_ineq = TRUE,...) {
+  if(strict_ineq) return(sum(x>threshold, na.rm=na.rm))
+  else return(sum(x>=threshold, na.rm=na.rm))
+  
 }

@@ -317,6 +317,20 @@ climate_data$methods(add_year_month_day_cols = function(update=FALSE, YearLabel=
 }
 )
 
+
+# climate method as a wrapper of the climate_data method: add_year_month_day_cols
+climate$methods(add_year_month_day_cols = function(data_list = list(), update=FALSE, YearLabel="Year", MonthLabel="Month", DayLabel="Day")
+{
+  climate_data_objs_list = .self$get_climate_data_objects(data_list)
+  
+  for(data_obj in climate_data_objs_list) {
+    data_obj$add_year_month_day_cols(update = update, YearLabel = YearLabel, MonthLabel = MonthLabel, DayLabel = DayLabel)
+  }
+}
+)
+
+
+
 #=============================================================================
 # add day of year cols
 #' @title Add Day of Year columns
