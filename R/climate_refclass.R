@@ -646,260 +646,6 @@ climate$methods(append_to_summary = function(time_period, data_obj, col_data, co
 }
 )
 
-climate$methods(add_end_rain = function(data_list=list(), earliest_day = 228, water_balance_col_name = "Water Balance", 
-                                               col_name = "End of the rains", capacity_max = 100, evaporation = 5,
-                                               replace=FALSE) {
-  
-  
-  # We don't restrict the years when calculating end of rain. We calculate for the
-  # whole data set. When displaying we can show a subset of the data if needed.
-  # year has been removed as an argument.
-  
-  data_list=add_to_data_info_required_variable_list(data_list, list(rain_label))
-  data_list=add_to_data_info_time_period(data_list, daily_label)
-  climate_data_objs = get_climate_data_objects(data_list)
-  
-  
-  for(data_obj in climate_data_objs) {
-
-    end_rain = list()
-    
-    summary_obj <- get_summary_name(yearly_label, data_obj)
-    
-    continue = TRUE
-    
-    if(col_name %in% names(summary_obj$get_data()) && !replace) {
-      message(paste("A column named", col_name, "already exists. The column will not be replaced.
-                     To replace to column, re run this function and specify replace = TRUE."))
-      continue = FALSE
-    }
-    
-    if(col_name %in% names(summary_obj$get_data()) && replace) {
-      message(paste("A column named", col_name, "already exists. The column will replaced 
-                    in the data."))
-    }
-    
-    # 3. check if definition already exists, then do not add
-    # need to more carefully define evaporation
-    curr_definition = list(earliest_day = earliest_day, capacity_max = capacity_max, 
-                           evaporation = evaporation)
-    
-    if( continue && summary_obj$is_definition(rain_label,end_of_label,curr_definition)) {
-      message("A column with this defintion already exists in the data.
-              The column will not be added again.")
-      continue = FALSE
-    }
-    
-    if(continue) {
-      
-      # rain is required so we don't need to check if it's present
-      rain_col = data_obj$getvname(rain_label)
-      
-      # Complete dates needed for calculations
-      data_obj$missing_dates_check()
-      
-
-      #if doy or year/dos season is not in the data frame, create it.
-      if( !( data_obj$is_present(dos_label) && data_obj$is_present(season_label) ) ) {
-        data_obj$add_doy_col()
-      }
-
-      season_col = data_obj$getvname(season_label)
-      dos_col = data_obj$getvname(dos_label)
-      
-      if( !(data_obj$is_present(waterbalance_label)) ) {
-        if(missing(capacity_max)) {
-          data_obj$add_water_balance_col(col_name=water_balance_col_name,evaporation=evaporation)
-        }
-        else { data_obj$add_water_balance_col(water_balance_col_name,capacity_max,evaporation) }
-      }
-      # Don't need to append to variables. This is done by add_waterbalance_col.
-      
-      waterbalance_col = data_obj$getvname(waterbalance_label)
-      
-      # get the data with empty list so we do not subset the data here
-      curr_data_list = data_obj$get_data_for_analysis(list())
-      
-      for( curr_data in curr_data_list ) {
-        
-        # Split curr_data into single data frames for each year
-        # It returns a list of data.frames, split by year 
-        # This is much faster than subsetting each time
-        # Split is not always appropriate but it is in this case
-        seasons_split <- split(curr_data, list(as.factor(curr_data[[season_col]])))
-        
-        i = 1
-        for (single_season in  seasons_split)  {
-          
-          single_season <- single_season[single_season[[dos_col]] >= earliest_day,c(dos_col,waterbalance_col, season_col)]
-
-          # default value if end of season not found
-          end_rain[i] = NA
-          
-          # subsetting above may give an empty data frame
-          if(nrow(single_season)==0) next
-          
-          for( j in 1:nrow(single_season) ) {
-            if( !is.na(single_season[[waterbalance_col]][[j]]) 
-                && single_season[[waterbalance_col]][[j]] == 0 ) {  
-              end_rain[i] = single_season[[dos_col]][[j]]
-              break
-            }
-          }
-          i = i + 1  
-        }
-        names(end_rain) <- names(seasons_split)
-      }
-      
-      #   if( plot == TRUE ){
-      #     plot( year, endday, type = "b", col = "blue", ylab = "End of the rain",
-      #           xlab = "Year", main = main)
-      #   }
-      summary_obj$append_column_to_data(end_rain, col_name)
-      label = summary_obj$get_summary_label(rain_label, end_of_label, curr_definition)
-      summary_obj$append_to_variables(label,col_name)
-    }
-  }
-}
-)
-
-
-climate$methods(add_start_rain = function(data_list=list(), earliest_day=92, total_days=2, rain_total=20, dry_length=30,
-                                              dry_days=10, dry_spell_condition=FALSE, threshold = 0.85, col_name = "Start of Rain",
-                                              replace=FALSE) {
-  
-  data_list=add_to_data_info_required_variable_list(data_list, list(rain_label))
-  data_list=add_to_data_info_time_period(data_list, daily_label)
-  climate_data_objs = get_climate_data_objects(data_list)
-  
-  for(data_obj in climate_data_objs) {
-    
-    summary_obj <- get_summary_name(yearly_label, data_obj)
-
-    # use get_meta to determine the correct threshold value to use
-    threshold = data_obj$get_meta(threshold_label,missing(threshold),threshold)
-    
-    # to do
-    continue = TRUE
-    
-    if(col_name %in% names(summary_obj$get_data()) && !replace) {
-      message(paste("A column named", col_name, "already exists. The column will not be replaced.
-                     To replace to column, re run this function and specify replace = TRUE."))
-      continue = FALSE
-    }
-    
-    if(col_name %in% names(summary_obj$get_data()) && replace) {
-      message(paste("A column named", col_name, "already exists. The column will replaced 
-                    in the data."))
-    }
-    
-    # 3. check if definition already exists, then do not add
-    curr_definition = list(earliest_day = earliest_day, total_days = total_days, 
-                           rain_total = rain_total, dry_spell_condition = dry_spell_condition, 
-                           threshold = threshold)
-
-    if( continue && summary_obj$is_definition(rain_label,start_of_label,curr_definition)) {
-      message("A column with this defintion already exists in the data.
-              The column will not be added again.")
-      continue = FALSE
-    }
-    
-    if(continue) {
-    
-      #if doy or year/dos is not in the data frame, create it.
-      if( !( data_obj$is_present(dos_label) && data_obj$is_present(season_label) ) ) {
-        data_obj$add_doy_col()
-      }
-      
-      # get names of columns in the data
-      rain_col = data_obj$variables[[ rain_label ]]
-      dos_col = data_obj$variables[[ dos_label ]]
-      season_col = data_obj$variables[[ season_label ]]
-      
-      # column to store day of year of start of the rain
-      start_of_rain_col <- list()
-      
-      # Use an empty data_list here because we want to calculate start of rains
-      # for the whole data set.
-      curr_data_list = data_obj$get_data_for_analysis(data_info = list())
-      
-      # adding start of rain column
-      for(curr_data in curr_data_list ) {
-        
-        # split the data by year to do calculations
-        seasons_split <- split(curr_data[,c(dos_col,rain_col)], list(as.factor(curr_data[[season_col]])))
-        
-        
-        j = 1 
-        for( single_season in seasons_split ) {
-          
-          # initialize to NA incase conditions are never met
-          start_of_rain_col[j] = NA
-          
-          # initialize current earliest day
-          curr_earliest_day = earliest_day
-          
-          # if dry spell required use the simple sum_check to get start of the rain
-          if(!dry_spell_condition) {
-            start_of_rain_col[j] = sum_check(single_season, curr_earliest_day, total_days, rain_total)[1]
-          }
-          
-          else {
-            # If sum and dry spell conditions are required
-            
-            # indicates whether both conditions have been met and 
-            # start of rain has been found
-            # initialize to FALSE
-            found = FALSE
-            
-            num_rows = nrow(single_season)
-            
-            # while start of the rain has not been found and our earliest day to check is not too
-            # close to the end of year we continue looking for the start of the rain
-            # if the dry_length is greater than the remaining number of rows
-            # we will not be able to check for dry spells so we cannot get a start of the rain
-            # NA will be returned
-            while( !found && sum(single_season[[1]]==curr_earliest_day)>0 && dry_length <= num_rows -  which(single_season[[1]]==curr_earliest_day) ) {
-              # get the first day after earliest_day which is over rain_total
-              day = sum_check(single_season, curr_earliest_day, total_days, rain_total)[1]
-              
-              # if the dry_length is greater than the remaining number of rows
-              # we can no longer check for dry spells so end the loop
-              # also if day is missing, end the loop.
-              # NA will be returned
-              if( is.na(day) || dry_length > num_rows - which(single_season[[1]]==day) ) break
-              
-              # start day to check for a dry spell is the day after the day found by sum_check
-              start_row = which(single_season[[1]]==day+1)
-              
-              # if there is no dry spell we have found the start of the rain
-              # found = TRUE will mean the loop does not run again
-              if( !dry_spell_check(single_season[start_row:num_rows, 2], dry_length, dry_days, threshold) ) {
-                start_of_rain_col[j] = day
-                found = TRUE
-              }
-              else {
-                # in the worst case there was a dry spell of length dry_days start after day.
-                # The next check should begin after this potential dry spell.
-                # if this day is beyond the end of the year, exit the loop to return NA.
-                if(is.na(which(single_season[[1]]==day + dry_length))) break
-                else curr_earliest_day = day + dry_length
-              }
-            }
-          }
-          j = j + 1
-        }
-      }
-      # append this column to the yearly summary for each data object
-      summary_obj$append_column_to_data(start_of_rain_col, col_name)
-      label = summary_obj$get_summary_label(rain_label, start_of_label, curr_definition)
-      summary_obj$append_to_variables(label,col_name)
-      
-    }  
-  }
-  
-}
-)
 
 climate$methods(display_water_balance = function(data_list = list(), print_tables = TRUE, col_name = "Water Balance",
                                                  capacity_max = 100, evaporation = 5, decimal_places = 0, 
@@ -1062,8 +808,11 @@ climate$methods(summary_calculation = function(data_list = list(), summary_time_
       }
     }
     
-    curr_required_variables = as.vector(sapply(required_variables, function(x) data_obj$getvname(x)))
-    
+    curr_required_variables = list()
+    for(var in required_variables) {
+      curr_required_variables[[length(curr_required_variables)+1]] = data_obj$getvname(var)
+    }
+
     # data should not be split. We want a single data frame to do calculations by factors
     # Here is where any subsetting of the data (e.g. by date or threshold) is done
     curr_data_list = .self$add_to_data_info_merge(data_list, merged = TRUE)
@@ -1083,7 +832,10 @@ climate$methods(summary_calculation = function(data_list = list(), summary_time_
       j = 1
       for(single_summary in required_summaries) {
         if(column_names[[i]][[j]] == "") {
-          curr_label = paste(single_summary, curr_var_name)
+          curr_label = single_summary
+          for(curr_var_name_item in curr_var_name) {
+            curr_label = paste(curr_label, curr_var_name_item)
+          }
         }
         else curr_label = column_names[[i]][[j]]
         curr_definition = .self$create_definition(data_list, arguments = list(...))
@@ -1093,9 +845,11 @@ climate$methods(summary_calculation = function(data_list = list(), summary_time_
           j = j + 1
           next
         }
-        out[[curr_label]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), ...))
+        if(length(curr_var_name)==1) out[[curr_label]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), ...))
+        else out[[curr_label]] = as.vector(by(curr_data[curr_var_name], curr_factors, match.fun(single_summary), ...))
         # TODO make get_summary_label a climate method
-        labels[[curr_label]] = .self$get_summary_name(summary_time_period, data_obj)$get_summary_label(required_variables[[i]], single_summary, curr_definition)
+        # TODO think how to use get_summary_label when required_variables[[i]] is a list
+        labels[[curr_label]] = .self$get_summary_name(summary_time_period, data_obj)$get_summary_label(required_variables[[i]][[1]], single_summary, curr_definition)
         j = j + 1
       }
       i = i + 1

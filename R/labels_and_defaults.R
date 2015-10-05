@@ -635,3 +635,27 @@ equal_lists = function(x,y) {
 #   }
 #   TRUE
 }
+
+#######
+# Day Of Year data frame and table
+#######
+# These are called by display_doy_table
+doy_data_frame = data.frame(Date = seq(as.Date("2004-01-01"), as.Date("2004-12-31"), by = "day"))
+doy_data_frame$Day = day(doy_data_frame$Date)
+doy_data_frame$Month = month(doy_data_frame$Date)
+doy_data_frame$DOY = 1:366
+
+doy_table <- dcast( doy_data_frame, doy_data_frame[[ "Day" ]] ~ doy_data_frame[[ "Month" ]], value.var = "DOY")
+
+#######
+
+save_table_to_file = function(file, table, width = 8.5, height = 11, font.size = 6, title = "", font.size_header = 12, NA.string = "NA", row.names = row.names) {
+  #set output file
+  rtf<-RTF(file=file, width=width, height=height, font.size=font.size)
+  #add title
+  addHeader(rtf, title=title, font.size=font.size_header)
+  #add table
+  addTable(rtf, table, NA.string=NA.string, row.names=row.names)
+  #save output file
+  done(rtf)
+}
