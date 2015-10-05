@@ -9,12 +9,12 @@
 
 
 
-climate$methods(export_for_PICSA =function(data_list = list(), month_start = 1, number_month = 3, threshold = use_default_label, 
+climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5,11), number_month = 3, threshold = use_default_label, 
                                             summaries = list(sum_label, count_label, mean_label),
                                             use_threshold_as_lower = c(FALSE, TRUE, TRUE), strict_threshold = FALSE,
                                             longest_dry_spell = TRUE, longest_dry_spell_name = "Longest dry spell", spell_length_name = "Spell Length",
-                                            na.rm = FALSE, replace = FALSE, month_col_names = "May-Oct", 
-                                            summary_col_names = c("Total Rain", "Number of rainy days", "Mean rain per rainy day"),...) 
+                                            na.rm = FALSE, replace = FALSE, month_col_names = list("Season_A","Season_B"), 
+                                            summary_col_names = c("Total Rainfall", "Number of rainy days", "Mean rain per rainy day"),...) 
     
 
 {  
@@ -29,19 +29,21 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = 1, 
       climate_data_objs = get_climate_data_objects(data_list)
       print("2")
     
-	  for(data_obj in climate_data_objects){
+	  for(data_obj in climate_data_objs){
 	      curr_data_list = data_obj$get_data_for_analysis(data_list)
 	      print("2ii")
 		  for( curr_data in curr_data_list ) {
-		     #if("Season 1" %in% names(curr_data)) {
-		      #    names(curr_data)[["Season 1"]] <- "SeasonA"
-		       # }
+		     if("Season_A Total Rain" %in% names(curr_data)) {
+		          names(curr_data)[["Season_A Total Rain"]] <- "Total Rainfall Season_A"
+		          names(curr_data)[["Total Rain"]] <- "Total Rainfall "
+		          
+		          		        }
             View(curr_data)
-          
+          curr_data<-subset(curr_data, select=c("Year","Total Rainfall","Total Rainfall_SeasonA"))
   	    #extracting the yearly summaries.
-	      names(curr_data)<-c( "Year","TotalRainfall","TotalRainfall_SeasonA","TotalRainfall_SeasonB",
-		        "SeasonStart_A","SeasonStart_B","SeasonEnd_A","SeasonEnd_B","LengthOfSeason_A",
-		        "LengthOfSeason_B","MinTemperature","MaxTemperature")
+	      #names(curr_data)<-c( "Year","TotalRainfall","TotalRainfall_SeasonA","TotalRainfall_SeasonB",
+		     #   "SeasonStart_A","SeasonStart_B","SeasonEnd_A","SeasonEnd_B","LengthOfSeason_A",
+		      #  "LengthOfSeason_B","MinTemperature","MaxTemperature")
 	      print("2iii")
         write.csv(curr_data, file=Sitename.csv,sep = ",",column.names=T, row.names = F,quote = F)
         }  
