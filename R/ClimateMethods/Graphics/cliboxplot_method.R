@@ -8,6 +8,8 @@
 #' produces box-and-whisker plot(s).
 #' @param data_list A list for specifying what data should be used in the method.
 #' @param var The variable to be plotted.
+#' @param factor_level A logical indicating whether plotting should be done based on a factor e.g
+#' boxplot of daily rainfall per month
 #' @param factor The factor variable e.g month.
 #' @param threshold  A numeric value that is used to select values to be plotted. For example, a threshold of rain for a rainy day. The default is 0.85.
 #' @param whisklty Whisker line type.
@@ -31,14 +33,14 @@ climate$methods(cliboxplot=function( data_list=list(),var=rain_label,factor_leve
                                                          fill_col="blue",title="Monthly Rainfall Amount",ylab="Rainfall (mm)",xlab="Month",
                                                          range = 1.5, width = NULL, varwidth = FALSE,notch = FALSE, outline = TRUE, plot = TRUE,
                                                          border = par("fg"), col = NULL, log = "",pars = list(boxwex = 0.8, staplewex = 0.5, outwex = 0.5),
-                                                         horizontal = FALSE, add = FALSE, at = NULL,names=month.abb){
+                                                         horizontal = FALSE, add = FALSE, at = NULL,names=month.abb,data_period_label=daily_label){
   #--------------------------------------------------------------------------------------------#
   # This function plots the boxplot of the daily rainfall observations per month for all the years
   #-------------------------------------------------------------------------------------------#
   
   # rain variable is required for this method
   data_list = add_to_data_info_required_variable_list( data_list, list(var))  
-    
+  data_list=add_to_data_info_time_period(data_list, data_period_label)  
   # use data_list to get the required data objects
   climate_data_objs = get_climate_data_objects( data_list )
   
@@ -72,7 +74,6 @@ climate$methods(cliboxplot=function( data_list=list(),var=rain_label,factor_leve
       }
       
     }
-  }
-  
+  }  
 } 
 )  

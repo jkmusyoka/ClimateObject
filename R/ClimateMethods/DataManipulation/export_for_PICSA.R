@@ -14,13 +14,13 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = 1, 
                                             use_threshold_as_lower = c(FALSE, TRUE, TRUE), strict_threshold = FALSE,
                                             longest_dry_spell = TRUE, longest_dry_spell_name = "Longest dry spell", spell_length_name = "Spell Length",
                                             na.rm = FALSE, replace = FALSE, month_col_names = "May-Oct", 
-                                            summary_col_names = c("Total Rain", "Number of rainy days", "Mean rain per rainy day"),...) 
+                                            summary_co l_names = c("Total Rain", "Number of rainy days", "Mean rain per rainy day"),...) 
     
 
 {  
       #first call the seasonal summary method with the right agruments
       print("1")
-      seasonal_summary.rain(data_list = data_list, month_start = month_start, number_month =number_month, threshold = threshold, summaries = summaries, use_threshold_as_lower = use_threshold_as_lower, strict_threshold = strict_threshold,longest_dry_spell = longest_dry_spell, longest_dry_spell_name = longest_dry_spell_name, spell_length_name = spell_length_name, na.rm = na.rm, replace = replace, month_col_names = month_col_names, summary_col_names = suammary_col_names)
+      seasonal_summary.rain(data_list = data_list, month_start = month_start, number_month =number_month, threshold = threshold, summaries = summaries, use_threshold_as_lower = use_threshold_as_lower, strict_threshold = strict_threshold,longest_dry_spell = longest_dry_spell, longest_dry_spell_name = longest_dry_spell_name, spell_length_name = spell_length_name, na.rm = na.rm, replace = replace, month_col_names = month_col_names, summary_col_names = summary_col_names)
       # date time period is "yearly"
       data_list = add_to_data_info_time_period(data_list, yearly_label)
       print("1ii")
