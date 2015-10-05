@@ -30,15 +30,18 @@
 #' where "data" is a data.frame containing the desired data to be computed.
 #' climateObj$cliplot(var_x=year_label, var_y=rain_label). 
 #' @return time series plot(s).
-#'
+#' 
+#'data_period_label is included in the method to plot the summary_obj (yearly_summaries)
+#'variables e.g start of the rain
 
-climate$methods(cliplot = function(data_list=list(),var_x,var_y,linetype=1,color=c("blue"),by_factor=FALSE,
+climate$methods(cliplot = function(data_list=list(),var_x,var_y,linetype=1,color=c("blue"),by_factor=FALSE,data_period_label=yearly_label,
                                    x_axis_lab,y_axis_lab, main_title,size=0,xlim = NULL, ylim = NULL, wise = NULL,
                                     stat = "identity", position = "identity", show.legend = NA, inherit.aes = TRUE,factor_var,
                                     station_name=TRUE,variable.name = "variable", na.rm = FALSE){    
   
   data_list = add_to_data_info_required_variable_list(data_list,  list(var_x, var_y)) 
   data_list= add_to_data_info_merge(data_list,by_factor)
+  data_list=add_to_data_info_time_period(data_list, data_period_label)
   #Get the data objects  
   climate_data_objs_list = get_climate_data_objects(data_list)
   
