@@ -1,33 +1,34 @@
 #==================================================================================================
 # 
-#' @title Boxplot of daily rainfall per month.
+#' @title Boxplot method
 #' @name cliboxplot
 #' @author Fanuel 2015 (AMI)
 
 #' @description \code{Box plot} 
 #' produces box-and-whisker plot(s).
-#'  
+#' @param data_list A list for specifying what data should be used in the method.
+#' @param var The variable to be plotted.
+#' @param factor The factor variable e.g month.
+#' @param threshold  A numeric value that is used to select values to be plotted. For example, a threshold of rain for a rainy day. The default is 0.85.
 #' @param whisklty Whisker line type.
 #' @param fill_col Box color.
 #' @param whiskcol Color of whisker.
-#' @param connect_median A logical scalar. Should the medians be connected by a line?
-#' @param col_median Color of the line connecting the medians.
-#' @param lty_median Median line type.
-#' @param lwd Line width of the median line.
 #' @param title Boxplot title.
-#' @param ylab Y-axis label.
-#' @param xlab X-axis label.
+#' @param ylab The y-axis label.
+#' @param xlab The X-axis label.
+#' @param 
 #' 
 #' @examples
 #' ClimateObj <- climate( data_tables = list( dataframe=dataframe ), date_formats = list( "%m/%d/%Y" ) )
 #' Default dateformats: "%Y/%m/%d"
 #' where "data" is a data.frame containing the desired data to be computed.
-#' climateObj$boxplot_monthly_daily_rainfall(). 
-#' @return return box-and-whisker plot(s).
+#' climateObj$cliboxplot(). 
+#' The explanations for most of the arguments are in ?boxplot
+#' @return box-and-whisker plot(s).
 #'
 
 climate$methods(cliboxplot=function( data_list=list(),var=rain_label,factor_level=TRUE, factor=month_label, threshold=0.85, whisklty=1, whiskcol="red",
-                                                         fill_col="blue",lwd=1, title="Monthly Rainfall Amount",ylab="Rainfall (mm)",xlab="Month",
+                                                         fill_col="blue",title="Monthly Rainfall Amount",ylab="Rainfall (mm)",xlab="Month",
                                                          range = 1.5, width = NULL, varwidth = FALSE,notch = FALSE, outline = TRUE, plot = TRUE,
                                                          border = par("fg"), col = NULL, log = "",pars = list(boxwex = 0.8, staplewex = 0.5, outwex = 0.5),
                                                          horizontal = FALSE, add = FALSE, at = NULL,names=month.abb){
