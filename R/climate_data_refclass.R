@@ -768,8 +768,6 @@ climate_data$methods(is_definition = function(element="", summary_stat="", defin
     for(def in meta_data[[summary_statistics_label]][[element]][[summary_stat]]) {
       if(equal_lists(def, definition)) {
         found_match = TRUE
-        print(unique(def,definition))
-        print(length(unique(def,definition)))
         break
       }
     }

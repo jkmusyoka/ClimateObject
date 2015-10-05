@@ -159,6 +159,7 @@ summary_start_of_rain <- function(data, earliest_day = 92, total_days = 2, rain_
       }
     }
   }
+  start_of_rain
 }
 
 summary_end_of_rain <- function(data, earliest_day = 228,...) {
