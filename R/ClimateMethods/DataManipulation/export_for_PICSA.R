@@ -35,8 +35,9 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
 		  for( curr_data in curr_data_list ) {
 		     
 		        for (i in length(summary_col_names) ){
-		            for (i in  length(month_col_names)){
-		                names(curr_data)[[list("Season_A","","")]]<-paste(summary_col_names[[i]], month_col_names[[i]], sep=" ")
+		            for (j in  length(month_col_names)){
+		                names(curr_data)[[paste(summary_col_names[[i]], month_col_names[[j]], sep=" ")
+		                                  ]]<-paste(summary_col_names[[i]], month_col_names[[j]], sep=" ")
 		            
 		            }
 		        }
