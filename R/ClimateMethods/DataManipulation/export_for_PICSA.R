@@ -33,13 +33,12 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
 	      curr_data_list = data_obj$get_data_for_analysis(data_list)
 	      print("2ii")
 		  for( curr_data in curr_data_list ) {
-		     if("Season_A Total Rain" %in% names(curr_data)) {
-		          names(curr_data)[["Season_A Total Rain"]] <- "Total Rainfall Season_A"
-		          names(curr_data)[["Total Rain"]] <- "Total Rainfall "
-		          
-		          		        }
+		     
+		        for (i in length(summary_col_names) & length(month_col_names)){
+		          names(curr_data)<-paste(summary_col_names[[i]], month_col_names[[i]], sep=" ")
+		        }
             View(curr_data)
-          curr_data<-subset(curr_data, select=c("Year","Total Rainfall","Total Rainfall_SeasonA"))
+          #curr_data<-subset(curr_data, select=c("Year","Total Rainfall","Total Rainfall_SeasonA"))
   	    #extracting the yearly summaries.
 	      #names(curr_data)<-c( "Year","TotalRainfall","TotalRainfall_SeasonA","TotalRainfall_SeasonB",
 		     #   "SeasonStart_A","SeasonStart_B","SeasonEnd_A","SeasonEnd_B","LengthOfSeason_A",
