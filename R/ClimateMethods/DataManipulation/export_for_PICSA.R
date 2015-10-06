@@ -13,7 +13,7 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
                                             summaries = list(sum_label, count_label, mean_label),
                                             use_threshold_as_lower = c(FALSE, TRUE, TRUE), strict_threshold = FALSE,
                                             longest_dry_spell = TRUE, longest_dry_spell_name = "Longest dry spell", spell_length_name = "Spell Length",
-                                            na.rm = FALSE, replace = FALSE, month_col_names = list("Season_A","Season_B"), 
+                                            na.rm = FALSE, replace = FALSE, month_col_names = list("SeasonA","SeasonB"), 
                                             summary_col_names = c("Total Rainfall", "Number of rainy days", "Mean rain per rainy day"),...) 
     
 
@@ -25,33 +25,30 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
       # a list of climate data objects
       climate_data_objs = get_climate_data_objects(data_list)
      	  for(data_obj in climate_data_objs){
-	           curr_data_list = data_obj$get_data_for_analysis(data_list)
+     	        sea_start  = data_obj$getvname(month_start)
+     	        data_name= data_obj$get_meta(data_name_label)
+	            curr_data_list = data_obj$get_data_for_analysis(data_list)
 	      
-		      for( curr_data in curr_data_list ) {
+		          for( curr_data in curr_data_list ) {
 		     
-            for (i in 1:length(summary_col_names) ){
-		              for (j in  1:length(month_col_names)){
-		                  names(curr_data)[names(curr_data) == paste(month_col_names[[j]],summary_col_names[[i]])] <-paste(summary_col_names[[i]], month_col_names[[j]], sep=" ")
-		            }
-		        }
-      
-          tmp_data<-subset(curr_data, select=c("Year","Total Rainfall","Total Rainfall_SeasonA"))
-                for(i in 1:length(month_start)){
-                  tmp_data$SeasonStart_A<-month(sea_start[i], label=T)    
-                  tmp_data$SeasonStart_B<-month(sea_start[i+1], label=T)
-                  tmp_data$SeasonEnd_A<-month(sea_start[i]+number_month, label=T)
-                  tmp_data$SeasonEnd_B<-month(sea_start[i+1]+number_month, label=T)         
-                }
-          
-  	    #extracting the yearly summaries.
-	      #names(curr_data)<-c( "Year","TotalRainfall","TotalRainfall_SeasonA","TotalRainfall_SeasonB",
-		     #   "SeasonStart_A","SeasonStart_B","SeasonEnd_A","SeasonEnd_B","LengthOfSeason_A",
-		      #  "LengthOfSeason_B","MinTemperature","MaxTemperature")
-	      
-        write.csv(tmp_data, file=Sitename.csv,sep = ",",column.names=T, row.names = F,quote = F)
-        }  
-	    }
-  }
+                  for (i in 1:length(summary_col_names) ){
+		                  for (j in  1:length(month_col_names)){
+		                        names(curr_data)[names(curr_data) == paste(month_col_names[[j]],summary_col_names[[i]])] <-paste(summary_col_names[[i]], month_col_names[[j]], sep=" ")
+		                        uninterested_col<-names(curr_data) %in% c("Date","Number of Rainy Days","Mean Rain per Rainy Day","Number of rainy days SeasonA", "SeasonA Mean rain per rainy day", "Number of rainy days SeasonB","SeasonB Mean rain per rainy day","SeasonA Longest dry spell", "SeasonB Longest dry spell" )
+                            curr_data<-curr_data[!uninterested_col]		                  
+		                  
+		                  tmp_data<-subset(curr_data)#,select=c("Year","Total Rain","Total Rainfall SeasonA","Total Rainfall SeasonB"))
+                      tmp_data$SeasonStart_A<-month(month_start[1], label=T)    
+                      tmp_data$SeasonStart_B<-month(month_start[1+1], label=T)
+                      tmp_data$SeasonEnd_A<-month(month_start[1]+number_month, label=T)
+                      tmp_data$SeasonEnd_B<-month(month_start[1+1]+number_month, label=T)    
+                      write.csv(tmp_data, file=paste(data_name,".csv"),sep = ",",col.names=T, row.names = F,quote = F, na="*")            
+                          
+    		          }
+              }
+          }  
+    	  }
+    }
 )
 
 
