@@ -24,22 +24,31 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
       data_list = add_to_data_info_time_period(data_list, yearly_label)
       # a list of climate data objects
       climate_data_objs = get_climate_data_objects(data_list)
-      	  for(data_obj in climate_data_objs){
-	            curr_data_list = data_obj$get_data_for_analysis(data_list)
+     	  for(data_obj in climate_data_objs){
+	           curr_data_list = data_obj$get_data_for_analysis(data_list)
 	      
-		          for( curr_data in curr_data_list ) {
+		      for( curr_data in curr_data_list ) {
 		     
-                  for (i in 1:length(summary_col_names) ){
-		                  for (j in  1:length(month_col_names)){
-		                      names(curr_data)[names(curr_data) == paste(month_col_names[[j]])] <-paste(summary_col_names[[i]], month_col_names[[j]], sep=" ")
+            for (i in 1:length(summary_col_names) ){
+		              for (j in  1:length(month_col_names)){
+		                  names(curr_data)[names(curr_data) == paste(month_col_names[[j]],summary_col_names[[i]])] <-paste(summary_col_names[[i]], month_col_names[[j]], sep=" ")
 		            }
 		        }
-            tmp_data<-subset(curr_data, select=c("Year","Total Rainfall","Total Rainfall_SeasonA"))
+      
+          tmp_data<-subset(curr_data, select=c("Year","Total Rainfall","Total Rainfall_SeasonA"))
+                for(i in 1:length(month_start)){
+                  tmp_data$SeasonStart_A<-month(sea_start[i], label=T)    
+                  tmp_data$SeasonStart_B<-month(sea_start[i+1], label=T)
+                  tmp_data$SeasonEnd_A<-month(sea_start[i]+number_month, label=T)
+                  tmp_data$SeasonEnd_B<-month(sea_start[i+1]+number_month, label=T)         
+                }
+          
   	    #extracting the yearly summaries.
 	      #names(curr_data)<-c( "Year","TotalRainfall","TotalRainfall_SeasonA","TotalRainfall_SeasonB",
 		     #   "SeasonStart_A","SeasonStart_B","SeasonEnd_A","SeasonEnd_B","LengthOfSeason_A",
 		      #  "LengthOfSeason_B","MinTemperature","MaxTemperature")
-	      write.csv(tmp_data, file=Sitename.csv,sep = ",",column.names=T, row.names = F,quote = F)
+	      
+        write.csv(tmp_data, file=Sitename.csv,sep = ",",column.names=T, row.names = F,quote = F)
         }  
 	    }
   }
