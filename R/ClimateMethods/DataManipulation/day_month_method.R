@@ -23,7 +23,7 @@
 #' 
 
 
-climate$methods(day_month = function(data_list = list(), time_period = daily_label, col_name = "Day_Month", month_format = "%m", required_format = "%d %b") {
+climate$methods(day_month = function(data_list = list(), time_period = daily_label, col_name = "Day_Month", required_format = "%d %b") {
   
   #this method adds a date column in any required format, with the default adding a day-month column, i.e. in the format day+month ("17 Apr")
   #==============================================================================================
