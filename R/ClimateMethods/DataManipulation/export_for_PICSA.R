@@ -20,15 +20,15 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
 {  
       #first call the seasonal summary method with the right agruments
       .self$seasonal_summary.rain(data_list = data_list, month_start = month_start, number_month =number_month, threshold = threshold, summaries = summaries, use_threshold_as_lower = use_threshold_as_lower, strict_threshold = strict_threshold,longest_dry_spell = longest_dry_spell, longest_dry_spell_name = longest_dry_spell_name, spell_length_name = spell_length_name, na.rm = na.rm, replace = replace, month_col_names = month_col_names, summary_col_names = summary_col_names)
-      .self$add_start_rain(); .self$add_end_rain(col_name="Start of Rain Season_A")
-      .self$add_start_rain(); .self$add_end_rain(col_name="Start of Rain Season_B")
+      .self$add_start_rain(col_name="Start of Rain Season_A")
+      .self$add_start_rain(col_name="Start of Rain Season_B")
+      .self$add_end_rain(col_name="End of Rain Season_A")
+      .self$add_end_rain(col_name="End of Rain Season_B")
       # date time period is "yearly"
       data_list = add_to_data_info_time_period(data_list, yearly_label)
       # a list of climate data objects
       climate_data_objs = get_climate_data_objects(data_list)
      	  for(data_obj in climate_data_objs){
-     	        sea_start_col  = data_obj$getvname(start_of_rain_label)
-     	        sea_end_col  = data_obj$getvname(end_of_rain_label)
      	        data_name= data_obj$get_meta(data_name_label)
 	            curr_data_list = data_obj$get_data_for_analysis(data_list)
 	      
@@ -40,17 +40,15 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
 		                        uninterested_col<-names(curr_data) %in% c("Date","Number of Rainy Days","Mean Rain per Rainy Day","Number of rainy days SeasonA", "SeasonA Mean rain per rainy day", "Number of rainy days SeasonB","SeasonB Mean rain per rainy day","SeasonA Longest dry spell", "SeasonB Longest dry spell" )
                             curr_data<-curr_data[!uninterested_col]		                  
                             #"Date",
-                            #View(curr_data)
+                            View(curr_data)
 		                  tmp_data<-subset(curr_data)#,select=c("Year","Total Rain","Total Rainfall SeasonA","Total Rainfall SeasonB"))
-		                #  for(i in 1:length(sea_start_col)){
-		                    names(tmp_data); ncol(tmp_data)
-                      #tmp_data$SeasonStart_A<-paste(sea_start_col[i])    
-                      #tmp_data$SeasonStart_B<-paste(sea_end_col[i]+1)
-                      #tmp_data$SeasonEnd_A<-paste(sea_end_col[i])
-                      #tmp_data$SeasonEnd_B<-paste(sea_start_col[i]-20)    
-		                  tmp_data$Length_of_Season<-tmp_data$"End of the Rains" -tmp_data$"Start of the Rains"
-                      write.csv(tmp_data, file=paste(data_name,".csv"),sep = ",",col.names=T, row.names = F,quote = F, na="*")            
-		                 # } https://github.com/aduut/Instat.git   
+		                
+		                    print(ncol(tmp_data))
+                        print("1")
+		                  tmp_data$Length_of_Season_A<-tmp_data[7] -tmp_data[5]
+                      tmp_data$Length_of_Season_B<-tmp_data[8] -tmp_data[6]
+		                  write.csv(tmp_data, file=paste(data_name,".csv"),sep = ",",col.names=T, row.names = F,quote = F, na="*")            
+                              # }    
     		          }
               }
           }  
