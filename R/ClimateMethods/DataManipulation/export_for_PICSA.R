@@ -24,6 +24,7 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
       .self$add_start_rain(col_name="Start of Rain Season_B")
       .self$add_end_rain(col_name="End of Rain Season_A")
       .self$add_end_rain(col_name="End of Rain Season_B")
+      
       # date time period is "yearly"
       data_list = add_to_data_info_time_period(data_list, yearly_label)
       # a list of climate data objects
@@ -33,20 +34,16 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
 	            curr_data_list = data_obj$get_data_for_analysis(data_list)
 	      
 		          for( curr_data in curr_data_list ) {
-		     
-                  for (i in 1:length(summary_col_names) ){
+		              for (i in 1:length(summary_col_names) ){
 		                  for (j in  1:length(month_col_names)){
 		                        names(curr_data)[names(curr_data) == paste(month_col_names[[j]],summary_col_names[[i]])] <-paste(summary_col_names[[i]], month_col_names[[j]], sep=" ")
 		                        uninterested_col<-names(curr_data) %in% c("Date","Number of Rainy Days","Mean Rain per Rainy Day","Number of rainy days SeasonA", "SeasonA Mean rain per rainy day", "Number of rainy days SeasonB","SeasonB Mean rain per rainy day","SeasonA Longest dry spell", "SeasonB Longest dry spell" )
                             curr_data<-curr_data[!uninterested_col]		                  
-                            #"Date",
-                            View(curr_data)
-		                  tmp_data<-subset(curr_data)#,select=c("Year","Total Rain","Total Rainfall SeasonA","Total Rainfall SeasonB"))
-		                
-		                    print(ncol(tmp_data))
-                        print("1")
-		                  tmp_data$Length_of_Season_A<-tmp_data[7] -tmp_data[5]
-                      tmp_data$Length_of_Season_B<-tmp_data[8] -tmp_data[6]
+                            
+		                  tmp_data<-subset(curr_data)#,select=c("Year","Total Rain","Total Rainfall SeasonA","Total Rainfall SeasonB")
+		                  View(tmp_data)
+                      tmp_data$Length_of_Season_A<-tmp_data[[7]] -tmp_data[[5]]
+                      tmp_data$Length_of_Season_B<-tmp_data[[8]] -tmp_data[[6]]
 		                  write.csv(tmp_data, file=paste(data_name,".csv"),sep = ",",col.names=T, row.names = F,quote = F, na="*")            
                               # }    
     		          }
