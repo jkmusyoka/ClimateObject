@@ -20,7 +20,8 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
 {  
       #first call the seasonal summary method with the right agruments
       .self$seasonal_summary.rain(data_list = data_list, month_start = month_start, number_month =number_month, threshold = threshold, summaries = summaries, use_threshold_as_lower = use_threshold_as_lower, strict_threshold = strict_threshold,longest_dry_spell = longest_dry_spell, longest_dry_spell_name = longest_dry_spell_name, spell_length_name = spell_length_name, na.rm = na.rm, replace = replace, month_col_names = month_col_names, summary_col_names = summary_col_names)
-      .self$add_start_rain(); .self$add_end_rain()
+      .self$add_start_rain(); .self$add_end_rain(col_name="Start of Rain Season_A")
+      .self$add_start_rain(); .self$add_end_rain(col_name="Start of Rain Season_B")
       # date time period is "yearly"
       data_list = add_to_data_info_time_period(data_list, yearly_label)
       # a list of climate data objects
@@ -42,13 +43,14 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
                             #View(curr_data)
 		                  tmp_data<-subset(curr_data)#,select=c("Year","Total Rain","Total Rainfall SeasonA","Total Rainfall SeasonB"))
 		                #  for(i in 1:length(sea_start_col)){
-		                    
+		                    names(tmp_data); ncol(tmp_data)
                       #tmp_data$SeasonStart_A<-paste(sea_start_col[i])    
                       #tmp_data$SeasonStart_B<-paste(sea_end_col[i]+1)
                       #tmp_data$SeasonEnd_A<-paste(sea_end_col[i])
                       #tmp_data$SeasonEnd_B<-paste(sea_start_col[i]-20)    
+		                  tmp_data$Length_of_Season<-tmp_data$"End of the Rains" -tmp_data$"Start of the Rains"
                       write.csv(tmp_data, file=paste(data_name,".csv"),sep = ",",col.names=T, row.names = F,quote = F, na="*")            
-		                 # }    
+		                 # } https://github.com/aduut/Instat.git   
     		          }
               }
           }  
