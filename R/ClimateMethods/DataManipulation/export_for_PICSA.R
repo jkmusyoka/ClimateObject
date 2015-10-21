@@ -9,7 +9,7 @@
 
 
 
-climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5,11), number_month = 3, threshold = use_default_label, 
+climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5,11), number_month = 5, threshold = use_default_label, 
                                             summaries = list(sum_label, count_label, mean_label),
                                             use_threshold_as_lower = c(FALSE, TRUE, TRUE), strict_threshold = FALSE,
                                             longest_dry_spell = TRUE, longest_dry_spell_name = "Longest dry spell", spell_length_name = "Spell Length",
@@ -20,12 +20,14 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
 {  
       #first call the seasonal summary method with the right agruments
       .self$seasonal_summary.rain(data_list = data_list, month_start = month_start, number_month =number_month, threshold = threshold, summaries = summaries, use_threshold_as_lower = use_threshold_as_lower, strict_threshold = strict_threshold,longest_dry_spell = longest_dry_spell, longest_dry_spell_name = longest_dry_spell_name, spell_length_name = spell_length_name, na.rm = na.rm, replace = replace, month_col_names = month_col_names, summary_col_names = summary_col_names)
+      .self$add_start_rain(); .self$add_end_rain()
       # date time period is "yearly"
       data_list = add_to_data_info_time_period(data_list, yearly_label)
       # a list of climate data objects
       climate_data_objs = get_climate_data_objects(data_list)
      	  for(data_obj in climate_data_objs){
-     	        sea_start  = data_obj$getvname(month_start)
+     	        sea_start_col  = data_obj$get_vname(start_of_rain_label)
+     	        sea_end_col  = data_obj$get_vname(end_of_rain_label)
      	        data_name= data_obj$get_meta(data_name_label)
 	            curr_data_list = data_obj$get_data_for_analysis(data_list)
 	      
@@ -36,14 +38,17 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
 		                        names(curr_data)[names(curr_data) == paste(month_col_names[[j]],summary_col_names[[i]])] <-paste(summary_col_names[[i]], month_col_names[[j]], sep=" ")
 		                        uninterested_col<-names(curr_data) %in% c("Date","Number of Rainy Days","Mean Rain per Rainy Day","Number of rainy days SeasonA", "SeasonA Mean rain per rainy day", "Number of rainy days SeasonB","SeasonB Mean rain per rainy day","SeasonA Longest dry spell", "SeasonB Longest dry spell" )
                             curr_data<-curr_data[!uninterested_col]		                  
-		                  
+                            #"Date",
+                            #View(curr_data)
 		                  tmp_data<-subset(curr_data)#,select=c("Year","Total Rain","Total Rainfall SeasonA","Total Rainfall SeasonB"))
-                      tmp_data$SeasonStart_A<-month(month_start[1], label=T)    
-                      tmp_data$SeasonStart_B<-month(month_start[1+1], label=T)
-                      tmp_data$SeasonEnd_A<-month(month_start[1]+number_month, label=T)
-                      tmp_data$SeasonEnd_B<-month(month_start[1+1]+number_month, label=T)    
+		                  for(i in 1:length(sea_start_col)){
+		                    
+                      tmp_data$SeasonStart_A<-paste(sea_start_col[i])    
+                      tmp_data$SeasonStart_B<-paste(sea_end_col[i]+1)
+                      tmp_data$SeasonEnd_A<-paste(sea_end_col[i])
+                      tmp_data$SeasonEnd_B<-paste(sea_start_col[i]-20)    
                       write.csv(tmp_data, file=paste(data_name,".csv"),sep = ",",col.names=T, row.names = F,quote = F, na="*")            
-                          
+		                  }    
     		          }
               }
           }  
