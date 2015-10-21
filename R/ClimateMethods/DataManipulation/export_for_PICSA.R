@@ -40,11 +40,10 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
 		                        uninterested_col<-names(curr_data) %in% c("Date","Number of Rainy Days","Mean Rain per Rainy Day","Number of rainy days SeasonA", "SeasonA Mean rain per rainy day", "Number of rainy days SeasonB","SeasonB Mean rain per rainy day","SeasonA Longest dry spell", "SeasonB Longest dry spell" )
                             curr_data<-curr_data[!uninterested_col]		                  
                             
-		                  tmp_data<-subset(curr_data)#,select=c("Year","Total Rain","Total Rainfall SeasonA","Total Rainfall SeasonB")
-		                  View(tmp_data)
-                      tmp_data$Length_of_Season_A<-tmp_data[[7]] -tmp_data[[5]]
-                      tmp_data$Length_of_Season_B<-tmp_data[[8]] -tmp_data[[6]]
-		                  write.csv(tmp_data, file=paste(data_name,".csv"),sep = ",",col.names=T, row.names = F,quote = F, na="*")            
+      		                  #,select=c("Year","Total Rain","Total Rainfall SeasonA","Total Rainfall SeasonB")
+                            curr_data$Length_of_Season_A<-tmp_data[[7]] -tmp_data[[5]]
+                            curr_data$Length_of_Season_B<-tmp_data[[8]] -tmp_data[[6]]
+      		                  write.csv(tmp_data, file=paste(data_name,".csv"),sep = ",",col.names=T, row.names = F,quote = F, na="*")            
                               # }    
     		          }
               }
