@@ -26,8 +26,8 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
       # a list of climate data objects
       climate_data_objs = get_climate_data_objects(data_list)
      	  for(data_obj in climate_data_objs){
-     	        sea_start_col  = data_obj$get_vname(start_of_rain_label)
-     	        sea_end_col  = data_obj$get_vname(end_of_rain_label)
+     	        sea_start_col  = data_obj$getvname(start_of_rain_label)
+     	        sea_end_col  = data_obj$getvname(end_of_rain_label)
      	        data_name= data_obj$get_meta(data_name_label)
 	            curr_data_list = data_obj$get_data_for_analysis(data_list)
 	      
@@ -41,14 +41,14 @@ climate$methods(export_for_PICSA =function(data_list = list(), month_start = c(5
                             #"Date",
                             #View(curr_data)
 		                  tmp_data<-subset(curr_data)#,select=c("Year","Total Rain","Total Rainfall SeasonA","Total Rainfall SeasonB"))
-		                  for(i in 1:length(sea_start_col)){
+		                #  for(i in 1:length(sea_start_col)){
 		                    
-                      tmp_data$SeasonStart_A<-paste(sea_start_col[i])    
-                      tmp_data$SeasonStart_B<-paste(sea_end_col[i]+1)
-                      tmp_data$SeasonEnd_A<-paste(sea_end_col[i])
-                      tmp_data$SeasonEnd_B<-paste(sea_start_col[i]-20)    
+                      #tmp_data$SeasonStart_A<-paste(sea_start_col[i])    
+                      #tmp_data$SeasonStart_B<-paste(sea_end_col[i]+1)
+                      #tmp_data$SeasonEnd_A<-paste(sea_end_col[i])
+                      #tmp_data$SeasonEnd_B<-paste(sea_start_col[i]-20)    
                       write.csv(tmp_data, file=paste(data_name,".csv"),sep = ",",col.names=T, row.names = F,quote = F, na="*")            
-		                  }    
+		                 # }    
     		          }
               }
           }  
