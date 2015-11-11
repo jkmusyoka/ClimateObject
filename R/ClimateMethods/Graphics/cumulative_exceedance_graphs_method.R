@@ -1,7 +1,7 @@
 # CUMULATIVE GRAPH and EXCEEDANCE GRAPH
 #' @title plot cumulative and exceedance graphs
 #' @name cumulative_exceedance_graphs
-#' @author Fanuel 2015 (AMI)
+#' @author Fanuel and Steve 2015 (AMI)
 
 #' @description \code{cumulative_exceedance_graphs} 
 #' Enables plotting cumulative and exceedance graphs given a climate object
@@ -36,7 +36,7 @@
 #' @return cumulative graph or exceedance graph. the default is cumulative graph
 
 
-climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interest_var,cumulative_graph =TRUE, legend_bty="n",
+climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interest_var = "Total Rain",cumulative_graph =TRUE, legend_bty="n",
                                                         color=rainbow(12),percent=TRUE, main="", xlabel="",ylabel="",line_type="o",
                                                         data_period_label=yearly_label, legend_position="center",
                                                         legend_label=c("plot1","plot2"),station_name=TRUE, plot_window=FALSE,gpar=par(mfrow=c(2,4)),
@@ -119,7 +119,7 @@ climate$methods(cumulative_exceedance_graphs = function(data_list=list(),interes
             main="cumulative graph"
           }
           if (xlabel==""){
-            xlabel= "Variable of interest"
+            xlabel= interest_var
           }
           #====Plotting the cumulative================================================
           if (percent ==TRUE){
