@@ -140,6 +140,23 @@ climate$methods(import_clidata = function(data_table, dataname="Clidata")
 }
 )
 
+#TODO this is just a temporary function to use while we set up a more general ODBC link
+climate$methods(import_sqldata = function(SQLquery, dataname="SQLdata",dbname="mysql_climsoft_db_v4", username="root", password="admin")
+{
+  
+  con<-dbConnect(RMySQL::MySQL(),dbname=dbname, username=username, password=password )
+  temp= dbSendQuery(con, SQLquery)
+  
+    #---------------------------------------------------------#
+  # And write to climate data object
+  #---------------------------------------------------------#
+  new_data = climate_data$new(data=temp, data_name = dataname)
+  
+  # Add this new climate_data object to our list of climate_data objects
+  .self$append_climate_data_objects( new_data$meta_data[[data_name_label]],new_data)
+  
+}
+)
 # Getter methods
 ###############################################################################################
 # We can create methods to extract fields from a climate_data object.
