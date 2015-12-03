@@ -8,7 +8,7 @@
 
 climate_data <- setRefClass("climate_data", 
                             fields = list(data = "data.frame", meta_data = "list", 
-                                          variables = "list", changes = "list", data_time_period="character"))
+                                          variables = "list", changes = "list", data_time_period="character", date_format="character"))
 
 
 
@@ -55,18 +55,19 @@ climate_data$methods(initialize = function(data = data.frame(), data_name = "", 
   }
   
   .self$set_data_time_period(data_time_period)
+  .self$set_date_format(date_format)
   
-  .self$date_format_check(convert=convert, messages=messages)
+  #.self$date_format_check(convert=convert, messages=messages)
   
-  if (check_dates){
-    .self$date_col_check(date_format=date_format, convert=convert, create = create, messages=messages)
-  }
+  #if (check_dates){
+  #  .self$date_col_check(date_format=date_format, convert=convert, create = create, messages=messages)
+  #}
   
   .self$check_multiple_data()
   
-  if (check_missing_dates){
-    .self$missing_dates_check(messages)
-  }
+#   if (check_missing_dates){
+#     .self$missing_dates_check(messages)
+#   }
   
   
 }
@@ -112,44 +113,6 @@ climate_data$methods(get_data_for_analysis = function(data_info) {
       }
     }
   }  
-  
-  if(threshold_list_label %in% names(data_info)) {
-    if(var_label %in% names(data_info[[threshold_list_label]]) 
-       && .self$is_present(data_info[[threshold_list_label]][[var_label]])) {
-      var = .self$getvname(data_info[[threshold_list_label]][[var_label]])
-      
-      if(!(lower_strict_label %in% names(data_info[[threshold_list_label]]))) lower_strict = FALSE
-      else lower_strict = data_info[[threshold_list_label]][[lower_strict_label]]
-
-      if(!(upper_strict_label %in% names(data_info[[threshold_list_label]]))) upper_strict = FALSE
-      else upper_strict = data_info[[threshold_list_label]][[upper_strict_label]]
-
-      if(lower_threshold_label %in% names(data_info[[threshold_list_label]]) && data_info[[threshold_list_label]][[lower_threshold_label]] != "") lower_threshold = data_info[[threshold_list_label]][[lower_threshold_label]]
-      else lower_threshold = ""
-      if(upper_threshold_label %in% names(data_info[[threshold_list_label]]) && data_info[[threshold_list_label]][[upper_threshold_label]] != "") upper_threshold = data_info[[threshold_list_label]][[upper_threshold_label]]
-      else upper_threshold = ""
-      
-      if( lower_threshold != "" && upper_threshold != "" ) {
-        if(lower_strict && upper_strict) return_data = return_data[return_data[[var]] > lower_threshold & return_data[[var]] < upper_threshold,]
-        else if(lower_strict) return_data = return_data[return_data[[var]] > lower_threshold & return_data[[var]] <= upper_threshold,]
-        else if(upper_strict) return_data = return_data[return_data[[var]] >= lower_threshold & return_data[[var]] < upper_threshold,]
-        else return_data = return_data[return_data[[var]] >= lower_threshold & return_data[[var]] <= upper_threshold,]
-      }
-      
-      else if(lower_threshold != "") {
-        if(lower_threshold == use_default_label) lower_threshold = .self$get_meta(threshold_label, overrider = default_threshold)
-        if(lower_strict) return_data = return_data[return_data[[var]] > lower_threshold,]
-        else return_data = return_data[return_data[[var]] >= lower_threshold,]
-      }
-      
-      else if(upper_threshold != "") {
-        if(upper_strict) return_data = return_data[return_data[[var]] < upper_threshold,]
-        else return_data = return_data[return_data[[var]] <= upper_threshold,]
-      }
-      
-    } 
-  }
-  
   if (!merged_data) return_data = .self$get_split_data(return_data)
   return (return_data)
   
@@ -163,25 +126,20 @@ climate_data$methods(get_variables = function() {
 
 #TO DO replace all direct calls with this!
 climate_data$methods(getvname = function(label, create=FALSE) {
-  out = c()
-  i = 1
-  for(single_label in label) {
-    if (single_label %in% names(variables)) {
-      if (create) {
-        if (!is_present(single_label)){
-          if (single_label==year_label || single_label==month_label || single_label==day_label){
-            add_year_month_day_cols()
-          } else if (single_label==dos_label || single_label==season_label || single_label==doy_label) {
-            .self$add_doy_col()
-          }# TODO Add other columns that could be created on the fly like time!
-        }
+  if (label %in% names(variables)) {
+    if (create) {
+      if (!is_present(label)){
+        if (label==year_label || label==month_label || label==day_label){
+          add_year_month_day_cols()
+        } else if (label==dos_label || label==season_label || label==doy_label) {
+          .self$add_doy_col()
+        }# TODO Add other columns that could be created on the fly like time!
       }
-      out[i] = variables[[single_label]]
-    } 
-    else out[i] = label
-    i = i + 1
+    }
+    return(variables[[label]])
+  } else{
+    return(label)
   }
-  out
 }
 )
 
@@ -286,73 +244,48 @@ climate_data$methods(set_data_time_period = function(new_data_time_period) {
 }
 )
 
+############################################################################
+climate_data$methods(set_date_format = function(new_date_format) {
+  if( ! is.character(new_date_format) ) {
+    stop("Changes must be of type: character")
+  }
+  
+  else {
+    date_format <<- new_date_format
+    .self$append_to_changes(list(Set_property, "date_format"))  }
+}
+)
+
 ############################################################################################
 # We may want to add something to a field instead of replacing the whole field.
 # For that we use append methods.
 
 
-climate_data$methods(append_column_to_data = function(column_data, col_name = "", label = "", replace = FALSE) {
+climate_data$methods(append_column_to_data = function(column_data, col_name = "", label) {
   
   # Column name must be character
-  if( ! is.character(col_name) ) stop("Column name must be of type: character")
+  if( ! is.character(col_name) ) {
+    stop("Column name must be of type: character")
+  }
   
   # Column data length must match number of rows of data.
-  if ( !( length(column_data) == nrow(data) ) ) {
+  else if ( !( length(column_data) == nrow(data) ) )
     stop(paste("Number of rows in new column does not match the number of rows in the data set.
                  There must be", nrow(data), "entries in the new column."))
-  }
-  
-
-  column_data <- unlist(column_data)
-  # If no name given, generate a default column name.
-  if (col_name == "") {
-    col_name = paste0("column_",sprintf("%02d", length(names(data))+1))
-  }
-  
-  if(!missing(label)) {
-    if(.self$is_present(label)) {
-      message(paste("A variable for", label, "already exists."))
-      if(replace) {
-        message("The variable will be replaced in the data")
-        data[[col_name]] <<- column_data
-        .self$append_to_variables(label,col_name)
-        .self$append_to_changes(list(Replaced_col, col_name))
-      }
-      else message("The variable will not be replaced. Specify replace = TRUE to replace this variable.")
-    }
-    
-    else {
-      if(col_name %in% names(data)) {
-        message(paste("A column named", col_name, "already exists."))
-        if(replace) {
-          message("The variable will be replaced in the data")
-          data[[col_name]] <<- column_data
-          .self$append_to_variables(label,col_name)
-          .self$append_to_changes(list(Replaced_col, col_name))
-        }
-        else message("The column will not be replaced. Specify replace = TRUE to replace this column.")
-      }
-      else {
-        data[[col_name]] <<- column_data
-        .self$append_to_variables(label,col_name)
-        .self$append_to_changes(list(Added_col, col_name))
-      }
-    }
-  }
-
-  else if(col_name %in% names(data)) {
-    message(paste("A column named", col_name, "already exists."))
-    if(replace) {
-      message("The variable will be replaced in the data")
-      data[[col_name]] <<- column_data
-      .self$append_to_changes(list(Replaced_col, col_name))
-    }
-    else message("The column will not be replaced. Specify replace = TRUE to replace this column.")
-  }
   
   else {
+    # If no name given, generate a default column name.
+    if (col_name == "") {
+      col_name = paste0("column_",sprintf("%02d", length(names(data))+1))
+    }
+    column_data <- unlist(column_data)
     data[[col_name]] <<- column_data
     .self$append_to_changes(list(Added_col, col_name))
+    
+    if(!missing(label)) {
+      .self$append_to_variables(label,col_name)
+    }
+    
   }
 }
 )
@@ -641,6 +574,185 @@ climate_data$methods(get_split_data = function(return_data) {
 }
 )
 
+climate_data$methods(summarize_data = function(new_time_period, start_point = 1, 
+                                               num_rain_days_col = "Number of Rain Days", total_col = "Total",
+                                               mean_col = "Mean", period_col_name = "Period", 
+                                               mean_rain_name = "Average rain per rain day", factor_col)
+  
+  # TO DO remove date formats, remove threshold, 
+{
+  if(missing(new_time_period)) {
+    stop("Specify the time period you want the summarized data to be in.")
+  }
+  
+  if(!compare_time_periods(new_time_period,data_time_period)) {
+    stop("Cannot summarize data to a shorter time period.")
+  }
+  
+  summarize_name = paste(.self$meta_data[[data_name_label]],new_time_period)
+  date_col_name = getvname(date_label)
+  date_col = data[[date_col_name]]
+  
+  curr_data_name = get_meta(data_name_label)
+  
+  # default threshold only used if threshold not in meta_data
+  threshold = 0.85
+  
+  # na.rm default value
+  # TODO make this come from meta_data?
+  na.rm = FALSE
+  
+  if(new_time_period == daily_label) {
+    
+    # TO DO work out how to do missing_dates_check for subdaily data
+    .self$missing_dates_check()
+    
+    unique_dates = unique(data[[date_col_name]])
+    
+    summarized_data = data.frame(unique_dates)
+    names(summarized_data) <- date_col_name
+    summary_obj = climate_data$new(data = summarized_data, data_name = summarize_name, 
+                                   start_point = start_point, data_time_period = new_time_period,
+                                   # This can be removed once missing_dates_check works for subdaily data
+                                   check_missing_dates = FALSE)
+    
+    fac_list = data[[date_col_name]]
+  }
+  
+  else if(new_time_period == subyearly_label) {
+    
+    yr_values = year(data[[date_col_name]])
+    fac_list = list(data[[factor_col]], yr_values)
+    new_dates = as.Date.POSIXct(as.vector(by(as.POSIXct(data[[date_col_name]]), fac_list, min)))
+
+    factor_values = paste(data[[factor_col]], yr_values, sep="-")
+    append_column_to_data(factor_values,paste(factor_col, "factor levels"))
+    
+    summarized_data = data.frame(new_dates)
+    names(summarized_data) <- date_col_name
+
+    summary_obj = climate_data$new(data = summarized_data, data_name = summarize_name, 
+                                   start_point = start_point, data_time_period = new_time_period)
+    
+    summary_obj$append_to_variables(date_label,date_col_name)
+  }
+  
+  else if(new_time_period == yearly_label) {
+    
+    start_date = .self$get_data_start_end_dates()[[1]]
+    end_date = .self$get_data_start_end_dates()[[2]]+1
+    year(end_date) = year(end_date)-1
+    season_dates = seq(start_date,end_date,"year")
+    
+    if(!is_present(season_label)) .self$add_doy_col()
+    season_col = getvname(season_label)
+    unique_seasons = unique(data[[season_col]])
+    
+    summarized_data = data.frame(unique_seasons)
+    names(summarized_data) <- season_col
+    summarized_data[[date_col_name]] <- season_dates
+    
+    summary_obj = climate_data$new(data = summarized_data, data_name = summarize_name, 
+                                   start_point = start_point, data_time_period = new_time_period)
+    
+    summary_obj$append_to_variables(season_label,season_col)
+    
+    fac_list = list(data[[season_col]])
+  }
+  
+  summary_obj$append_to_variables(date_label,date_col_name)
+  
+  summary_obj$append_to_meta_data(summary_statistics_label,list())
+  
+  summ_date_col_name = summary_obj$getvname(date_label)
+
+  if(new_time_period != yearly_label) {
+    if( !summary_obj$is_present(month_label) && .self$is_present(month_label) ) {
+      summary_obj$append_column_to_data(month(summary_obj$get_data()[[summ_date_col_name]]),getvname(month_label))
+      summary_obj$append_to_variables(month_label,getvname(month_label))
+    }
+  }
+  
+  if( new_time_period == daily_label ) {
+    if( !summary_obj$is_present(day_label) && .self$is_present(day_label) ) {
+      summary_obj$append_column_to_data(day(summary_obj$get_data()[[summ_date_col_name]]),getvname(day_label))
+      summary_obj$append_to_variables(day_label,getvname(day_label))
+    }
+  }
+  
+  if( !summary_obj$is_present(season_label) && .self$is_present(season_label) ) {
+    #TO DO use date column in summary_obj to look up corresponding season in original data
+  }
+  
+  if( !summary_obj$is_present(year_label) && .self$is_present(year_label) ) {
+    summary_obj$append_column_to_data(year(summary_obj$get_data()[[summ_date_col_name]]),getvname(year_label))
+    summary_obj$append_to_variables(year_label,getvname(year_label))
+  }
+  
+  
+  summarized_row_num = nrow(summary_obj$data)
+
+  # variables_to_summarize defined in labels_and_defaults
+  logic_vars = sapply(variables_to_summarize, is_present)
+  variables_to_summarize_present = variables_to_summarize[logic_vars]
+  
+  for(var in variables_to_summarize_present) {
+    # For the variables that are present we create summaries
+    curr_col_name = .self$getvname(var)
+    
+    # For rain we will add number total rainfall
+    # And for yearly summaries from subdaily or daily also number of rainy days and average rain on rainy day
+    if(var == rain_label) {
+      threshold = get_meta(threshold_label,missing(threshold),threshold)
+      
+      # This way ensures correct list label is given
+      temp_var_list <- list(data[[curr_col_name]])
+      names(temp_var_list) <- curr_col_name
+      x <- summary_calculation(list(sum_label), temp_var_list, factor = fac_list, na.rm=na.rm)
+      summary_obj$append_column_to_data(x[[1]], names(x)[[1]])
+      rain_sum_label = summary_obj$get_summary_label(var, sum_label, list(na.rm=na.rm))
+      summary_obj$append_to_variables(rain_sum_label, names(x)[[1]])
+      
+      # TO DO how do we do this when summarizing from subdaily?
+      if( (data_time_period == daily_label) ) {
+        
+        x <- summary_calculation(list(mean_over_threshold_label), temp_var_list, factor = fac_list, na.rm=na.rm, threshold = threshold)
+        
+        summary_obj$append_column_to_data(x[[1]], names(x)[[1]])
+
+        mean_rain_label = summary_obj$get_summary_label(var, mean_over_threshold_label, list(na.rm=na.rm, threshold = threshold))
+        summary_obj$append_to_variables(mean_rain_label, names(x)[[1]])
+        
+        
+        # number of rainy days (count)
+        x <- summary_calculation(list(count_over_threshold_label), temp_var_list, factor = fac_list, na.rm=na.rm, threshold = threshold)
+        summary_obj$append_column_to_data(x[[1]], names(x)[[1]])
+
+        rain_days_label = summary_obj$get_summary_label(var, count_over_threshold_label, list(na.rm=na.rm, threshold=threshold))
+        summary_obj$append_to_variables(rain_days_label, names(x)[[1]])
+        
+      }
+    }
+    
+    else {
+      
+      # For all other variables we add the mean only.  
+      mean_var_data = as.vector(by(data[[curr_col_name]],fac_list, mean, na.rm = na.rm))
+      mean_var_name = paste(mean_col,curr_col_name)
+      summary_obj$append_column_to_data(mean_var_data, mean_var_name)
+      mean_var_label = summary_obj$get_summary_label(var, mean_label, list(na.rm=na.rm))
+      summary_obj$append_to_variables(mean_var_label, mean_var_name)
+    }
+      
+  }
+  
+  summary_obj$append_to_meta_data(summarized_from_label, curr_data_name)
+  
+  summary_obj
+  
+}
+)
+
 climate_data$methods(add_water_balance_col = function(col_name = "Water Balance", capacity_max = 100, evaporation = 5)
 {
   
@@ -662,10 +774,6 @@ climate_data$methods(add_water_balance_col = function(col_name = "Water Balance"
   # for the whole data set.
   # Displaying water balance can use a non empty data_list here if we want to view a subset of the data
   curr_data_list = get_data_for_analysis(data_info = list())
-  
-  i = 1
-  join_tables = list()
-  joining_columns = .self$get_joining_columns()
   
   for( curr_data in curr_data_list ) {
     # This needs to be changed to consider case when data will come as split
@@ -722,19 +830,17 @@ climate_data$methods(add_water_balance_col = function(col_name = "Water Balance"
         }
       }
     }
-    
-    curr_join_table = curr_data[joining_columns]
-    curr_join_table[[col_name]] = water_balance_col
-    join_tables[[i]] <- curr_join_table
-    i = i + 1
   }
-  .self$join_data(join_tables, match="first", type="full")
-  .self$append_to_changes(list(Added_col, col_name))
-  .self$append_to_variables(waterbalance_label, col_name)
+  
+  # Last step is to append the water balance column to the data
+  # and add to variables so that water balance can be recognised.
+  append_column_to_data(water_balance_col,col_name)
+  append_to_variables(waterbalance_label, col_name)
 }
 )
 
-climate_data$methods(get_summary_label = function(element="", summary_stat="", definition=list()) {
+
+climate_data$methods(get_summary_label = function(element="", statistic="", definition=list()) {
   
   if( !is_meta_data(summary_statistics_label)) {
     append_to_meta_data(summary_statistics_label,list())
@@ -744,41 +850,49 @@ climate_data$methods(get_summary_label = function(element="", summary_stat="", d
     meta_data[[summary_statistics_label]][[element]] <<- list()
   }
   
-  if( !(summary_stat %in% names(meta_data[[summary_statistics_label]][[element]])) ) {
-    meta_data[[summary_statistics_label]][[element]][[summary_stat]] <<- list()    
+  if( !(statistic %in% names(meta_data[[summary_statistics_label]][[element]])) ) {
+    meta_data[[summary_statistics_label]][[element]][[statistic]] <<- list()    
   }
   
-  label = paste(element,summary_stat,length(meta_data[[summary_statistics_label]][[element]][[summary_stat]])+1)
-  meta_data[[summary_statistics_label]][[element]][[summary_stat]][[label]] <<- definition
-  label
-}
-)
-
-climate_data$methods(get_summary_definition = function() {
+  label = paste(element,statistic,length(meta_data[[summary_statistics_label]][[element]][[statistic]])+1)
+  meta_data[[summary_statistics_label]][[element]][[statistic]][[label]] <<- definition
   
+  return(label)
 }
 )
 
-climate_data$methods(is_definition = function(element="", summary_stat="", definition=list()) {
+climate_data$methods(is_definition = function(element="", statistic="", definition=list()) {
   
   found_match = FALSE
-  if(is_meta_data(summary_statistics_label) 
+  
+  if( is_meta_data(summary_statistics_label) 
       && element %in% names(meta_data[[summary_statistics_label]])
-      && summary_stat %in% names(meta_data[[summary_statistics_label]][[element]]) ) {
-    for(def in meta_data[[summary_statistics_label]][[element]][[summary_stat]]) {
-      if(equal_lists(def, definition)) {
+      && statistic %in% names(meta_data[[summary_statistics_label]][[element]]) ) {
+    for(def in meta_data[[summary_statistics_label]][[element]][[statistic]]) {
+      if(length(def) != length(definition)) break
+      match = TRUE
+      for(item in names(def)) {
+        if( !(item %in% names(definition) && def[[item]] == definition[[item]]) ) {
+          match = FALSE
+          break
+        }
+      }
+      if(match) {
         found_match = TRUE
         break
       }
     }
   }
-  found_match
+  
+  return(found_match)
+  
 }
 )
 
 climate_data$methods(view_definition = function(col_name) {
   
   if (col_name %in% names(data)) {
+    
     label = names(which(variables==col_name))
     if(is_meta_data(summary_statistics_label)) {
       for(element in meta_data[[summary_statistics_label]]) {
@@ -795,9 +909,10 @@ climate_data$methods(view_definition = function(col_name) {
 }
 )
 
-get_data_start_end_dates = function(data, date_col = "Date", season_start_day = 1) {
+climate_data$methods(get_data_start_end_dates = function() {
   # TO DO better method for getting subyeary and yearly dates
-  temp_start_date = doy_as_date(season_start_day,year(min(data[[date_col]])))
+  date_col = getvname(date_label)
+  temp_start_date = doy_as_date(get_meta(season_start_day_label),year(min(data[[date_col]])))
   if( temp_start_date > min(data[[date_col]]) ) {
     start_date = temp_start_date
     year(start_date) <- year(start_date)-1
@@ -819,6 +934,7 @@ get_data_start_end_dates = function(data, date_col = "Date", season_start_day = 
   
   return(c(start_date,end_date))
 }
+)
 
 climate_data$methods(time_period_check = function(messages=TRUE) {
   
@@ -858,28 +974,23 @@ climate_data$methods(time_period_check = function(messages=TRUE) {
 climate_data$methods(add_spell_length_col = function(col_name = "Spell Length", threshold=0.85)
 {
   
-  if(!is_present(spell_length_label)) {
-    
-    # Complete dates needed for calculations
-    missing_dates_check()
+  # Complete dates needed for calculations
+  missing_dates_check()
+
+  if(!is_present(rain_label)) stop("rain variable is required to calculate spell length")
+  rain_col = getvname(rain_label)  
+  threshold = get_meta(threshold_label, missing(threshold), threshold)
+  curr_data_list = get_data_for_analysis(data_info = list())
   
-    if(!is_present(rain_label)) stop("rain variable is required to calculate spell length")
-    rain_col = .self$getvname(rain_label)
-    threshold = get_meta(threshold_label, missing(threshold), threshold)
-    curr_data_list = get_data_for_analysis(data_info = list())
-    i = 1
-    join_tables = list()
-    joining_columns = .self$get_joining_columns()
-    for( curr_data in curr_data_list ) {    
-      curr_join_table = curr_data[joining_columns]
-      curr_join_table[[col_name]] = spell_length_count(curr_data[[rain_col]], threshold)
-      join_tables[[i]] <- curr_join_table
-      i = i + 1
-    }
-    .self$join_data(join_tables, match="first", type="full")
-    .self$append_to_changes(list(Added_col, col_name))
-    .self$append_to_variables(spell_length_label, col_name)
+  for( curr_data in curr_data_list ) {    
+    
+    num_rows <- nrow(curr_data)       
+    
+    spell_length_col=spell_length_count(curr_data[[rain_col]], threshold)   
+    
   }
+  append_column_to_data(spell_length_col,col_name)
+  append_to_variables(spell_length_label, col_name)
 }
 )
 
@@ -913,23 +1024,6 @@ climate_data$methods(add_running_rain_totals_col = function(col_name = "Running 
 )
 
 climate_data$methods(join_data = function(joining_data, match = "first", type = "full") {
-  if(!is.data.frame(joining_data)) {
-    if(!all(sapply(joining_data,is.data.frame))) stop("joining_data must either be a data frame or list of data frames")
-    joining_data = do.call("rbind",joining_data)
-  }
-  .self$set_data(join(joining_data, get_data(), match=match, type=type))
-}
-)
-
-climate_data$methods(get_joining_columns = function() {
-  if(.self$is_meta_data(multiple_station_label) && .self$get_meta(multiple_station_label)) {
-    
-    joining_columns = c(.self$getvname(station_label), .self$getvname(date_label))
-  }
-  #TODO what to do for multiple elements
-  else if (.self$is_meta_data(multiple_element_label) && .self$get_meta(multiple_element_label)) {
-    joining_columns = c()
-  }
-  else joining_columns = .self$getvname(date_label)
+  set_data(join(joining_data, get_data(), match=match, type=type))
 }
 )
