@@ -11,21 +11,16 @@
 #' climObj <- climate(data_tables=list(data),date_format="%Y-%m-%d")
 #' # where "data" is a data.frame containing the desired data to be plotted.
 #' climObj$plot_three_summaries()
-#' @return plot of the three summaries, mean, max and min.
+#' @return plot of the three summaries; the mean, the max and the min.
 #' 
-
-
-climate$methods( plot_rainfall_mean_min_max=function( data_list=list(),var=rain, title="Summary Values of Monthly Rainfall (mm)", max_color="blue", mean_color="green", min_color="red",ylab="", 
+climate$methods( plot_three_summaries=function( data_list=list(),var="", title="Summary Values of Monthly Rainfall (mm)", max_color="blue", mean_color="green", min_color="red",ylab="", 
                                                       type = "b", lwd=2, pch =21, lty=1){
 		  # convert_data need to be set to TRUE. I am not sure of how to insert it without doing the ff.
 		  data_list=list(convert_data=TRUE)
-		  
 		  # rain variable is required for this method
 		  data_list = add_to_data_info_required_variable_list( data_list, list(var) )
-		  
 		  # subyearly data is required for this method
 		  data_list=add_to_data_info_time_period( data_list, subyearly_label )
-		  
 		  # use data_list to get the required data objects
 		  climate_data_objs = get_climate_data_objects( data_list ) 
 		  
@@ -38,12 +33,11 @@ climate$methods( plot_rainfall_mean_min_max=function( data_list=list(),var=rain,
     }
 		# Get the title of the column of months
 		month_col = data_obj$getvname(month_label)
-
 		# Access data in methods
 		curr_data_list = data_obj$get_data_for_analysis(data_list)
 
 	for( curr_data in curr_data_list ) {
-	total_var = "Total Rain"
+	total_var = "Total Var"
 	curr_data$Total_var = curr_data[[total_var]]
       
 	      # Split the data according to the month and compute the mean, min and max
@@ -51,7 +45,6 @@ climate$methods( plot_rainfall_mean_min_max=function( data_list=list(),var=rain,
 		               Minimum = min( Total_var, na.rm=T ), Maximum = max( Total_var, na.rm=T)  )
 	      # Assigning labels to months.
 	      m_stat[[month_col]] <- month(m_stat[[month_col]], label=T)
-	      
 	      plot(  m_stat$Mean, type= type, lwd = lwd,lty=lty,
 		              xaxt = "n", ylim = c(0, max(m_stat$Maximum, na.rm=T)+5 ), col=mean_color,
 		              xlab = "", ylab = ylab,

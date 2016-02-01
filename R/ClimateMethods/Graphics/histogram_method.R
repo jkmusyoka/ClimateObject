@@ -1,8 +1,10 @@
 ##############################################################################
-# TIMESERIES
-#' @title Get timeseries from the Climsoft data
-#' @name timeseries
+# HISTOGRAM
+#' @title Get histogram from the Climsoft data
+#' @name histogram
 #' @author Rafael Posada 2015 (SASSCAL/DWD)
+#' @param data_list this is a list containing stations for analysis, 
+#' the years or periods to be analyzed and the required variables from the data.
 #' @description 
 #' Allows plotting the data in a timeseries plot.
 #'  
@@ -16,6 +18,7 @@ climate$methods(gsub2 = function(pattern, replacement, x, ...) {
 
 climate$methods(histogram = function(data_list = list()){
   #######################################################################
+  require(ggplot2)
   # CLIMATE DATA OBJS
   climate_data_objs = get_climate_data_objects(data_list)
   
@@ -197,9 +200,9 @@ climate$methods(histogram = function(data_list = list()){
         
         # Themes
         k <- k + theme_bw()
-        k <- k + theme(panel.grid.major= element_line(color = "gray80"))
-        k <- k + theme(panel.grid.minor= element_line(color = "gray80",
-                                                      linetype = "dotted"))
+       # k <- k + theme(panel.grid.major= element_line(color = "gray80"))
+       # k <- k + theme(panel.grid.minor= element_line(color = "gray80",
+       #                                             linetype = "dotted"))
         
         # title and labels
         k <- k + labs(x=paste(var_col," [width of bin: ",bin.width,"]",sep=""),
