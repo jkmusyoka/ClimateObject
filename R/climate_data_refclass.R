@@ -57,19 +57,18 @@ climate_data$methods(initialize = function(data = data.frame(), data_name = "", 
   .self$set_data_time_period(data_time_period)
   .self$set_date_format(date_format)
   
-  #.self$date_format_check(convert=convert, messages=messages)
+  .self$date_format_check(convert=convert, messages=messages)
   
-  #if (check_dates){
-  #  .self$date_col_check(date_format=date_format, convert=convert, create = create, messages=messages)
-  #}
+  if (check_dates){
+    .self$date_col_check(date_format=date_format, convert=convert, create = create, messages=messages)
+  }
   
   .self$check_multiple_data()
   
-#   if (check_missing_dates){
-#     .self$missing_dates_check(messages)
-#   }
-  
-  
+   if (check_missing_dates){
+     .self$missing_dates_check(messages)
+   }
+   
 }
 )
 
@@ -261,7 +260,7 @@ climate_data$methods(set_date_format = function(new_date_format) {
 # For that we use append methods.
 
 
-climate_data$methods(append_column_to_data = function(column_data, col_name = "", label) {
+climate_data$methods(append_column_to_data = function(column_data, col_name = "", label, replace = FALSE) {
   
   # Column name must be character
   if( ! is.character(col_name) ) {
@@ -909,32 +908,33 @@ climate_data$methods(view_definition = function(col_name) {
 }
 )
 
-climate_data$methods(get_data_start_end_dates = function() {
-  # TO DO better method for getting subyeary and yearly dates
-  date_col = getvname(date_label)
-  temp_start_date = doy_as_date(get_meta(season_start_day_label),year(min(data[[date_col]])))
-  if( temp_start_date > min(data[[date_col]]) ) {
-    start_date = temp_start_date
-    year(start_date) <- year(start_date)-1
-  }
-  else {
-    start_date = temp_start_date      
-  }
-  
-  final_year = year(max(data[[date_col]]))
-  final_month = month(start_date-1)
-  final_day = day(start_date-1)
-  temp_end_date = as.Date(paste(final_year,final_month,final_day,sep="-"))
-  if( temp_end_date >= max(data[[date_col]]) ) {
-    end_date = temp_end_date
-  }
-  else {
-    end_date = as.Date(paste(final_year+1,final_month,final_day,sep="-"))
-  }
-  
-  return(c(start_date,end_date))
-}
-)
+# Moved to Labels and defaults 
+# climate_data$methods(get_data_start_end_dates = function() {
+#   # TO DO better method for getting subyeary and yearly dates
+#   date_col = getvname(date_label)
+#   temp_start_date = doy_as_date(get_meta(season_start_day_label),year(min(data[[date_col]])))
+#   if( temp_start_date > min(data[[date_col]]) ) {
+#     start_date = temp_start_date
+#     year(start_date) <- year(start_date)-1
+#   }
+#   else {
+#     start_date = temp_start_date      
+#   }
+#   
+#   final_year = year(max(data[[date_col]]))
+#   final_month = month(start_date-1)
+#   final_day = day(start_date-1)
+#   temp_end_date = as.Date(paste(final_year,final_month,final_day,sep="-"))
+#   if( temp_end_date >= max(data[[date_col]]) ) {
+#     end_date = temp_end_date
+#   }
+#   else {
+#     end_date = as.Date(paste(final_year+1,final_month,final_day,sep="-"))
+#   }
+#   
+#   return(c(start_date,end_date))
+# }
+# )
 
 climate_data$methods(time_period_check = function(messages=TRUE) {
   
@@ -994,6 +994,77 @@ climate_data$methods(add_spell_length_col = function(col_name = "Spell Length", 
 }
 )
 
+climate_data$methods(add_rain_day_column = function(col_name = "Rain Day", threshold=0.85)
+{
+    
+  if(!is_present(rain_label)) stop("rain variable is required to calculate Rain day column")
+  rain_col = getvname(rain_label)  
+  threshold = get_meta(threshold_label, missing(threshold), threshold)
+  curr_data = get_data_for_analysis(data_info = list(merge_data=TRUE))
+  wd=curr_data[[rain_col]]>threshold
+  wd[wd==TRUE]=rd_short_label
+  wd[wd==FALSE]=dd_short_label
+
+  append_column_to_data(wd,col_name)
+  append_to_variables(rain_day_label, col_name)
+}
+)
+
+climate_data$methods(add_rain_day_lags_column = function(lag_prefix = "Rain Day", lag_order=1)
+{
+  
+  # Complete dates needed for calculations
+  missing_dates_check()
+  
+  if(!is_present(rain_day_label)) add_rain_day_column()
+  rain_day_col_name = getvname(rain_day_label)
+
+  curr_data_list = get_data_for_analysis(data_info = list())
+  staion_lag_tables = list()
+  i = 1
+  for (curr_data in curr_data_list) {
+    
+    curr_lag_data = as.data.frame(matrix(nrow=nrow(curr_data),ncol=0))
+    
+    date_col = curr_data[[getvname(date_label)]]
+    curr_lag_data[[getvname(date_label)]] = date_col
+    
+    if(is_present(station_label)) {
+      station_col = curr_data[[getvname(station_label)]]
+      curr_lag_data[[getvname(station_label)]] = station_col
+    }
+    
+    curr_lag_data[[rain_day_col_name]] = curr_data[[rain_day_col_name]]
+    
+    wet_dry <- as.data.frame(matrix(nrow=nrow(curr_data),ncol=lag_order+1))
+    wet_dry[ ,1] = curr_data[[rain_day_col_name]]
+    
+    for(n in 1:lag_order) {
+
+      wet_dry[ ,n+1] = c(NA,wet_dry[1:(nrow(curr_data)-1),n])
+      lags=do.call("paste",c(as.list(wet_dry[,1:n+1]),sep=""))
+      lags[grep("NA",lags)] <- NA
+      print(lags)
+      
+      lagname=paste(lag_prefix, n)
+      curr_lag_data[[lagname]] = sapply(lags,function(x) substring(x,2))
+    }
+    
+    staion_lag_tables[[i]] <- curr_lag_data
+    i = i + 1
+  }
+  
+  
+  lags_merge = do.call("rbind",staion_lag_tables)
+  .self$join_data(lags_merge, match="first", type="full", by = c(getvname(date_label), getvname(station_label)))
+  
+  for(n in 1:(lag_order)) {
+    laglabel = paste(rain_day_lag_label, n, sep="_")
+    lagname = paste(lag_prefix, n, sep="_")
+    append_to_variables(laglabel, lagname)
+  }
+}
+)
 
 climate_data$methods(add_running_rain_totals_col = function(col_name = "Running Rain Total",threshold = 0.85, total_days = 1)
 {
@@ -1011,19 +1082,15 @@ climate_data$methods(add_running_rain_totals_col = function(col_name = "Running 
     
     
     running_totals_col = curr_data[[rain_col]]
-    
-    
     running_totals_col[running_totals_col <= threshold] <- 0
-    
     running_totals_col = c(rep(NA, (total_days -1)),running_sum(data = running_totals_col, total_days = total_days))
-        
   }    
   append_column_to_data(running_totals_col,col_name)
   append_to_variables(running_rain_totals_label, col_name)
 }
 )
 
-climate_data$methods(join_data = function(joining_data, match = "first", type = "full") {
-  set_data(join(joining_data, get_data(), match=match, type=type))
+climate_data$methods(join_data = function(joining_data, match = "first", type = "full", by = NULL) {
+  set_data(join(joining_data, get_data(), match=match, type=type, by = by))
 }
 )

@@ -44,8 +44,7 @@ climate$methods(spell_lengths=function(data_list=list(), years, doy_m, threshold
     }else {
       if( !( class( doy_m) == "list" ) ){ stop( "The input doy_m must be of type list, consiting of elements of length 2")}
     }
-    
-    threshold = data_obj$get_meta_new(threshold_label,missing(threshold),threshold)
+    threshold = data_obj$get_meta(threshold_label,missing(threshold),threshold)
     #if doy or dos is not in the data create it
     if( !( data_obj$is_present(dos_label) && data_obj$is_present(season_label) ) ) {
       data_obj$add_doy_col()

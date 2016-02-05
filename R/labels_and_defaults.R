@@ -6,6 +6,8 @@ library(ggplot2)
 library(reshape)
 #Labels for variables which will be recognised by the Climate objects
 rain_label="rain"
+rain_day_label="rain_day"
+rain_day_lag_label="rain_day_lag"
 date_label="date"
 doy_label="doy"
 year_label="year"
@@ -36,8 +38,10 @@ date_station_label="date_station"
 
 variables_to_summarize = c(rain_label, temp_min_label, temp_max_label, evaporation_label,temp_air_label)
 
-rd_label = "rain_day"
+rd_label = "wet_day"
 dd_label = "dry_day"
+rd_short_label = "w"
+dd_short_label = "d"
 rain_amount_label = "rain_amount"
 
 
@@ -286,6 +290,15 @@ ident_var <- function (data,variables) {
       } 
     }
   }  
+  if(!(rain_day_label %in% names(merged))) {
+    for (label in c("Rain day", "rain day", "Rain Day")){
+      if (label %in% names(data)){
+        merged[[alt_label]]<-label
+        break
+      } 
+    }
+  }  
+  #TODO Identify Rain_Day_Lags!
   
   return(merged)    
   
@@ -328,6 +341,8 @@ add_defaults <- function (imported_from,user) {
     if(!(evaporation_label %in% names(merged))) merged[[evaporation_label]]<-"Evaporation"
     if(!(wind_speed_label %in% names(merged))) merged[[wind_speed_label]]<-"Wind speed"
     if(!(wind_direction_label %in% names(merged))) merged[[wind_direction_label]]<-"Wind direction"
+    if(!(rain_day_label %in% names(merged))) merged[[rain_day_label]]<-"Rain Day"
+    if(!(rain_day_lag_label %in% names(merged))) merged[[rain_day_lag_label]]<-"Rain Day"
     return(merged)    
   }
 
@@ -658,4 +673,29 @@ save_table_to_file = function(file, table, width = 8.5, height = 11, font.size =
   addTable(rtf, table, NA.string=NA.string, row.names=row.names)
   #save output file
   done(rtf)
+}
+
+get_data_start_end_dates = function(data, date_col, season_start_day) {
+  # TO DO better method for getting subyeary and yearly dates
+  temp_start_date = doy_as_date(season_start_day,year(min(data[[date_col]])))
+  if( temp_start_date > min(data[[date_col]]) ) {
+    start_date = temp_start_date
+    year(start_date) <- year(start_date)-1
+  }
+  else {
+    start_date = temp_start_date      
+  }
+  
+  final_year = year(max(data[[date_col]]))
+  final_month = month(start_date-1)
+  final_day = day(start_date-1)
+  temp_end_date = as.Date(paste(final_year,final_month,final_day,sep="-"))
+  if( temp_end_date >= max(data[[date_col]]) ) {
+    end_date = temp_end_date
+  }
+  else {
+    end_date = as.Date(paste(final_year+1,final_month,final_day,sep="-"))
+  }
+  
+  return(c(start_date,end_date))
 }

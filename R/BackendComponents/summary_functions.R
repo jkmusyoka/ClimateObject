@@ -163,8 +163,7 @@ summary_start_of_rain <- function(data, earliest_day = 92, total_days = 2, rain_
 }
 
 summary_end_of_rain <- function(data, earliest_day = 228,...) {
-  
-  data = data[data[[2]] >= earliest_day, ]
+  data = data[data[2] >= earliest_day, ]
 
   water_balance = data[[1]]
   dos = data[[2]]

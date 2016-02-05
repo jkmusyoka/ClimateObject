@@ -82,8 +82,6 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
         else {
           new_col = as.Date(as.character(data[[date_col]]), format = date_format)
         }
-        new_col = as.Date(as.character(data[[date_col]]), format = date_format)
-        
         #if the two digit year format is used then by default R makes dates into the future whereas it makes more sense in our context to assume dates are in the past. 
         if (grepl("%y",date_format)) {
           .self$replace_column_in_data(date_col,as.Date(ifelse(new_col > Sys.Date(),format(new_col, "19%y-%m-%d"), format(new_col))))
@@ -130,10 +128,12 @@ climate_data$methods(date_col_check = function(date_format = "%d/%m/%Y", convert
   }
   
   else if (create && is_present(year_label) && is_present(doy_label)) {
+    print("In here")
     year_col = data[[getvname(year_label)]]
     doy_col = data[[getvname(doy_label)]]
     new_col = do.call(c,mapply(doy_as_date,as.list(doy_col),as.list(year_col), SIMPLIFY=FALSE))
-    .self$append_column_to_data(new_col,getvname(date_label), replace = TRUE)
+    #.self$append_column_to_data(new_col,getvname(date_label), replace = TRUE)
+    .self$append_column_to_data(new_col,getvname(date_label), replace = TRUE) #not sure---steve
   }
   
   # Else check time period specific cases

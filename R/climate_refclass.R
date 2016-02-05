@@ -44,6 +44,8 @@ climate$methods(initialize = function(data_tables = list(), climate_obj_meta_dat
   
   if (missing(data_tables) || length(data_tables) == 0) {
     climate_data_objects <<- list()
+    used_data_objects <<- list()
+    meta_data <<- list()
   }
   
   else {
@@ -799,8 +801,10 @@ climate$methods(summary_calculation = function(data_list = list(), summary_time_
     }
     
     curr_required_variables = list()
+    print(required_variables)
     for(var in required_variables) {
       curr_required_variables[[length(curr_required_variables)+1]] = data_obj$getvname(var)
+      #curr_required_variables[[length(curr_required_variables)+1]] = data_obj$getvname(var)
     }
 
     # data should not be split. We want a single data frame to do calculations by factors
@@ -818,6 +822,7 @@ climate$methods(summary_calculation = function(data_list = list(), summary_time_
     out = list()
     labels = list()
     i = 1
+    #print(curr_required_variables)
     for(curr_var_name in curr_required_variables) {
       j = 1
       for(single_summary in required_summaries) {
@@ -1062,4 +1067,11 @@ climate$methods(create_summary = function(data_list = list(), new_time_period, f
 climate$methods(create_definition = function(data_list = list(), arguments) {
   return(c(data_list, arguments))
 }
+)
+
+climate$methods(create_climate_obj_from_instat_obj= function(InstatObj) {
+  InstatObj$get_data_names()
+  names(InstatObj$climate_data_objects)
+}
+
 )
