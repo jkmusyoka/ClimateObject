@@ -43,7 +43,7 @@ dd_label = "dry_day"
 rd_short_label = "w"
 dd_short_label = "d"
 rain_amount_label = "rain_amount"
-
+rain_day_default_col_name = "Rain Day"
 
 start_of_label="start_of"
 end_of_label="end_of"
@@ -342,7 +342,6 @@ add_defaults <- function (imported_from,user) {
     if(!(wind_speed_label %in% names(merged))) merged[[wind_speed_label]]<-"Wind speed"
     if(!(wind_direction_label %in% names(merged))) merged[[wind_direction_label]]<-"Wind direction"
     if(!(rain_day_label %in% names(merged))) merged[[rain_day_label]]<-"Rain Day"
-    if(!(rain_day_lag_label %in% names(merged))) merged[[rain_day_lag_label]]<-"Rain Day"
     return(merged)    
   }
 
