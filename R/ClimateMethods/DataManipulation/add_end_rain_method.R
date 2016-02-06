@@ -57,6 +57,6 @@ climate$methods(add_end_rain = function(data_list=list(), earliest_day = 228, wa
 
   }
   
-  .self$summary_calculation(data_list, summary_time_period = yearly_label, required_summaries = end_of_rain_summary_label, required_variables = list(c(waterbalance_label, dos_label)), column_names = col_name, replace = replace, earliest_day = earliest_day)
+  .self$summary_calculation(data_list, summary_time_period = yearly_label, required_summaries = end_of_rain_summary_label, required_variables = c(waterbalance_label, dos_label), column_names = col_name, replace = replace, earliest_day = earliest_day)
 }
 )
