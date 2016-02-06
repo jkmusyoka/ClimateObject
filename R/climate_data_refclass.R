@@ -997,6 +997,8 @@ climate_data$methods(add_spell_length_col = function(col_name = "Spell Length", 
 climate_data$methods(add_rain_day_column = function(col_name = "Rain Day", threshold=0.85)
 {
     
+  missing_dates_check()
+  
   if(!is_present(rain_label)) stop("rain variable is required to calculate Rain day column")
   rain_col = getvname(rain_label)  
   threshold = get_meta(threshold_label, missing(threshold), threshold)
@@ -1007,61 +1009,76 @@ climate_data$methods(add_rain_day_column = function(col_name = "Rain Day", thres
 
   append_column_to_data(wd,col_name)
   append_to_variables(rain_day_label, col_name)
+  append_to_variables(paste(rain_day_lag_label, "0", sep="_"), col_name)
 }
 )
 
-climate_data$methods(add_rain_day_lags_column = function(lag_prefix = "Rain Day", lag_order=1)
+climate_data$methods(add_rain_day_lags_column = function(lag_order=1)
 {
-  
-  # Complete dates needed for calculations
+  #Validation
+  if(!is.numeric(lag_order) || lag_order < 0 || lag_order%%1 != 0) stop("lag_order must be a positive integer")
+
   missing_dates_check()
   
+  # rain_day column always needed 
   if(!is_present(rain_day_label)) add_rain_day_column()
-  rain_day_col_name = getvname(rain_day_label)
-
-  curr_data_list = get_data_for_analysis(data_info = list())
-  staion_lag_tables = list()
-  i = 1
-  for (curr_data in curr_data_list) {
+  
+  
+  if(!is_present(paste(rain_day_lag_label, lag_order, sep="_"))) {
+    rain_day_col_name = getvname(rain_day_label)
     
-    curr_lag_data = as.data.frame(matrix(nrow=nrow(curr_data),ncol=0))
-    
-    date_col = curr_data[[getvname(date_label)]]
-    curr_lag_data[[getvname(date_label)]] = date_col
-    
-    if(is_present(station_label)) {
-      station_col = curr_data[[getvname(station_label)]]
-      curr_lag_data[[getvname(station_label)]] = station_col
+    for(j in (lag_order-1):0) {
+      if(!is_present(paste(rain_day_lag_label, j, sep="_"))) {
+        .self$add_rain_day_lags_column(lag_order = j)
+      }
     }
     
-    curr_lag_data[[rain_day_col_name]] = curr_data[[rain_day_col_name]]
+    curr_data_list = get_data_for_analysis(data_info = list())
     
-    wet_dry <- as.data.frame(matrix(nrow=nrow(curr_data),ncol=lag_order+1))
-    wet_dry[ ,1] = curr_data[[rain_day_col_name]]
+    #list of data frames to be merged and joined with original data
+    lag_data_frames = list()
     
-    for(n in 1:lag_order) {
-
-      wet_dry[ ,n+1] = c(NA,wet_dry[1:(nrow(curr_data)-1),n])
-      lags=do.call("paste",c(as.list(wet_dry[,1:n+1]),sep=""))
-      lags[grep("NA",lags)] <- NA
-      print(lags)
+    i = 1
+    for (curr_data in curr_data_list) {
       
-      lagname=paste(lag_prefix, n)
-      curr_lag_data[[lagname]] = sapply(lags,function(x) substring(x,2))
+      # data frame to be added to lag_data_frames
+      curr_lag_data = as.data.frame(matrix(nrow=nrow(curr_data),ncol=0))
+      
+      date_col = curr_data[[getvname(date_label)]]
+      curr_lag_data[[getvname(date_label)]] = date_col
+      
+      if(is_present(station_label)) {
+        station_col = curr_data[[getvname(station_label)]]
+        curr_lag_data[[getvname(station_label)]] = station_col
+      }
+
+      prev_lag_col = curr_data[[getvname(paste(rain_day_lag_label, lag_order-1, sep="_"))]]
+      prev_lag_tail = tail(prev_lag_col, nrow(curr_data)-lag_order)
+      
+      lag_0_col = curr_data[[getvname(paste(rain_day_lag_label, "0", sep="_"))]]
+      lag_0_head = head(lag_0_col, nrow(curr_data)-lag_order)
+      
+      new_col = c(rep(NA, lag_order), paste0(prev_lag_tail, lag_0_head))
+      if(sum(is.na(prev_lag_tail)) > 0 || sum(is.na(lag_0_head))) {
+        new_col[grep("NA", new_col)] <- NA
+      }
+      
+      col_name = paste(rain_day_default_col_name, lag_order)
+      curr_lag_data[[paste(rain_day_default_col_name, lag_order)]] = new_col
+      
+      lag_data_frames[[i]] = curr_lag_data 
+      i = i + 1
+
     }
     
-    staion_lag_tables[[i]] <- curr_lag_data
-    i = i + 1
-  }
-  
-  
-  lags_merge = do.call("rbind",staion_lag_tables)
-  .self$join_data(lags_merge, match="first", type="full", by = c(getvname(date_label), getvname(station_label)))
-  
-  for(n in 1:(lag_order)) {
-    laglabel = paste(rain_day_lag_label, n, sep="_")
-    lagname = paste(lag_prefix, n, sep="_")
-    append_to_variables(laglabel, lagname)
+    lags_merge = do.call("rbind",lag_data_frames)
+    if(is_present(station_label)) {
+      .self$join_data(lags_merge, match="first", type="full", by = c(getvname(date_label), getvname(station_label)))
+    }
+    else {
+      .self$join_data(lags_merge, match="first", type="full", by = getvname(date_label))
+    }
+    append_to_variables(paste(rain_day_lag_label, lag_order, sep="_"), col_name)
   }
 }
 )
