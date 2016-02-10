@@ -129,6 +129,9 @@ Added_metadata="Added metadata"
 Converted_col_="Converted column"
 Replaced_value="Replaced value"
 
+#Other defaults
+last_model_name="last_model"
+
 # Try to identify columns automatically 
 # This function is called in climate_data initialize method.
 

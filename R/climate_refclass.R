@@ -9,7 +9,7 @@
 
 climate <- setRefClass("climate", 
                             fields = list(climate_data_objects = "list", used_data_objects = "list", 
-                                          meta_data = "list")
+                                          meta_data = "list", models = "list")
 )
 
 # INITIALIZE method
@@ -41,6 +41,7 @@ climate$methods(initialize = function(data_tables = list(), climate_obj_meta_dat
 
   meta_data <<- climate_obj_meta_data
   used_data_objects <<- list()
+  models <<- list()
   
   if (missing(data_tables) || length(data_tables) == 0) {
     climate_data_objects <<- list()
@@ -337,6 +338,18 @@ climate$methods(append_used_data_objects = function(data, data_name, meta_data =
 }
 )
 
+climate$methods(append_model_objects = function(name, obj) {
+  if( !class(name) == "character") {
+    stop("name must be a character")
+  }
+  
+  if ( !class(obj) == "instat_model") {
+    stop("obj must be a instat_model object")
+  }
+  
+  climate_data_objects[[name]] <<- obj
+}
+)
 # is_present_or_meta can check if a given variable name (or list of variable names) is in the data.frame or the meta_data or neither.
 # This will be used by other functions particularly related to station level data such as latitude, longditude etc. 
 # TO DO check functionality for missing cols and if there are multiple elements in long format (currently will return true even if there are no instances possibly correct as like returning true when all values are missing?)
@@ -351,7 +364,6 @@ climate$methods(is_present_or_meta = function(str, require_all=TRUE, require_in_
   return(out)
 }
 )
-
 
 # Other methods
 #############################################################################################
