@@ -64,7 +64,6 @@ climate_data$methods(initialize = function(data = data.frame(), data_name = "", 
   }
   
   .self$check_multiple_data()
-  
    if (check_missing_dates){
      .self$missing_dates_check(messages)
    }
@@ -111,7 +110,7 @@ climate_data$methods(get_data_for_analysis = function(data_info) {
         return_data=return_data[return_data[[.self$getvname(tempname)]] %in% data_info[[date_list_label]][[tempname]],] #TO DO add functionallity for start and end dates.
       }
     }
-  }  
+  }
   if (!merged_data) return_data = .self$get_split_data(return_data)
   return (return_data)
   
