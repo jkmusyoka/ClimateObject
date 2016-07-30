@@ -754,7 +754,8 @@ climate$methods(summary_calculation = function(data_list = list(), summary_time_
   if(missing(required_summaries)) stop("required_summaries must be specified")
   if(missing(required_variables)) stop("required_variables must be specified")
   if(!all(required_summaries %in% summaries_list)) stop("required_summaries can only contain recognise summary functions")
-  if(length(column_names) != length(required_variables)) stop("column_names must the same length as required_variables")
+  #Not a required check
+  #if(length(column_names) != length(required_variables)) stop("column_names must the same length as required_variables")
   if(!all(sapply(column_names, function(x) length(x)==length(required_summaries)))) stop("Each element of column names must be the same length as required_summaries")
   
   data_list=add_to_data_info_required_variable_list(data_list, required_variables)
@@ -764,7 +765,6 @@ climate$methods(summary_calculation = function(data_list = list(), summary_time_
   # Check time periods of climate_data_objs are compatible with summary_time_period 
   curr_time_periods = unique(as.vector(sapply(climate_data_objs, function(x) x$data_time_period)))
   if(!all(sapply(curr_time_periods, function(x) compare_time_periods(summary_time_period, x)))) stop(paste("Cannot summarize to",summary_time_period, "from all of ",curr_time_periods))
-  
   for(data_obj in climate_data_objs) {
 
     # Needed for factor columns
@@ -851,7 +851,9 @@ climate$methods(summary_calculation = function(data_list = list(), summary_time_
           j = j + 1
           next
         }
-        if(length(curr_var_name)==1) out[[curr_label]] = as.vector(by(curr_data[[curr_var_name]], curr_factors, match.fun(single_summary), ...))
+        if(curr_var_name == "Water Balance") {
+        }
+        if(length(curr_var_name)==1) out[[curr_label]] = as.vector(by(curr_data[curr_var_name], curr_factors, match.fun(single_summary), ...))
         else out[[curr_label]] = as.vector(by(curr_data[curr_var_name], curr_factors, match.fun(single_summary), ...))
         # TODO make get_summary_label a climate method
         # TODO think how to use get_summary_label when required_variables[[i]] is a list

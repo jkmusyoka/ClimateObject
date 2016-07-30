@@ -37,6 +37,9 @@ climate$methods(add_start_rain = function(data_list=list(), earliest_day=92, tot
     if( !( data_obj$is_present(dos_label) && data_obj$is_present(season_label) ) ) {
       data_obj$add_doy_col()
     }
+    if( !(data_obj$is_present(waterbalance_label)) ) {
+      data_obj$add_water_balance_col()
+    }
     curr_data_list = add_to_data_info_required_data_objs_list(data_list, c(data_obj$get_meta(data_name_label)))
     .self$summary_calculation(curr_data_list, summary_time_period = yearly_label, required_summaries = start_of_rain_summary_label, required_variables = c(waterbalance_label, dos_label), column_names = col_name, replace = replace, earliest_day = earliest_day, total_days = total_days, rain_total = rain_total, dry_length = dry_length, dry_days = dry_days, dry_spell_condition = dry_spell_condition, threshold = threshold)
   }

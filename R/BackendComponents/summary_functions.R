@@ -113,6 +113,8 @@ summary_start_of_rain <- function(data, earliest_day = 92, total_days = 2, rain_
   # initialize current earliest day
   curr_earliest_day = earliest_day
   
+  ##### Problem here. Look at the data, it's not in right format.
+  #View(data)
   # if dry spell required use the simple sum_check to get start of the rain
   if(!dry_spell_condition) start_of_rain = sum_check(data, curr_earliest_day, total_days, rain_total)[1]
   
