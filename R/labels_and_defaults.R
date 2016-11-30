@@ -2,8 +2,12 @@ library(reshape2)
 library(lubridate)
 library(plyr)
 library(rtf)
+library(ggplot2)
+library(reshape)
 #Labels for variables which will be recognised by the Climate objects
 rain_label="rain"
+rain_day_label="rain_day"
+rain_day_lag_label="rain_day_lag"
 date_label="date"
 doy_label="doy"
 year_label="year"
@@ -29,24 +33,26 @@ wind_direction_label="wind_direction"
 lat_label="lat"
 lon_label="lon"
 alt_label="alt"
+season_station_label="season_station"
+date_station_label="date_station"
 
-rd_label = "rain_day"
+variables_to_summarize = c(rain_label, temp_min_label, temp_max_label, evaporation_label,temp_air_label)
+
+rd_label = "wet_day"
 dd_label = "dry_day"
+rd_short_label = "w"
+dd_short_label = "d"
 rain_amount_label = "rain_amount"
+rain_day_default_col_name = "Rain Day"
 
-
-total_label="total"
-number_of_label="number_of"
-min_label="min"
-max_label="max"
-mean_label="mean"
 start_of_label="start_of"
 end_of_label="end_of"
 seasonal_total_label = "seasonal_total"
 seasonal_raindays_label = "seasonal_raindays"
-max_min_label = "max_min"
 extreme_event_day_label = "extreme_event_day"
+running_summary_label = "running_summary"
 
+running_rain_totals_label = "running_rain_total"
 waterbalance_label = "waterbalance"
 end_of_rain_label="end_of_rain"
 start_of_rain_label="start_of_rain"
@@ -81,6 +87,17 @@ complete_dates_label="complete_dates"
 summary_statistics_label="summary_statistics"
 data_start_date_label="data_start_date"
 data_end_date_label="data_end_date"
+var_label="var"
+lower_threshold_label="lower_threshold"
+upper_threshold_label="upper_threshold"
+lower_strict_label="lower_strict"
+upper_strict_label="upper_strict"
+na.rm_label="na.rm"
+
+# Defaults
+use_default_label="use_default"
+default_threshold=0.85
+default_na.rm=FALSE
 
 #Labels to specify data in function specification list
 station_list_label="station_list"
@@ -92,6 +109,8 @@ required_variable_list_label="required_variable_list"
 merge_data_label="merge_data"
 convert_data_label="convert_data"
 require_all_variables_label="require_all_variables"
+threshold_list_label = "threshold_list"
+required_data_objs_list_label="required_data_objs_list"
 
 #Labels for data time periods
 daily_label="daily"
@@ -109,6 +128,9 @@ Removed_col="Removed column"
 Added_metadata="Added metadata"
 Converted_col_="Converted column"
 Replaced_value="Replaced value"
+
+#Other defaults
+last_model_name="last_model"
 
 # Try to identify columns automatically 
 # This function is called in climate_data initialize method.
@@ -271,6 +293,15 @@ ident_var <- function (data,variables) {
       } 
     }
   }  
+  if(!(rain_day_label %in% names(merged))) {
+    for (label in c("Rain day", "rain day", "Rain Day")){
+      if (label %in% names(data)){
+        merged[[alt_label]]<-label
+        break
+      } 
+    }
+  }  
+  #TODO Identify Rain_Day_Lags!
   
   return(merged)    
   
@@ -301,11 +332,11 @@ add_defaults <- function (imported_from,user) {
     if(!(date_time_label %in% names(merged))) merged[[date_time_label]]<-"Date time"
     if(!(rain_label %in% names(merged))) merged[[rain_label]]<-"Rain"
     if(!(year_label %in% names(merged))) merged[[year_label]]<-"Year"
-#    if(!(season_label %in% names(merged))) merged[[season_label]]<-merged[[year_label]]
+    if(!(season_label %in% names(merged))) merged[[season_label]]<-merged[[year_label]]
     if(!(month_label %in% names(merged))) merged[[month_label]]<-"Month"
     if(!(day_label %in% names(merged))) merged[[day_label]]<-"Day"
     if(!(doy_label %in% names(merged))) merged[[doy_label]]<-"DOY"
-#    if(!(dos_label %in% names(merged))) merged[[dos_label]]<-merged[[doy_label]]
+    if(!(dos_label %in% names(merged))) merged[[dos_label]]<-merged[[doy_label]]
     if(!(time_label %in% names(merged))) merged[[time_label]]<-"Time"
     if(!(temp_min_label %in% names(merged))) merged[[temp_min_label]]<-"Temp min"
     if(!(temp_max_label %in% names(merged))) merged[[temp_max_label]]<-"Temp max"
@@ -313,6 +344,7 @@ add_defaults <- function (imported_from,user) {
     if(!(evaporation_label %in% names(merged))) merged[[evaporation_label]]<-"Evaporation"
     if(!(wind_speed_label %in% names(merged))) merged[[wind_speed_label]]<-"Wind speed"
     if(!(wind_direction_label %in% names(merged))) merged[[wind_direction_label]]<-"Wind direction"
+    if(!(rain_day_label %in% names(merged))) merged[[rain_day_label]]<-"Rain Day"
     return(merged)    
   }
 
@@ -334,11 +366,12 @@ add_defaults_meta <- function (imported_from,user) {
       warning(paste0("The imported_from value: ", imported_from, " was not recognised.
                      Default values for variables will be used."))
     }
-    if(!(threshold_label %in% names(merged))) merged[[threshold_label]]<- 0.85
+    if(!(threshold_label %in% names(merged))) merged[[threshold_label]]<- default_threshold
     if(!(wind_threshold_label %in% names(merged))) merged[[wind_threshold_label]]<- 0.3
     if(!(season_start_day_label %in% names(merged))) merged[[season_start_day_label]]<-1
     if(!(day_start_time_label %in% names(merged))) merged[[day_start_time_label]]<-0
     if(!(complete_dates_label %in% names(merged))) merged[[complete_dates_label]]<-FALSE
+    if(!(na.rm_label %in% names(merged))) merged[[na.rm_label]]<- default_na.rm
     return(merged)    
   }
   
@@ -545,12 +578,126 @@ doy_as_date <- function(doy, year) {
   
 }
 
-mode_stat <- function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
+spell_length_count <- function(spell_length_col, threshold){
+  
+  spell_length_col[spell_length_col <= threshold] <- 0 
+  
+  if (spell_length_col[1]<threshold|is.na(spell_length_col[[1]])){
+    spell_length_col[1]=NA      
+  }
+  for (i in 2:length(spell_length_col)){
+    if ((spell_length_col[i]<threshold|is.na(spell_length_col[i])) & is.na(spell_length_col[i-1])){
+      spell_length_col[i]=NA 
+    }        
+  }
+  
+  (!(spell_length_col)) * unlist(lapply(rle(spell_length_col)$lengths, seq_len))
 }
 
+longest_spell_length <- function(spell_length_col, threshold, factor, na.rm = FALSE) {
+  spell_count = spell_length_count(spell_length_col, threshold)
+  summary_calculation(summaries = list(max_label), variables = list(spell_count=spell_count), factor=factor, na.rm=na.rm)
+}
 
-spell_length_count <- function(column_var){
-  (!(column_var)) * unlist(lapply(rle(column_var)$lengths, seq_len))
+add_to_data_info_threshold_list = function(data_info=list(), new_threshold_list="") {
+  
+  if (threshold_list_label %in% names(data_info)) {
+    for(label in names(new_threshold_list)) {
+      if(label %in% names(data_info[[threshold_list_label]])) warning(paste("overwriting user choice for", label))
+      data_info[[threshold_list_label]][[label]] = new_threshold_list[[label]]
+    }
+    
+  }
+  else data_info[[threshold_list_label]] <- new_threshold_list
+  
+  return (data_info)
+}
+
+add_to_data_info_required_data_objs_list = function(data_info=list(), new_data_objs_list=c()) {
+  
+  if (required_data_objs_list_label %in% names(data_info)) {
+    data_info[[required_data_objs_list_label]] = unique(c(data_info[[required_data_objs_list_label]], new_data_objs_list))
+  }
+  else data_info[[required_data_objs_list_label]] = new_data_objs_list
+  
+  data_info
+}
+
+add_to_data_info_date_list = function(data_info=list(), var = "", new_date_item=c()) {
+  
+  if (date_list_label %in% names(data_info)) {
+    if(var %in% names(data_info[[date_list_label]])) {
+      message(paste("Replacing date list in data_info for", var))
+    }
+    data_info[[date_list_label]][[var]] = new_date_item
+  }
+  else {
+    data_info[[date_list_label]] = list(new_date_item)
+    names(data_info[[date_list_label]]) = var
+  }
+  data_info
+}
+
+equal_lists = function(x,y) {
+  length(unique(c(x,y)))==length(y) && length(unique(c(x,y)))==length(x)
+#   if(length(x) != length(y)) return(FALSE)
+#   if(!all(names(x) %in% names(y)) &&  !all(names(y) %in% names(x))) return(FALSE)
+#   for(nam in names(x)) {
+#     if(!is.null(names(x[[nam]]))) {
+#       if(!equal_lists(x[[nam]],y[[nam]])) return(FALSE)
+#     }
+#     else {
+#       if( !(length(unique(x,y))==length(y) && length(unique(x,y))==length(x)) ) return(FALSE)
+#     }
+#   }
+#   TRUE
+}
+
+#######
+# Day Of Year data frame and table
+#######
+# These are called by display_doy_table
+doy_data_frame = data.frame(Date = seq(as.Date("2004-01-01"), as.Date("2004-12-31"), by = "day"))
+doy_data_frame$Day = day(doy_data_frame$Date)
+doy_data_frame$Month = month(doy_data_frame$Date)
+doy_data_frame$DOY = 1:366
+
+doy_table <- dcast( doy_data_frame, doy_data_frame[[ "Day" ]] ~ doy_data_frame[[ "Month" ]], value.var = "DOY")
+
+#######
+
+save_table_to_file = function(file, table, width = 8.5, height = 11, font.size = 6, title = "", font.size_header = 12, NA.string = "NA", row.names = row.names) {
+  #set output file
+  rtf<-RTF(file=file, width=width, height=height, font.size=font.size)
+  #add title
+  addHeader(rtf, title=title, font.size=font.size_header)
+  #add table
+  addTable(rtf, table, NA.string=NA.string, row.names=row.names)
+  #save output file
+  done(rtf)
+}
+
+get_data_start_end_dates = function(data, date_col, season_start_day) {
+  # TO DO better method for getting subyeary and yearly dates
+  temp_start_date = doy_as_date(season_start_day,year(min(data[[date_col]])))
+  if( temp_start_date > min(data[[date_col]]) ) {
+    start_date = temp_start_date
+    year(start_date) <- year(start_date)-1
+  }
+  else {
+    start_date = temp_start_date      
+  }
+  
+  final_year = year(max(data[[date_col]]))
+  final_month = month(start_date-1)
+  final_day = day(start_date-1)
+  temp_end_date = as.Date(paste(final_year,final_month,final_day,sep="-"))
+  if( temp_end_date >= max(data[[date_col]]) ) {
+    end_date = temp_end_date
+  }
+  else {
+    end_date = as.Date(paste(final_year+1,final_month,final_day,sep="-"))
+  }
+  
+  return(c(start_date,end_date))
 }
